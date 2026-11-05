@@ -310,7 +310,8 @@ body.lowhp::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:non
 /* điện thoại: một màn hình cố định, chỉ cuộn trong khung hành động */
 @media (max-width:640px){
   html,body{height:100%;height:var(--vh,100%)}
-  body{overflow:hidden;padding-block:0}
+  /* bỏ min-height:100vh của màn lớn: trên iPhone 100vh cao hơn phần nhìn thấy nên thanh tab bị đẩy khỏi màn */
+  body{overflow:hidden;padding-block:0;min-height:0}
   body.has-toast{padding-bottom:0}
   #toast{display:none!important}
   .app{height:100%;display:flex;flex-direction:column;gap:8px;padding-top:8px}
@@ -355,7 +356,7 @@ body.lowhp::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:non
   .act.off.show .d{display:block}
   .waits .act{min-height:38px}
 }
-@media (max-width:640px){body.host-netlify:not(.standalone) .app{padding-bottom:64px}.meters{gap:8px}.meter .l{letter-spacing:.03em}}
+@media (max-width:640px){.meters{gap:8px}.meter .l{letter-spacing:.03em}}
 /* túi: món dùng được nổi lên, món không dùng được thì chìm */
 #strTxt{color:var(--teal)}
 .baghead{display:flex;justify-content:space-between;align-items:baseline;margin:2px 0 8px;font:11px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
@@ -5144,10 +5145,8 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.05-11';
+var GAME_VERSION = '2026.11.05-12';
 /* dòng số đo màn hình (tạm, để dò lỗi thanh tab trên iPhone): chế độ · cửa sổ · màn hình · khung · đáy thanh tab · vùng an toàn */
-/* hiện luôn dòng số đo ở giữa màn hình (tạm), cập nhật mỗi giây */
-setInterval(function () { try { var el = document.getElementById('diagBadge'); if (!el) { el = document.createElement('div'); el.id = 'diagBadge'; el.style.cssText = 'position:fixed;left:8px;right:8px;top:45%;z-index:99999;pointer-events:none;text-align:center;font:600 13px/1.4 monospace;color:#fff;background:rgba(208,106,92,.92);padding:8px;border-radius:6px'; document.body.appendChild(el); } var d = document.createElement('div'); d.innerHTML = screenDiag(); el.textContent = GAME_VERSION + ' · ' + d.textContent; } catch (e) { } }, 1000);
 function screenDiag() {
   try {
     var t = document.querySelector('.tabs .tab'), tb = t ? Math.round(t.getBoundingClientRect().bottom) : -1;
