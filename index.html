@@ -5146,17 +5146,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.05-12';
-/* dòng số đo màn hình (tạm, để dò lỗi thanh tab trên iPhone): chế độ · cửa sổ · màn hình · khung · đáy thanh tab · vùng an toàn */
-function screenDiag() {
-  try {
-    var t = document.querySelector('.tabs .tab'), tb = t ? Math.round(t.getBoundingClientRect().bottom) : -1;
-    var pr = document.createElement('div'); pr.style.cssText = 'position:fixed;top:0;left:0;height:env(safe-area-inset-top,0px);width:env(safe-area-inset-bottom,0px);visibility:hidden';
-    document.body.appendChild(pr); var it = Math.round(pr.getBoundingClientRect().height), ib = Math.round(pr.getBoundingClientRect().width); pr.remove();
-    var mode = document.body.classList.contains('standalone') ? 'app' : 'web';
-    return '<p class="note" style="opacity:.6;font-size:11px">' + [mode, 'w' + innerHeight, 's' + screen.height, 'v' + (window.visualViewport ? Math.round(visualViewport.height) : '-'), 'b' + Math.round(document.body.getBoundingClientRect().height), 'tab' + tb, 'i' + it + '/' + ib, 'ns' + (navigator.standalone ? 1 : 0)].join(' · ') + '</p>';
-  } catch (e) { return ''; }
-}
+var GAME_VERSION = '2026.11.05-13';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6601,7 +6591,7 @@ function renderHere(acts, d, p, l) {
     b += '<div class="setlist"><button class="act" data-open="guide"><span class="l"><span class="ico">' + ico('scroll') + '</span>Hướng dẫn</span></button><button class="act" data-ui="coach"><span class="l"><span class="ico">' + ico('compass') + '</span>Chỉ dẫn từng bước</span></button><button class="act" data-open="prof"><span class="l"><span class="ico">' + ico('star') + '</span>Thành tựu &amp; cây ending</span></button>' +
       (UI.confirmRestart ? '<div class="offer care"><b>Chơi lại sẽ bỏ ván đang chơi. Chắc chưa?</b><div class="list"><button class="act danger" data-restart="1"><span class="l">Chơi lại từ đầu</span></button><button class="act" data-ui="restartno"><span class="l">Thôi, chơi tiếp</span></button></div></div>' : '<button class="act danger" data-ui="restartask"><span class="l"><span class="ico">' + ico('door') + '</span>Chơi lại từ đầu</span></button>') + '</div>';
     b += '<div><h3 class="gh">Năng lực của bạn</h3><div class="abil2">' + ABIL_HTML + '</div></div>';
-    b += '<p class="note">Phiên bản ' + GAME_VERSION + '</p>' + screenDiag();
+    b += '<p class="note">Phiên bản ' + GAME_VERSION + '</p>';
   } else {
     var here = by('here');
     var isQ = function (a) { return UI.qa && UI.qa[a.id.split(':')[0]]; };
@@ -7078,10 +7068,7 @@ window.addEventListener('resize', function () { if (UI.coach != null) coachUpdat
 document.addEventListener('scroll', function () { if (UI.coach != null) coachUpdate(); }, true);
 
 /* đặt trên Netlify: chừa chỗ cho huy hiệu nổi ở góc dưới */
-/* trang web riêng (Netlify, GitHub Pages): chừa chỗ cho thanh Safari và vạch Home trên iPhone */
-try { if (/netlify|github.io/i.test(location.hostname)) document.body.classList.add('host-netlify'); } catch (e) { }
-/* mở từ màn hình chính (web app): không có thanh Safari nên không chừa thêm; chiều cao khung lấy đúng phần màn hình nhìn thấy */
-try { if (navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)) document.body.classList.add('standalone'); } catch (e) { }
+/* chiều cao khung trên điện thoại = phần màn hình nhìn thấy thật (iPhone: Safari lẫn mở từ màn hình chính) */
 (function () { function fit() { try { document.documentElement.style.setProperty('--vh', window.innerHeight + 'px'); } catch (e) { } } fit(); window.addEventListener('resize', fit); window.addEventListener('orientationchange', function () { setTimeout(fit, 300); }); if (window.visualViewport) visualViewport.addEventListener('resize', fit); })();
 sndLabel();
 // khung nền phía sau màn mở đầu
