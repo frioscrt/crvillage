@@ -309,7 +309,7 @@ body.lowhp::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:non
 .loghead .gh{margin:0}
 /* điện thoại: một màn hình cố định, chỉ cuộn trong khung hành động */
 @media (max-width:640px){
-  html,body{height:100%}
+  html,body{height:100%;height:var(--vh,100%)}
   body{overflow:hidden;padding-block:0}
   body.has-toast{padding-bottom:0}
   #toast{display:none!important}
@@ -355,7 +355,7 @@ body.lowhp::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:non
   .act.off.show .d{display:block}
   .waits .act{min-height:38px}
 }
-@media (max-width:640px){body.host-netlify .app{padding-bottom:64px}.meters{gap:8px}.meter .l{letter-spacing:.03em}}
+@media (max-width:640px){body.host-netlify:not(.standalone) .app{padding-bottom:64px}.meters{gap:8px}.meter .l{letter-spacing:.03em}}
 /* túi: món dùng được nổi lên, món không dùng được thì chìm */
 #strTxt{color:var(--teal)}
 .baghead{display:flex;justify-content:space-between;align-items:baseline;margin:2px 0 8px;font:11px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
@@ -5144,7 +5144,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.05-8';
+var GAME_VERSION = '2026.11.05-9';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7068,6 +7068,9 @@ document.addEventListener('scroll', function () { if (UI.coach != null) coachUpd
 /* đặt trên Netlify: chừa chỗ cho huy hiệu nổi ở góc dưới */
 /* trang web riêng (Netlify, GitHub Pages): chừa chỗ cho thanh Safari và vạch Home trên iPhone */
 try { if (/netlify|github.io/i.test(location.hostname)) document.body.classList.add('host-netlify'); } catch (e) { }
+/* mở từ màn hình chính (web app): không có thanh Safari nên không chừa thêm; chiều cao khung lấy đúng phần màn hình nhìn thấy */
+try { if (navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)) document.body.classList.add('standalone'); } catch (e) { }
+(function () { function fit() { try { document.documentElement.style.setProperty('--vh', window.innerHeight + 'px'); } catch (e) { } } fit(); window.addEventListener('resize', fit); window.addEventListener('orientationchange', function () { setTimeout(fit, 300); }); if (window.visualViewport) visualViewport.addEventListener('resize', fit); })();
 sndLabel();
 // khung nền phía sau màn mở đầu
 G = createGame('center', selProt); G.isBackdrop = true;
