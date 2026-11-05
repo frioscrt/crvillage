@@ -5144,8 +5144,10 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.05-10';
+var GAME_VERSION = '2026.11.05-11';
 /* dòng số đo màn hình (tạm, để dò lỗi thanh tab trên iPhone): chế độ · cửa sổ · màn hình · khung · đáy thanh tab · vùng an toàn */
+/* hiện luôn dòng số đo ở giữa màn hình (tạm), cập nhật mỗi giây */
+setInterval(function () { try { var el = document.getElementById('diagBadge'); if (!el) { el = document.createElement('div'); el.id = 'diagBadge'; el.style.cssText = 'position:fixed;left:8px;right:8px;top:45%;z-index:99999;pointer-events:none;text-align:center;font:600 13px/1.4 monospace;color:#fff;background:rgba(208,106,92,.92);padding:8px;border-radius:6px'; document.body.appendChild(el); } var d = document.createElement('div'); d.innerHTML = screenDiag(); el.textContent = GAME_VERSION + ' · ' + d.textContent; } catch (e) { } }, 1000);
 function screenDiag() {
   try {
     var t = document.querySelector('.tabs .tab'), tb = t ? Math.round(t.getBoundingClientRect().bottom) : -1;
