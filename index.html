@@ -5144,7 +5144,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.05-6';
+var GAME_VERSION = '2026.11.05-8';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7066,7 +7066,8 @@ window.addEventListener('resize', function () { if (UI.coach != null) coachUpdat
 document.addEventListener('scroll', function () { if (UI.coach != null) coachUpdate(); }, true);
 
 /* đặt trên Netlify: chừa chỗ cho huy hiệu nổi ở góc dưới */
-try { if (/netlify/i.test(location.hostname)) document.body.classList.add('host-netlify'); } catch (e) { }
+/* trang web riêng (Netlify, GitHub Pages): chừa chỗ cho thanh Safari và vạch Home trên iPhone */
+try { if (/netlify|github.io/i.test(location.hostname)) document.body.classList.add('host-netlify'); } catch (e) { }
 sndLabel();
 // khung nền phía sau màn mở đầu
 G = createGame('center', selProt); G.isBackdrop = true;
