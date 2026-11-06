@@ -1053,6 +1053,15 @@ body.playhud #herePanel{padding-top:8px}
 @media (max-width:640px){.plbody p{font-size:18px}.plbody p i{font-size:24px}}
 @media (prefers-reduced-motion:reduce){.plbody{animation:none}}
 .evpop[hidden]{display:none}
+.whocard{display:flex;gap:10px;align-items:flex-start;margin:8px 0 10px;padding:8px 10px;background:#11151c;box-shadow:0 0 0 2px #2a3240}
+.whocard .wcface{width:40px;height:40px;flex:none;image-rendering:pixelated;background:#0b0d11}
+.wctx{display:grid;gap:2px;min-width:0}
+.wctx b{font:400 calc(18px * var(--mk,1))/1.1 var(--mono);letter-spacing:.06em;color:#eef2f7}
+.wctx small{font-size:13px;color:#9fb0c6}
+.wctx i{font-size:13px;line-height:1.4;color:#d6dde6}
+.wctx i.unk,.pmeta.persona.unk{color:#7f8b9a}
+.whopair{display:grid;gap:6px}
+.whopair .whocard{margin:4px 0}
 .evcard{width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--surface,#131822);box-shadow:0 -2px 0 0 #07080a,0 2px 0 0 #07080a,-2px 0 0 0 #07080a,2px 0 0 0 #07080a,0 18px 50px rgba(0,0,0,.6)}
 @media (prefers-reduced-motion:no-preference){.evpop:not([hidden]) .evcard{animation:sfin .22s steps(4)}}
 .evimg{display:block;width:100%;aspect-ratio:128/72;image-rendering:pixelated}
@@ -2269,10 +2278,22 @@ function scene(G, key, variant) {
   sceneLines(key, variant).forEach(function (ln) { say(G, ln[0] + ': ' + ln[1], 'story'); });
 }
 /* kiểm tra điều kiện cảnh sau mỗi bước; điều kiện nào đã qua mà hai người không ở cạnh thì bỏ lỡ */
+var MEET_MIN = 120;
+var MISS_LINES = [
+  'Thoáng thấy một bóng người giống {p} khuất sau dãy nhà, về phía {l}.',
+  'Có người vừa đứng đây. Dân làng chỉ tay về phía {l}: "Cái người lạ ấy à? Vừa đi."',
+  'Một dáng người quen quen lẫn vào đám đông rồi mất hút, hướng về {l}.',
+  'Bạn gọi tên {p}. Không ai đáp. Chỉ có dấu chân còn mới, dẫn về phía {l}.'
+];
 function sceneChecks(G) {
   var H = G.players[0]; if (!H.alive || G.over) return;
   var al = partner(G); if (al && !al.alive) al = null;
   /* ván mới: hai người xuất phát ở hai nơi; đứng chung một chỗ là nhận ra nhau và đi cùng từ đó */
+  /* 2 tiếng đầu: tới đúng chỗ người kia thì người đó vừa rời đi, để lại manh mối hướng đi */
+  if (al && G.lookFor && !G.metPartner && al.loc === H.loc && al.zone === H.zone && G.t < MEET_MIN) {
+    var mfs = zoneLocs(al.zone).filter(function (id) { return id !== H.loc && !isHouse(LOCS[id]); });
+    if (mfs.length) { var md = pick(G.R, mfs); botArrive(G, al, md, true); G.missed = (G.missed || 0) + 1; say(G, pick(G.R, MISS_LINES).replace('{p}', al.name).replace('{l}', LOCS[md].name), 'info'); }
+  }
   if (al && G.lookFor && !G.metPartner && al.loc === H.loc && al.zone === H.zone) {
     G.metPartner = true; G.metAt = G.t; al.follow = true; al.party = null; G.apartSince = null;
     say(G, 'Bạn nhận ra ' + al.name + ' giữa ' + LOCS[H.loc].name + '.', 'good');
@@ -3093,7 +3114,7 @@ function botAct(G, b) {
   var R = G.R, l = LOCS[b.loc], s = G.locs[b.loc];
   /* người kia cũng đang đi tìm bạn: đi qua lại các nơi ngoài trời trong khu */
   if (b.id === G.partnerId && G.lookFor && !G.metPartner) {
-    var fs = zoneLocs(b.zone).filter(function (id) { return id !== b.loc && !isHouse(LOCS[id]); });
+    var fs = zoneLocs(b.zone).filter(function (id) { return id !== b.loc && !isHouse(LOCS[id]) && !(G.t < MEET_MIN && id === G.players[0].loc); });
     if (fs.length && R() < 0.3) botArrive(G, b, pick(R, fs), true);
     return;
   }
@@ -4082,6 +4103,15 @@ function moveKind(a, b, k) {
   if (ITEM_KEYS.indexOf(k) >= 0) { a.items[k]--; b.items[k] = (b.items[k] || 0) + 1; }
   else { a.cards[k]--; b.cards[k] = (b.cards[k] || 0) + 1; }
 }
+/* tính cách người khác: biết sau khi nói chuyện, quan sát hoặc từng đi cùng; Luke, Clevia luôn biết */
+function mcName(n) { return n === 'Luke' || n === 'Clevia' || n === 'Leon'; }
+function knowP(o) { return !!(o && (o.personaKnown || o.follow || o.joinedAt != null || mcName(o.name))); }
+function whoCard(o) {
+  if (!o || o.special === 'leon' || mcName(o.name)) return '';
+  var f = ''; try { if (window.ART2 && ART2.faceURL) f = '<img class="pix wcface" alt="" src="' + ART2.faceURL(o.name) + '">'; } catch (e) { }
+  return '<div class="whocard">' + f + '<div class="wctx"><b>' + esc(o.name) + '</b><small>' + esc(o.gender) + ', ' + esc(o.age) + ' tuổi · ' + esc(o.job) + '</small>' +
+    (knowP(o) ? '<i>' + esc(o.persona) + '</i>' : '<i class="unk">Chưa rõ tính cách. Nói chuyện, quan sát hoặc đi cùng để hiểu thêm.</i>') + '</div></div>';
+}
 function playerById(G, id) { return G.players.filter(function (q) { return q.id === id; })[0]; }
 function presentNow(G, id) { var o = playerById(G, id), h = me(G); return o && o.alive && o.loc === h.loc ? o : null; }
 function mood(b) { return b.trust < 0.3 ? 'cold' : (b.trust < 0.6 ? 'mid' : 'warm'); }
@@ -4224,7 +4254,7 @@ function peopleDo(G, k, parts, wasArm) {
   }
   if (k === 'ptalk') {
     var o1 = after(5); if (!o1) return;
-    bump(o1, 0.06);
+    bump(o1, 0.06); if (!o1.personaKnown && o1.special !== 'leon') { o1.personaKnown = true; if (!mcName(o1.name)) say(G, 'Nói chuyện một lúc, bạn hiểu ' + o1.name + ' hơn. ' + o1.persona, 'info'); }
     var pt = PERSONA_TALK[o1.name], md = mood(o1), line;
     if (o1.special === 'leon') { leonTalk(G, o1); return; }
     if (MC_TALK[o1.name]) line = pick(G.R, MC_TALK[o1.name]);
@@ -4335,7 +4365,7 @@ function bagActions(G, add) {
 
 function describeHere(G) {
   var p = me(G), l = LOCS[p.loc], s = G.locs[p.loc];
-  var present = presentOthers(G).map(function (o) { return { id: o.id, name: o.name, gender: o.gender, age: o.age, job: o.job, persona: o.persona, hurt: injured(o), follow: o.follow, abil: o.abilKnown ? abil(o) : null, abilText: o.abilKnown ? o.ability : null, grouped: members(G, o).length > 1 && !o.follow, groupN: o.follow ? 0 : members(G, o).length, leon: o.special === 'leon' ? leonLv(G) : null }; });
+  var present = presentOthers(G).map(function (o) { return { id: o.id, name: o.name, gender: o.gender, age: o.age, job: o.job, persona: knowP(o) ? o.persona : null, hurt: injured(o), follow: o.follow, abil: o.abilKnown ? abil(o) : null, abilText: o.abilKnown ? o.ability : null, grouped: members(G, o).length > 1 && !o.follow, groupN: o.follow ? 0 : members(G, o).length, leon: o.special === 'leon' ? leonLv(G) : null }; });
   return { loc: l, state: s, present: present };
 }
 
@@ -4803,7 +4833,7 @@ function doActionCore(G, id) {
     var r1 = run(5);
     if (G.over) return;
     var s = G.locs[p.loc], t = [];
-    var oth = allOthers(G); oth.forEach(function (o) { p.noticed[o.id] = true; });
+    var oth = allOthers(G); oth.forEach(function (o) { p.noticed[o.id] = true; o.personaKnown = true; });
     t.push(oth.length ? 'Có ' + oth.length + ' người chơi khác ở đây: ' + oth.map(function (o) { return o.name + (injured(o) ? ' (đang bị thương)' : ''); }).join(', ') + '.' : 'Không có người chơi nào khác ở đây.');
     if (isHouse(l)) {
       if (s.expired) t.push('Lửa bếp đã tắt. Những cái bóng cựa mình ở góc nhà.');
@@ -5674,7 +5704,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.06-10';
+var GAME_VERSION = '2026.11.06-11';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6144,7 +6174,7 @@ function goalHtml(G, p, idx) {
 /* ---------- hướng dẫn ngay trong ván đầu ---------- */
 var COACH = [
   { sel: '.quest', t: 'Đây là việc cần làm để khám phá nơi bạn đang đứng.', ok: 1 },
-  { sel: '.hot.q, .act.questact', t: 'Chỗ sáng màu trong tranh là việc cần làm để khám phá nơi này. Chạm vào để làm.', done: function () { return G.players[0].explored[G.players[0].loc] || UI.coachActs > 0; } },
+  { sel: '.hot.q, .act.questact', t: 'Chỗ sáng màu trong tranh là việc cần làm để khám phá nơi này. Chạm vào để làm.', ok: 1, done: function () { return G.players[0].explored[G.players[0].loc] || UI.coachActs > 0; } },
   { sel: '.meters, .hud-stats', t: 'Máu, tiền, sức mạnh và số nơi đã khám phá. Việc gì cũng tốn thời gian, nhớ để ý đồng hồ.', ok: 1 },
   { sel: '#goalBar', t: 'Bí thì bấm Gợi ý: nó cho biết việc nên làm tiếp.', ok: 1 },
   { sel: '.hot[data-hot="bag"]', t: 'Chạm vào túi để xem và dùng đồ trong túi.', ok: 1 },
@@ -6152,8 +6182,8 @@ var COACH = [
   { sel: '.hot.me', t: 'Chạm vào nhân vật của bạn để ăn, băng bó, dùng năng lực hoặc chờ. Khi yếu, trái tim trên đầu sẽ nhấp nháy.', ok: 1 },
   { sel: '.logbtn[data-ui="tab:log"], #secLog, .hud-log', t: 'Mọi chuyện đã xảy ra đều ghi ở Nhật ký. Lỡ bỏ qua điều gì thì xem lại ở đây.', ok: 1 },
   { sel: '.tabs [data-ui="tab:more"], .hud-gear', t: 'Âm thanh, cách hiện việc và lúc tranh tự mở đều chỉnh được ở Cài đặt.', ok: 1 },
-  { sel: '.hot[data-hot="exit"]', t: 'Chạm Bản đồ để mở bản đồ làng.', done: function () { return UI.tab === 'go'; } },
-  { sel: '.gomap [data-mapgo]', t: 'Bấm vào một nơi trên bản đồ để đi tới đó.', done: function () { return !$('mpop').hidden || UI.coachMoved; } },
+  { sel: '.hot[data-hot="exit"]', t: 'Chạm Bản đồ để mở bản đồ làng.', ok: 1, done: function () { return UI.tab === 'go'; } },
+  { sel: '.gomap [data-mapgo]', t: 'Bấm vào một nơi trên bản đồ để đi tới đó.', ok: 1, done: function () { return !$('mpop').hidden || UI.coachMoved; } },
   { sel: '.hot[data-hot="ppl"]', t: 'Chạm Người ở đây để xem ai đang ở cùng chỗ với bạn: nói chuyện, trao đổi hoặc rủ đi cùng.', ok: 1 }
 ];
 function coachOn() { var v = null; try { v = localStorage.getItem('artos_coach_v1'); } catch (e) { } return v === '0' || (v == null && !(PROF && PROF.games > 0)); }
@@ -7251,7 +7281,7 @@ function pcard(o, acts) {
   if (o.hurt) tags.push('<span class="tag bad">bị thương</span>');
   if (o.abil) tags.push('<span class="tag lit" title="' + esc(o.abilText) + '">' + esc(o.abil) + '</span>');
   return '<div class="person' + (mc ? ' mc' : '') + '"><div class="phead2">' + (mc ? faceImg(o.name, o.hp < 35 ? 'hurt' : 'normal', 'pface') : '') + '<div style="flex:1;min-width:0"><div class="pname ' + (mc ? 'nm-mc' : 'nm-bot') + '">' + esc(o.name) + '</div>' +
-    '<div class="pmeta">' + esc(o.gender) + ', ' + esc(o.age) + ' tuổi · ' + esc(o.job) + '</div>' + (o.persona && !mc ? '<div class="pmeta persona">' + esc(o.persona) + '</div>' : '') +
+    '<div class="pmeta">' + esc(o.gender) + ', ' + esc(o.age) + ' tuổi · ' + esc(o.job) + '</div>' + (mc ? '' : o.persona ? '<div class="pmeta persona">' + esc(o.persona) + '</div>' : '<div class="pmeta persona unk">Chưa rõ tính cách</div>') +
     (tags.length ? '<div class="ptags">' + tags.join('') + '</div>' : '') + '</div><button class="btn sm pint" data-ui="pint:' + o.id + '">Tương tác</button></div></div>';
 }
 function personPop(o, acts) {
@@ -7404,7 +7434,7 @@ function renderHere(acts, d, p, l) {
     var ob = playerById(G, G.offer.id);
     var LH = G.offer.type === 'betray' ? (ob ? ob.name : 'Đồng đội') + ' trở mặt, giật ' + stealName(G.offer) + ' của bạn' : { leonChest: 'Leon chạm vào cùng chiếc rương', leonWave: 'Leon đang dùng xích giữ một con quỷ', leonPact: 'Giao kèo hợp tác với Leon', leonShare: 'Tới lượt Leon chia rương' }[G.offer.type];
     if (LH) h += '<div class="offer"><b>' + paint(esc(LH)) + '</b>' + (G.offer.type === 'leonPact' ? '<p class="note">Leon mạnh, sòng phẳng, và không tha cho kẻ phá luật. Anh ta có thể giúp bạn, hoặc quay lưng với bạn.</p>' : '') + '<div class="list">' + actsOf(off) + '</div></div>';
-    else h += '<div class="offer"><b>' + (G.offer.type === 'chest' ? 'Tranh rương với ' + paint(esc(ob ? ob.name : '')) : G.offer.type === 'boss' ? bossOfferHead(G.offer) : G.offer.type === 'brawl' ? 'Ẩu đả ngay trước mặt bạn. Bạn tính sao?' : (ob ? paint(esc(ob.name)) : '')) + (G.offer.type === 'brawl' || G.offer.type === 'boss' || G.offer.type === 'chest' ? '' : G.offer.type === 'trade' ? ' muốn đổi: ' + esc(offerName(G.offer.give)) + ' ⇄ ' + esc(wantName(G.offer.want)) : ' muốn đi cùng bạn') + '</b><div class="list">' + actsOf(off) + '</div></div>';
+    else h += '<div class="offer"><b>' + (G.offer.type === 'chest' ? 'Tranh rương với ' + paint(esc(ob ? ob.name : '')) : G.offer.type === 'boss' ? bossOfferHead(G.offer) : G.offer.type === 'brawl' ? 'Ẩu đả ngay trước mặt bạn. Bạn tính sao?' : (ob ? paint(esc(ob.name)) : '')) + (G.offer.type === 'brawl' || G.offer.type === 'boss' || G.offer.type === 'chest' ? '' : G.offer.type === 'trade' ? ' muốn đổi: ' + esc(offerName(G.offer.give)) + ' ⇄ ' + esc(wantName(G.offer.want)) : ' muốn đi cùng bạn') + '</b>' + (G.offer.type === 'trade' || G.offer.type === 'join' || G.offer.type === 'chest' ? whoCard(ob) : G.offer.type === 'brawl' ? '<div class="whopair">' + whoCard(playerById(G, G.offer.A[0])) + whoCard(playerById(G, G.offer.B[0])) + '</div>' : '') + '<div class="list">' + actsOf(off) + '</div></div>';
   }
   if (UI.confirmHeal && healGiveOf(UI.confirmHeal)) {
     var hn = healCount(p);
