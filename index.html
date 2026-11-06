@@ -694,6 +694,26 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 .ihome{display:grid;gap:12px}
 .ititle{font:700 34px/1.05 var(--serif);color:#fff}
 .gill.hero{max-width:none;border-radius:14px}
+/* màn mở đầu kiểu pixel, đồng bộ với khung bong bóng trong game */
+#intro .card{border-radius:0;border:0;background:#101319;box-shadow:0 -3px 0 0 #9fc1e6,0 3px 0 0 #9fc1e6,-3px 0 0 0 #9fc1e6,3px 0 0 0 #9fc1e6,0 -5px 0 0 #07080a,0 5px 0 0 #07080a,-5px 0 0 0 #07080a,5px 0 0 0 #07080a,0 10px 0 0 rgba(0,0,0,.55)}
+#intro .introart{border-radius:0;box-shadow:0 0 0 2px #07080a,0 0 0 4px #3e5878}
+#intro .btn{border:0;border-radius:0;background:#151a23;color:#e8eef6;font-family:var(--mono);text-align:left;box-shadow:0 -2px 0 0 #3e5878,0 2px 0 0 #3e5878,-2px 0 0 0 #3e5878,2px 0 0 0 #3e5878,0 6px 0 0 rgba(0,0,0,.5);transition:none}
+#intro .btn b{font:400 24px/1.1 var(--mono);letter-spacing:.03em}
+#intro .btn small{font:400 18px/1.2 var(--mono);color:#9fb0c6;letter-spacing:.02em}
+#intro .btn.primary{background:#1f2c40;color:#fff;box-shadow:0 -2px 0 0 #9fc1e6,0 2px 0 0 #9fc1e6,-2px 0 0 0 #9fc1e6,2px 0 0 0 #9fc1e6,inset 6px 0 0 0 #9fc1e6,inset 8px 0 0 0 #07080a,0 6px 0 0 rgba(0,0,0,.5);padding-left:20px}
+#intro .btn.primary small{color:#cfe0f3}
+#intro .btn:hover{background:#1c2432}
+#intro .btn:active{transform:translateY(2px);box-shadow:0 -2px 0 0 #9fc1e6,0 2px 0 0 #9fc1e6,-2px 0 0 0 #9fc1e6,2px 0 0 0 #9fc1e6}
+#intro .btn.sm b,#intro .btn.sm{font-size:20px}
+#intro .link,#intro .adv summary{font:400 20px var(--mono);letter-spacing:.03em}
+#intro input[type=text]{border-radius:0;font:400 20px var(--mono)}
+#intro .prot{border:0;border-radius:0;background:#151a23;box-shadow:0 -2px 0 0 #3e5878,0 2px 0 0 #3e5878,-2px 0 0 0 #3e5878,2px 0 0 0 #3e5878}
+#intro .prot.sel{background:#1f2c40;box-shadow:0 -2px 0 0 #9fc1e6,0 2px 0 0 #9fc1e6,-2px 0 0 0 #9fc1e6,2px 0 0 0 #9fc1e6,0 0 14px rgba(159,193,230,.25)}
+#intro .prot b{font:400 26px/1 var(--mono)}
+#intro .prot small{font:400 17px/1.1 var(--mono)}
+#intro .protinfo{border:0;background:#12161d;box-shadow:0 -2px 0 0 #2e3b50,0 2px 0 0 #2e3b50,-2px 0 0 0 #2e3b50,2px 0 0 0 #2e3b50}
+#intro .pihead h3{font:400 30px/1 var(--mono)}
+#intro .pistat{font-size:18px}
 #introSelect{display:grid;gap:12px}
 #introSelect[hidden]{display:none}
 #introHome[hidden]{display:none}
@@ -998,6 +1018,14 @@ body.playhud #herePanel{padding-top:8px}
 .pidl dt{margin-top:6px;font:600 calc(11px * var(--mk,1))/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
 .pidl dd{margin:0;font-size:15px;line-height:1.5;color:var(--fg)}
 .pistat{font:500 13px var(--mono);color:var(--dim)}
+.setpop{position:fixed;inset:0;z-index:45;display:grid;place-items:center;padding:16px;background:rgba(5,6,9,.66)}
+.setpop[hidden]{display:none}
+.setcard{width:min(560px,100%);max-height:calc(100dvh - 40px);display:grid;grid-template-rows:auto minmax(0,1fr);background:#101319;box-shadow:0 -3px 0 0 #9fc1e6,0 3px 0 0 #9fc1e6,-3px 0 0 0 #9fc1e6,3px 0 0 0 #9fc1e6,0 -5px 0 0 #07080a,0 5px 0 0 #07080a,-5px 0 0 0 #07080a,5px 0 0 0 #07080a,0 10px 0 0 rgba(0,0,0,.55)}
+.sethead{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:2px solid #1f2733}
+.sethead b{flex:1;font:400 calc(18px * var(--mk,1))/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#cfe0f3}
+.setbody{overflow-y:auto;padding:12px 16px 18px;display:grid;gap:16px;align-content:start}
+.setbody .gh{font:400 calc(16px * var(--mk,1))/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#9fc1e6}
+.setbody .btn{border-radius:0}
 .prologue{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:radial-gradient(90% 70% at 50% 35%,#0d121b,#030406)}
 .prologue[hidden]{display:none}
 .plcard{width:min(560px,100%);display:grid;gap:22px;cursor:pointer}
@@ -1069,6 +1097,14 @@ button.vm-n:focus-visible{outline:2px solid #9fc1e6;outline-offset:2px}
 .hbub .act:hover:not(.off),#mpop .act:hover:not(.off),#evpop .act:hover:not(.off){--pxb:var(--tc)}
 .hbub .act:not(.off):active,#mpop .act:not(.off):active,#evpop .act:not(.off):active{box-shadow:0 -2px 0 0 var(--pxb),0 2px 0 0 var(--pxb),-2px 0 0 0 var(--pxb),2px 0 0 0 var(--pxb),inset 6px 0 0 0 var(--tc),inset 8px 0 0 0 #07080a,inset 0 2px 0 0 rgba(0,0,0,.28)}
 .hbub .act.off,#mpop .act.off,#evpop .act.off{--tc:#5c6470!important;box-shadow:0 -2px 0 0 #2a2f37,0 2px 0 0 #2a2f37,-2px 0 0 0 #2a2f37,2px 0 0 0 #2a2f37,inset 6px 0 0 0 var(--tc),inset 8px 0 0 0 #07080a}
+/* việc đang khoá: không làm mờ nữa, chữ xám sáng, icon ổ khoá, lý do hiện luôn */
+.act.off,.act.off.questact{opacity:1!important;background:#141820!important}
+.act.off.questact .l,.act.off.questact .l span{color:#c3cad4!important}
+.act.off.questact .d{color:#a3adba!important}
+.act.off.questact .l::before{content:none}
+.act.off .l{color:#c3cad4}
+.act.off .ico{color:#8d97a5}
+.hbub .act.off:not(.show) .d,.hbub .act.off .d,#mpop .act.off .d,#evpop .act.off .d,.act.off .d{display:block;color:#a3adba}
 .hbub .act .l,#mpop .act .l,#evpop .act .l{color:#eef2f7}
 .hbub .act .ico,#mpop .act .ico,#evpop .act .ico{color:var(--tc);background:color-mix(in srgb,var(--tc) 16%,#0c0e12);box-shadow:0 0 0 2px color-mix(in srgb,var(--tc) 45%,#07080a)}
 .hbub .act .l::before,#mpop .act .l::before,#evpop .act .l::before{content:none}
@@ -5626,7 +5662,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.06-7';
+var GAME_VERSION = '2026.11.06-8';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7171,7 +7207,7 @@ function actHtml(a) {
   var d = a.off ? a.off : a.desc;
   cls += ' t-' + actTone(a, cls);
   if (a.off) cls += ' off';
-  return '<button class="' + cls + '" ' + (a.off ? 'aria-disabled="true" data-why="1"' : 'data-act="' + a.id + '"') + '><span class="l">' + '<span class="ico">' + ico(/^offer:(a|b|fight|grab)$/.test(a.id) ? 'sword' : a.id === 'offer:yield' ? 'hand' : a.id === 'offer:flee' ? 'pin' : isSkillAct(a) ? 'sparkle' : (ACT_ICO[k] || 'pin')) + '</span>' + '<span>' + esc(a.label) + '</span></span><span class="m">' + (a.min ? a.min + '′' : '') + '</span>' + (d ? '<span class="d">' + esc(d) + '</span>' : '') + '</button>';
+  return '<button class="' + cls + '" ' + (a.off ? 'aria-disabled="true" data-why="1"' : 'data-act="' + a.id + '"') + '><span class="l">' + '<span class="ico">' + ico(a.off ? 'lock' : /^offer:(a|b|fight|grab)$/.test(a.id) ? 'sword' : a.id === 'offer:yield' ? 'hand' : a.id === 'offer:flee' ? 'pin' : isSkillAct(a) ? 'sparkle' : (ACT_ICO[k] || 'pin')) + '</span>' + '<span>' + esc(a.label) + '</span></span><span class="m">' + (a.min ? a.min + '′' : '') + '</span>' + (d ? '<span class="d">' + esc(d) + '</span>' : '') + '</button>';
 }
 function actsOf(list) { return list.map(function (a) { return actHtml(a); }).join(''); }
 /* hành động làm được hiện trước; hành động đang khoá gom vào một mục thu gọn */
@@ -7409,17 +7445,7 @@ function renderHere(acts, d, p, l) {
   } else if (TAB === 'log') {
     b += '<div><div class="loghead"><h3 class="gh">Nhật ký</h3><div class="row2" style="margin:0"><button class="btn sm" id="openLog2">Xuất nhật ký</button><button class="btn sm" data-ui="tab:here">Quay lại</button></div></div><div class="log">' + LOG_HTML + '</div></div>';
   } else if (TAB === 'more') {
-
-    b += '<div><h3 class="gh">Âm thanh</h3><div class="sndset"><label>Nhạc nền <input type="range" id="volMusic" min="0" max="100" value="' + Math.round(SND.prefs.music * 100) + '"></label><label>Hiệu ứng <input type="range" id="volSfx" min="0" max="100" value="' + Math.round(SND.prefs.sfx * 100) + '"></label><label class="chk"><input type="checkbox" id="uiSnd"' + (SND.prefs.ui ? ' checked' : '') + '> Âm nút bấm</label></div></div>';
-    (function () {
-      var av = actView();
-      var seg = function (cur, opts, key) { return '<div class="segrow">' + opts.map(function (o) { return '<button class="btn sm' + (cur === o[0] ? ' primary' : '') + '" data-ui="' + key + ':' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>'; };
-      b += '<div><h3 class="gh">Hiển thị</h3><p class="note">Hiện danh sách nút thay cho tranh (cho ai khó bấm vào tranh hoặc dùng trình đọc màn hình)</p>' + seg(av, [['scene', 'Tắt'], ['list', 'Bật']], 'setview') + '</div>';
-    })();
-    b += '<div class="setlist"><button class="act" data-open="guide"><span class="l"><span class="ico">' + ico('scroll') + '</span>Hướng dẫn</span></button><button class="act" data-ui="coach"><span class="l"><span class="ico">' + ico('compass') + '</span>Chỉ dẫn từng bước</span></button><button class="act" data-open="prof"><span class="l"><span class="ico">' + ico('star') + '</span>Thành tựu &amp; cây ending</span></button>' +
-      (UI.confirmRestart ? '<div class="offer care"><b>Chơi lại sẽ bỏ ván đang chơi. Chắc chưa?</b><div class="list"><button class="act danger" data-restart="1"><span class="l">Chơi lại từ đầu</span></button><button class="act" data-ui="restartno"><span class="l">Thôi, chơi tiếp</span></button></div></div>' : '<button class="act danger" data-ui="restartask"><span class="l"><span class="ico">' + ico('door') + '</span>Chơi lại từ đầu</span></button>') + '</div>';
-    b += '<div><h3 class="gh">Năng lực của bạn</h3><div class="abil2">' + ABIL_HTML + '</div></div>';
-    b += '<p class="note">' + (G && !G.isBackdrop ? 'Mã ván ' + esc(gameCode(G)) + ' · ' : '') + 'Phiên bản ' + GAME_VERSION + '</p>';
+    b += moreBody();
   } else if (TAB === 'all') {
     var hereA = by('here'), skA = hereA.filter(function (a) { return isSkillAct(a); }).concat(by('person').filter(function (a) { return /^psense:/.test(a.id); })), doA = hereA.filter(function (a) { return !isSkillAct(a); });
     var wA = by('wait').filter(function (a) { return /^wait:/.test(a.id); }), careA = by('wait').filter(function (a) { return !/^wait:/.test(a.id); }).concat(by('bag').filter(function (a) { return /^(eat|herb|card:)/.test(a.id); }));
@@ -7582,6 +7608,33 @@ function renderProf() {
 function openProf(tab) { UI.ptab = tab || UI.ptab || 'tree'; UI.resetArm = false; renderProf(); $('prof').hidden = false; }
 
 /* ---------- vẽ ván chơi ---------- */
+/* phần Cài đặt: dùng cho tab Cài đặt (danh sách nút) và khung Cài đặt bật lên khi chơi bằng tranh */
+function moreBody() {
+  var b = '';
+
+    b += '<div><h3 class="gh">Âm thanh</h3><div class="sndset"><label>Nhạc nền <input type="range" id="volMusic" min="0" max="100" value="' + Math.round(SND.prefs.music * 100) + '"></label><label>Hiệu ứng <input type="range" id="volSfx" min="0" max="100" value="' + Math.round(SND.prefs.sfx * 100) + '"></label><label class="chk"><input type="checkbox" id="uiSnd"' + (SND.prefs.ui ? ' checked' : '') + '> Âm nút bấm</label></div></div>';
+    (function () {
+      var av = actView();
+      var seg = function (cur, opts, key) { return '<div class="segrow">' + opts.map(function (o) { return '<button class="btn sm' + (cur === o[0] ? ' primary' : '') + '" data-ui="' + key + ':' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>'; };
+      b += '<div><h3 class="gh">Hiển thị</h3><p class="note">Hiện danh sách nút thay cho tranh (cho ai khó bấm vào tranh hoặc dùng trình đọc màn hình)</p>' + seg(av, [['scene', 'Tắt'], ['list', 'Bật']], 'setview') + '</div>';
+    })();
+    b += '<div class="setlist"><button class="act" data-open="guide"><span class="l"><span class="ico">' + ico('scroll') + '</span>Hướng dẫn</span></button><button class="act" data-ui="coach"><span class="l"><span class="ico">' + ico('compass') + '</span>Chỉ dẫn từng bước</span></button><button class="act" data-open="prof"><span class="l"><span class="ico">' + ico('star') + '</span>Thành tựu &amp; cây ending</span></button>' +
+      (UI.confirmRestart ? '<div class="offer care"><b>Chơi lại sẽ bỏ ván đang chơi. Chắc chưa?</b><div class="list"><button class="act danger" data-restart="1"><span class="l">Chơi lại từ đầu</span></button><button class="act" data-ui="restartno"><span class="l">Thôi, chơi tiếp</span></button></div></div>' : '<button class="act danger" data-ui="restartask"><span class="l"><span class="ico">' + ico('door') + '</span>Chơi lại từ đầu</span></button>') + '</div>';
+    b += '<div><h3 class="gh">Năng lực của bạn</h3><div class="abil2">' + ABIL_HTML + '</div></div>';
+    b += '<p class="note">' + (G && !G.isBackdrop ? 'Mã ván ' + esc(gameCode(G)) + ' · ' : '') + 'Phiên bản ' + GAME_VERSION + '</p>';
+  return b;
+}
+function setPopOn() { return !!(UI.setPop && G && !G.isBackdrop && !G.over && G.players[0].alive && actView() === 'scene'); }
+function renderSetPop() {
+  var el = $('setpop');
+  if (!el) { el = document.createElement('div'); el.id = 'setpop'; el.className = 'setpop'; el.hidden = true; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); document.body.appendChild(el); el.addEventListener('click', function (e) { if (e.target === el) { UI.setPop = null; render(); } }); }
+  if (!setPopOn()) { el.hidden = true; el.innerHTML = ''; el.dataset.k = ''; return; }
+  var isLog = UI.setPop === 'log';
+  var h = '<div class="setcard"><div class="sethead"><b>' + (isLog ? 'Nhật ký' : 'Cài đặt') + '</b>' + (isLog ? '<button class="btn sm" id="openLog2">Xuất nhật ký</button>' : '') + '<button class="hbx" data-ui="setclose">Đóng</button></div><div class="setbody">' + (isLog ? '<div class="log">' + LOG_HTML + '</div>' : moreBody()) + '</div></div>';
+  el.setAttribute('aria-label', isLog ? 'Nhật ký' : 'Cài đặt');
+  if (el.dataset.k !== h) { var bd = el.querySelector('.setbody'), st = bd ? bd.scrollTop : 0; el.innerHTML = h; el.dataset.k = h; var nb = el.querySelector('.setbody'); if (nb) nb.scrollTop = st; }
+  el.hidden = false;
+}
 function render() {
   var p = G.players[0], l = LOCS[p.loc], tNow = Math.min(G.t, DAY);
   $('clock').textContent = fmtT(tNow);
@@ -7687,6 +7740,7 @@ function render() {
   $('herePanel').innerHTML = renderHere(acts, describeHere(G), p, l);
   var ul = $('usLog'); if (ul) ul.innerHTML = UI.usLogHtml || '';
   UI.shownTab = UI.tab; UI.shownLoc = p.loc;
+  try { renderSetPop(); } catch (e) { }
   document.body.classList.toggle('playhud', !!(actView() === 'scene' && !G.isBackdrop && !G.over && p.alive && UI.tab !== 'more' && UI.tab !== 'log'));
   try { SF.render(acts, p, l); } catch (e) { }
   try { MAPV.after(G, p); } catch (e) { }
@@ -7884,7 +7938,9 @@ document.addEventListener('click', function (e) {
   }
   else if (t.dataset.ui) {
     var u = t.dataset.ui.split(':');
-    if (u[0] === 'tab') { UI.tab = u[1]; UI.sub = null; UI.confirmRestart = false; UI.bagSel = null; UI.tinfo = null; }
+    if (u[0] === 'tab' && (u[1] === 'more' || u[1] === 'log') && G && !G.isBackdrop && !G.over && G.players[0].alive && actView() === 'scene') { UI.setPop = u[1]; UI.confirmRestart = false; UI.tab = 'here'; }
+    else if (u[0] === 'setclose') { UI.setPop = null; UI.confirmRestart = false; }
+    else if (u[0] === 'tab') { UI.tab = u[1]; UI.sub = null; UI.confirmRestart = false; UI.bagSel = null; UI.tinfo = null; UI.setPop = null; }
     else if (u[0] === 'setview') { try { localStorage.setItem('artos_actview', u[1]); } catch (x) { } }
     else if (u[0] === 'setscene') { try { localStorage.setItem('artos_scenepop', u[1]); } catch (x) { } }
     else if (u[0] === 'chestlater') { var chl = G && seenChest(G, G.players[0].loc); if (chl) chl.later = true; }
@@ -7898,7 +7954,7 @@ document.addEventListener('click', function (e) {
     else if (u[0] === 'res') UI.resOpen = !UI.resOpen;
     else if (u[0] === 'pop') UI.popOpen = true;
     else if (u[0] === 'goal') { UI.goalOpen = !UI.goalOpen; }
-    else if (u[0] === 'fulllog') { closePop(); if (window.innerWidth <= 640) UI.tab = 'log'; else { var sl = $('secLog'); if (sl) sl.scrollIntoView({ behavior: 'smooth' }); } }
+    else if (u[0] === 'fulllog') { closePop(); if (window.innerWidth <= 640) { if (G && !G.isBackdrop && !G.over && G.players[0].alive && actView() === 'scene') UI.setPop = 'log'; else UI.tab = 'log'; } else { var sl = $('secLog'); if (sl) sl.scrollIntoView({ behavior: 'smooth' }); } }
     else if (u[0] === 'banner') { try { localStorage.setItem('artos_banner', bannerMini() ? 'full' : 'mini'); } catch (x) { } }
     else if (u[0] === 'coach') { UI.coach = 0; UI.coachActs = 0; UI.coachMoved = false; UI.tab = 'here'; }
     else if (u[0] === 'pint') UI.mpop = { kind: 'person', id: +u[1] };
@@ -9005,6 +9061,40 @@ function mineIn() {
 }
 function glassWall(c, x0) { for (let x = x0; x < x0 + 30; x++) for (let y = 0; y < 60; y++) if ((x + y) % 3 === 0) c.px(x, y, '#6f8fbd'); c.line(x0, 0, x0, 59, ICE[1]); c.line(x0 + 29, 0, x0 + 29, 59, ICE[1]); for (let y = 4; y < 60; y += 7) c.line(x0 + 4, y, x0 + 9, y - 4, '#e8f2fc'); }
 function sysWin(c, x, y, w, h, col, dark) { c.rect(x, y, w, h, dark || '#0e1a2a'); c.rect(x, y, w, 4, col); c.rect(x + w - 4, y + 1, 2, 2, '#0e1a2a'); for (let i = 0; i < w; i++) { c.px(x + i, y + h - 1, col); } c.line(x, y, x, y + h - 1, col); c.line(x + w - 1, y, x + w - 1, y + h - 1, col); }
+/* màn mở đầu: toàn cảnh ngôi làng về đêm nhìn từ trên đồi, ba khu ngăn bằng tường kính */
+function homeArt() {
+  const c = Canvas(128, 72);
+  c.dither(0, 0, 128, 50, '#06070b', '#1c2638', (i, j) => j / 50);
+  particles(c, 0, 0, 128, 26, '#6f7f99', 40, 21);
+  glow(c, 100, 13, 13, 11, '#1e2a3e'); c.ell(100, 13, 5, 5, '#e8eef6'); c.px(98, 11, '#cfd8e2'); c.px(99, 12, '#cfd8e2'); c.px(102, 15, '#cfd8e2'); c.px(101, 11, '#cfd8e2');
+  for (let x = 0; x < 128; x++) { const h = 32 + Math.round(Math.sin(x / 9) * 3 + Math.sin(x / 4.3) * 1.5); c.line(x, h, x, 49, '#121722'); }
+  for (let x = 0; x < 128; x++) { const h = 38 + Math.round(Math.sin(x / 13 + 2) * 2); c.line(x, h, x, 49, '#0e121a'); }
+  c.rect(0, 49, 128, 23, '#0b0d12');
+  function house(x, y, w, h, lit) {
+    c.rect(x, y, w, h, '#171b24'); for (let k = 0; k <= Math.ceil(w / 2) + 1; k++) c.line(x - 1 + k, y - k, x + w - k, y - k, '#222838');
+    if (lit) { c.rect(x + Math.floor(w / 2) - 1, y + 2, 2, 2, lit); c.px(x + Math.floor(w / 2) - 1, y + 2, '#f2b070'); glow(c, x + w / 2, y + 3, 4, 3, '#3a2420'); }
+  }
+  /* khu nông nghiệp (trái): ruộng, nhà nhỏ */
+  for (let y = 54; y < 70; y += 3) c.line(2, y, 38, y - 1, '#16241a');
+  house(6, 42, 7, 6, '#d0503a'); house(20, 44, 6, 5); house(30, 41, 7, 7, '#d0503a');
+  c.line(14, 56, 14, 51, '#3a2a1e'); c.line(12, 52, 16, 52, '#3a2a1e'); c.px(14, 50, '#5a4a30');
+  /* khu trung tâm (giữa): nhà họp làng có tháp chuông */
+  house(50, 44, 9, 6, '#f2b070'); house(72, 45, 7, 5, '#d0503a');
+  c.rect(60, 38, 11, 12, '#1a1f2a'); for (let k = 0; k < 8; k++) c.line(59 + k, 38 - k, 71 - k, 38 - k, '#262d3e');
+  c.rect(64, 24, 3, 8, '#1a1f2a'); c.px(65, 23, '#262d3e'); c.rect(64, 27, 3, 2, '#c9a24a');
+  c.rect(62, 42, 2, 3, '#f2b070'); c.rect(67, 42, 2, 3, '#f2b070'); glow(c, 65, 44, 9, 5, '#3a2a1c');
+  [[56, 51], [77, 52], [33, 52], [104, 52]].forEach(([x, y]) => { c.line(x, y - 3, x, y, '#2a2a2a'); c.rect(x - 1, y, 2, 2, '#d0503a'); c.px(x - 1, y, '#f2b070'); });
+  /* khu mỏ (phải): núi đá, cửa hầm, tiệm rèn có khói */
+  for (let x = 90; x < 128; x++) { const h = 30 + Math.abs(x - 112) * 0.9; c.line(x, Math.round(h), x, 49, '#1a1816'); }
+  c.ell(112, 46, 4, 4, '#050505'); c.rect(108, 46, 8, 4, '#050505'); c.line(107, 42, 107, 49, '#5a3a20'); c.line(117, 42, 117, 49, '#5a3a20'); c.line(107, 42, 117, 42, '#6a4a2a');
+  house(94, 44, 8, 6, '#ff6a4a'); c.rect(99, 36, 2, 6, '#2a2622'); particles(c, 97, 26, 6, 10, '#d8561e', 6, 33);
+  /* hai bức tường kính */
+  [43, 85].forEach(x0 => { for (let y = 10; y < 66; y++) { if ((x0 + y) % 2 === 0) c.px(x0, y, '#6f8fbd'); c.px(x0 + 1, y, y % 3 ? '#3e5878' : '#9fc1e6'); } for (let y = 14; y < 64; y += 9) c.line(x0 - 1, y, x0 + 2, y - 3, '#e8f2fc'); glow(c, x0 + 1, 40, 3, 26, '#26364e'); });
+  /* đồi gần, lối mòn */
+  for (let x = 0; x < 128; x++) { const h = 64 + Math.round(Math.sin(x / 11) * 2); c.line(x, h, x, 71, '#07080b'); }
+  for (let y = 64; y < 72; y++) c.px(60 + (y - 64) * 2, y, '#1a1d24');
+  return c;
+}
 function particles(c, x0, y0, w, h, col, n, seed) { const R = rng(seed || 3); for (let k = 0; k < n; k++) { const x = x0 + R() * w, y = y0 + R() * h; c.px(x, y, k % 3 ? col : '#ffffff'); } }
 function dissolve(c, x0, y0, w, h, frac, seed) { const R = rng(seed || 9); for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) if (R() < frac * (1 - (y - y0) / h) * 1.6) c.clear(x, y); }
 
@@ -9069,7 +9159,7 @@ const SYSTEM = [
   ['execute', 'Xoá sổ', 'Hết 24 giờ: hệ thống xử tử người chưa hoàn thành', () => { const c = dim(bg('hall', 'night'), .45, [30, 0, 4]); for (let x = 0; x < 128; x += 8) for (let y = 0; y < 72; y++) if (y % 2) c.px(x, y, RED[2]); for (let y = 0; y < 72; y += 8) for (let x = 0; x < 128; x++) if (x % 2) c.px(x, y, RED[2]); sysWin(c, 36, 4, 56, 18, RED[1], '#1a0608'); text(c, '24:00', 44, 8, '#ff9a8a', 2); [['Victor Lang', 30], ['Kira Lund', 56], ['Elias Thorne', 82], ['Lena Ito', 104]].forEach(([n, x], i) => { const s = spr(n, 'stand', i % 2 === 0); dissolve(s, 0, 0, 24, 34, .9, 20 + i); c.blit(s, x - 10, 36); }); particles(c, 20, 20, 96, 30, RED[0], 50, 8); return c; }],
 ];
 
-module.exports = { INTERACT, PLACES, STORY, SYSTEM, spr, H: { put, bg, blank, dim, vign, half, stamp, bubble, dots, bang, quest, spark, impact, glow, arrow, text, eyes, bust, claws, interior, mineIn, glassWall, sysWin, particles, dissolve, eel, padlock, ICE, RED } };
+module.exports = { INTERACT, PLACES, STORY, SYSTEM, spr, H: { homeArt, put, bg, blank, dim, vign, half, stamp, bubble, dots, bang, quest, spark, impact, glow, arrow, text, eyes, bust, claws, interior, mineIn, glassWall, sysWin, particles, dissolve, eel, padlock, ICE, RED } };
 
 };
 __m['scenes_rt'] = function (module, exports, require) {
@@ -9181,6 +9271,7 @@ const SC = {
   fall: X => { const c = vign(dim(bg(X.loc, X.sky), .4), 1.6, [70, 8, 10]); put(c, X.me, 'fall', 64, 64); c.ell(66, 66, 16, 2.4, RED[2], (x, y) => (x + y) % 2 === 0); return c; },
   execute: X => { const c = dim(bg(X.loc, X.sky), .45, [30, 0, 4]); for (let x = 0; x < 128; x += 8) for (let y = 0; y < 72; y++) if (y % 2) c.px(x, y, RED[2]); for (let y = 0; y < 72; y += 8) for (let x = 0; x < 128; x++) if (x % 2) c.px(x, y, RED[2]); sysWin(c, 36, 4, 56, 18, RED[1], '#1a0608'); text(c, '24:00', 44, 8, '#ff9a8a', 2); [X.me, X.ally].filter(Boolean).forEach((n, i) => { const s = spr(n, 'stand', i === 1); dissolve(s, 0, 0, 24, 34, .8, 20 + i); c.blit(s, (i ? 70 : 44) - 10, 36); }); particles(c, 20, 20, 96, 30, RED[0], 50, 8); return c; },
   intro: () => S.SYSTEM.find(s => s[0] === 'intro')[3](),
+  home: () => h.homeArt(),
 };
 /* CG cốt truyện: key, biến thể (ai bị thương) */
 const MOOD = { houseAmbush1: ['tense', 'tense'], houseAmbush2: ['normal', 'tense'], reunite: ['normal', 'normal'], witnessDeath: ['tense', 'tense'], wall: ['hurt', 'tense'], firstFight: ['tense', 'tense'], shard2: ['normal', 'normal'], bell: ['normal', 'normal'], bossKill: ['tense', 'hurt'] };
@@ -9474,6 +9565,7 @@ showEnd = function () {
 var _renderIntro = renderIntro;
 renderIntro = function () {
   var r = _renderIntro.apply(this, arguments);
+  try { var hh = $('introHome'), hs = $('heroIll'); if (hh && hs && !hh.querySelector('.homeart')) { hs.insertAdjacentHTML('afterend', '<img class="introart homeart" src="' + url('x:home', RT.SC.home) + '" alt="">'); hs.style.display = 'none'; } } catch (e) { }
   try { var s = $('introSelect'); if (s && !s.querySelector('.introart')) { var u = url('x:intro', RT.SC.intro); s.querySelector('.cardhead').insertAdjacentHTML('afterend', '<img class="introart" src="' + u + '" alt="">'); } } catch (e) { }
   return r;
 };
