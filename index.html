@@ -987,6 +987,17 @@ body.playhud #herePanel{padding-top:8px}
 @keyframes melow{50%{color:#d06a5c;box-shadow:0 -2px 0 0 #07080a,0 2px 0 0 #07080a,-2px 0 0 0 #07080a,2px 0 0 0 #07080a,0 0 10px 2px rgba(208,106,92,.6)}}
 /* khung sự kiện */
 .evpop{position:fixed;inset:0;z-index:46;display:grid;place-items:center;padding:16px;background:rgba(5,6,9,.66)}
+.protpick{grid-template-columns:1fr 1fr}
+.prot{grid-template-columns:44px minmax(0,1fr);text-align:left}
+.protinfo{display:grid;gap:12px;margin-top:10px;padding:14px;border:1px solid rgba(159,193,230,.35);background:linear-gradient(160deg,#252b36,#181b21)}
+.pihead{display:flex;gap:12px;align-items:center}
+.pihead .pifc{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2f3a4f,#14161b);image-rendering:pixelated}
+.pihead h3{margin:0;font:700 24px/1.1 var(--serif)}
+.pihead small{color:var(--dim);font-size:13px}
+.pidl{display:grid;gap:4px;margin:0}
+.pidl dt{margin-top:6px;font:600 calc(11px * var(--mk,1))/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+.pidl dd{margin:0;font-size:15px;line-height:1.5;color:var(--fg)}
+.pistat{font:500 13px var(--mono);color:var(--dim)}
 .prologue{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:radial-gradient(90% 70% at 50% 35%,#0d121b,#030406)}
 .prologue[hidden]{display:none}
 .plcard{width:min(560px,100%);display:grid;gap:22px;cursor:pointer}
@@ -1111,11 +1122,6 @@ button.vm-n:focus-visible{outline:2px solid #9fc1e6;outline-offset:2px}
     <p class="note">20 người chơi. 24 tiếng. Một ngôi làng không nói thật.</p>
     <div class="choices">
       <button class="btn primary" id="startBtn"><b>Bắt đầu</b></button>
-      <div id="whoBox" class="whobox" hidden>
-        <p class="note">Bạn đã chơi Ngôi Làng Ăn Thịt bao giờ chưa?</p>
-        <button class="btn" data-who="new"><b>Tôi là người chơi mới</b><small>Xem giới thiệu ngắn và được chỉ từng bước trong ván đầu</small></button>
-        <button class="btn" data-who="old"><b>Tôi đã chơi rồi</b><small>Bỏ qua hướng dẫn, vào chọn nhân vật luôn</small></button>
-      </div>
       <div id="continueBox" class="choices"></div>
       <button class="btn" id="openProf"><b>Thành tựu &amp; cây ending</b></button>
     </div>
@@ -1136,12 +1142,11 @@ button.vm-n:focus-visible{outline:2px solid #9fc1e6;outline-offset:2px}
     <div class="cardhead"><div class="eyebrow">Chuẩn bị vào làng</div><button class="link" id="introBack">Quay lại</button></div>
     <h3 class="gh">Chọn nhân vật</h3>
     <div class="protpick" id="protpick"></div>
-    <p class="msg" id="suggestLine"></p>
+    <div id="protInfo" class="protinfo"></div>
     <p class="note">Ảo cảnh kéo mỗi người tới một nơi ngẫu nhiên trong làng. Nơi bạn tỉnh lại sẽ là khu bạn bị khoá vào.</p>
     <div class="choices">
       <button class="btn primary" data-start="random"><b>Vào làng</b></button>
     </div>
-    <button class="link" id="guideAgain">Xem lại hướng dẫn</button>
   </div>
 </div></div>
 <div id="toast" hidden></div>
@@ -2034,6 +2039,15 @@ var SCENES = {
     ['Luke', '"Anh cũng vậy."'],
     ['Luke', '"C/R. Cấp C, chơi chung với người mới. Mấy người đứng tách ra kia không phải lần đầu đâu. Đừng tin, mà cũng đừng gây chuyện."'],
     ['Clevia', '"Ừm. Từ giờ đừng để lạc nhau nữa nhé anh."']] },
+  rules: { title: 'Luật của làng', lines: [
+    ['Clevia', '"Anh. Cái điều kiện \'khám phá toàn bộ các khu vực\' nghĩa là sao? Đi hết là được à?"'],
+    ['Luke', '"Đi qua thôi thì chưa đủ. Mỗi nơi có việc riêng của nó. Làm xong việc đó mới tính là đã khám phá."'],
+    ['Clevia', '"Còn bức tường trong suốt ở rìa làng? Em thử bước qua, như đập mặt vào kính."'],
+    ['Luke', '"Mình bị khoá trong khu này rồi. Ảo cảnh nào chia khu cũng vậy: phải có Bản đồ, rồi thêm thẻ dịch chuyển mới sang được chỗ khác."'],
+    ['Clevia', '"Vậy mình làm gì trước?"'],
+    ['Luke', '"Việc gì cũng tốn thời gian. Hai mươi bốn tiếng nghe thì dài, nhưng tính ra không được bao nhiêu việc đâu. Chọn cho kỹ."'],
+    ['Clevia', '"Còn hết giờ mà chưa xong?"'],
+    ['Luke', '"Em nghe nó nói rồi đấy. Bị xoá sổ."']] },
   reunite: { title: 'Gặp lại', lines: [
     ['Clevia', '"Anh! ...May quá, em tưởng lạc anh luôn rồi."'],
     ['Luke', '"Anh cũng vậy. Đừng để mất dấu nữa, nguy hiểm lắm."'],
@@ -2219,6 +2233,7 @@ function sceneChecks(G) {
   var ah = allyHere(G), sf = G.sceneFlags = G.sceneFlags || {}, A = G.ach || {};
   if (al) { if (ah) { if (G.apartSince != null && G.t - G.apartSince >= 30) scene(G, 'reunite'); G.apartSince = null; } else if (G.apartSince == null) G.apartSince = G.t; }
   if (ah && (H.hp < 30 || ah.hp < 30)) scene(G, 'lowHp', H.hp < 30 ? H.name : ah.name);
+  if (ah && G.metPartner && G.t - G.metAt >= 10 && !G.offer) scene(G, 'rules');
   if (sf.death) { sf.death = false; scene(G, 'witnessDeath'); }
   var fights = (A.duelStart || 0) + (A.ambushed || 0) + (A.brawlJoin || 0);
   if (fights > (sf.fights || 0)) { sf.fights = fights; scene(G, 'firstFight'); }
@@ -3778,7 +3793,8 @@ var TALK = {
   pier: ['Ông câu cá hướng dẫn: "Câu đủ các loài cá trên bảng sưu tập. Thi thoảng dưới nước có thứ không phải cá, chỗ này lại chật. Đi hai người sẽ đỡ hơn."'],
   clinic: ['Bác sĩ cuống quýt: "Thiếu người quá! Cần hai y tá đứng yên trên bục suốt hai mươi phút thì mới chữa được một bệnh nhân. Ai bỏ vị trí là hỏng lượt."',
     'Y tá nói: "Trạm xá chỉ chữa tối đa ba lượt, sau đó đóng cửa luôn."'],
-  market: ['Thương nhân: "Có đăng kí với trưởng làng mới được mua bán. Khan hàng lắm, bản đồ và thẻ hiếm lắm."'],
+  market: ['Thương nhân: "Có đăng kí với trưởng làng mới được mua bán. Khan hàng lắm, bản đồ và thẻ hiếm lắm."',
+    'Thương nhân gõ lên tấm bản đồ: "Muốn qua bức tường kính thì cần cái này. Có bản đồ rồi còn phải có thẻ dịch chuyển. Ta bán cả hai."'],
   mine: ['Người canh gác: "Ta đói. Mang cho ta thứ gì ăn được là cho qua cổng."',
     'Thợ mỏ: "Quặng đem đổi tiền hoặc mang sang tiệm rèn mà đúc vũ khí."'],
   forge: ['Thợ rèn: "Hai cục quặng và một ít tiền công, ta rèn cho ngươi một món vũ khí. Có nó thì quỷ cũng nể."']
@@ -5476,17 +5492,29 @@ var DESC = {
 
 /* ---------- màn mở đầu ---------- */
 function rosterOf(n) { return getRoster().filter(function (c) { return c.name === n; })[0]; }
+var PROT_INFO = {
+  Clevia: { tag: 'Tân thủ', look: 'Tóc đen dài, kẹp tóc xanh băng, mắt tối, gương mặt trầm lặng.', persona: 'Ít nói, hay quan sát. Tin trực giác hơn lời người khác, quen chịu đựng trong im lặng.',
+    abil: ['Unlock', 'Mở rương khoá không cần giải mã, qua cổng Hầm mỏ không cần đưa đồ cho người gác. Có thể ép mở tường kính giữa các khu, nhưng mất Unlock tới hết ván.'],
+    pass: ['Trực giác', 'Khi đi một mình, 25% nhận ra quỷ trước và lẩn đi. Đã giao chiến thì dễ chạy thoát hơn.'] },
+  Luke: { tag: 'Kỳ cựu', look: 'Tóc nâu rối, ánh mắt sắc, đeo thanh kiếm tre sau lưng.', persona: 'Thân thiện bề ngoài, bình tĩnh. Tin vào logic, không nói chắc khi chưa đủ bằng chứng.',
+    abil: ['Anomaly Sense', 'Biết khu đang đứng có sắp gặp nguy hiểm không và còn bao lâu. Tốn 5 phút, 60 phút mới dùng lại được. Chỉ cho dấu hiệu, không chỉ thẳng đáp án.'],
+    pass: ['Kiếm đạo', 'Khi quỷ vồ vào ai trong nhóm, 15% gạt được cú đó (30% nếu có vũ khí).'] }
+};
+function protInfoHtml(n) {
+  var c = rosterOf(n), I = PROT_INFO[n]; if (!c || !I) return '';
+  return '<div class="pihead">' + faceImg(n, 'normal', 'pifc') + '<div><h3>' + n + '</h3><small>' + esc(c.gender) + ', ' + esc(c.age) + ' tuổi · ' + esc(c.job) + ' · ' + I.tag + '</small></div></div>' +
+    '<dl class="pidl"><dt>Ngoại hình</dt><dd>' + I.look + '</dd><dt>Tính cách</dt><dd>' + I.persona + '</dd><dt>Năng lực · ' + I.abil[0] + '</dt><dd>' + I.abil[1] + '</dd><dt>Nội tại · ' + I.pass[0] + '</dt><dd>' + I.pass[1] + '</dd></dl>' +
+    '<div class="pistat">Sức mạnh ' + c.str + ' · May mắn ' + c.luck + '</div>';
+}
 function renderIntro() {
   ambience(null, null);
   $('heroIll').innerHTML = ILL.village;
   $('protpick').innerHTML = ['Luke', 'Clevia'].map(function (n) {
     var c = rosterOf(n);
-    return '<button class="prot' + (n === selProt ? ' sel' : '') + '" data-prot="' + n + '">' + faceImg(n, 'normal', 'av') + '<b>' + n + '</b><small>' +
-      esc(c.gender) + ', ' + esc(c.age) + ' tuổi · ' + esc(c.job) + '</small><small>' + esc(String(c.ability).split(':')[0]) + '</small></button>';
+    return '<button class="prot' + (n === selProt ? ' sel' : '') + '" data-prot="' + n + '" aria-pressed="' + (n === selProt) + '">' + faceImg(n, 'normal', 'av') + '<b>' + n + '</b><small>' + esc(String(c.ability).split(':')[0]) + '</small></button>';
   }).join('');
   $('authorBox').hidden = location.hash !== '#author';
-  var sgs = null; try { sgs = localStorage.getItem('artos_suggest'); } catch (e) { }
-  $('suggestLine').innerHTML = sgs ? 'Gợi ý từ phần hướng dẫn: <b class="nm-mc">' + esc(sgs) + '</b>' : '';
+  $('protInfo').innerHTML = protInfoHtml(selProt);
   var sg = loadSave();
   $('continueBox').innerHTML = sg ? '<button class="btn primary" id="continueBtn"><b>Chơi tiếp ván đang dở</b><small>' + esc(sg.protagonist) + ' · ' + fmtT(sg.t) + ' đã trôi · còn ' + fmtT(Math.max(0, DAY - sg.t)) + '</small></button>' : '';
 }
@@ -5598,7 +5626,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.06-5';
+var GAME_VERSION = '2026.11.06-7';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6080,7 +6108,7 @@ var COACH = [
   { sel: '.gomap [data-mapgo]', t: 'Bấm vào một nơi trên bản đồ để đi tới đó.', done: function () { return !$('mpop').hidden || UI.coachMoved; } },
   { sel: '.hot[data-hot="ppl"]', t: 'Chạm Người ở đây để xem ai đang ở cùng chỗ với bạn: nói chuyện, trao đổi hoặc rủ đi cùng.', ok: 1 }
 ];
-function coachOn() { try { return localStorage.getItem('artos_coach_v1') !== '1'; } catch (e) { return true; } }
+function coachOn() { var v = null; try { v = localStorage.getItem('artos_coach_v1'); } catch (e) { } return v === '0' || (v == null && !(PROF && PROF.games > 0)); }
 function coachEnd() { UI.coach = null; try { localStorage.setItem('artos_coach_v1', '1'); } catch (e) { } $('coach').hidden = true; }
 function coachUpdate() {
   var el = $('coach');
@@ -6116,68 +6144,22 @@ var ILL = {
   play: SKY + '<circle cx="120" cy="60" r="44" fill="url(#gGlow)"/><g fill="none" stroke="#cfe0f3" stroke-width="2.4" stroke-linecap="round"><path d="M100 22h40M100 98h40M104 22c0 20 32 22 32 38s-32 18-32 38M136 22c0 20-32 22-32 38s32 18 32 38"/></g><path d="M108 92c2-10 22-10 24 0z" fill="#9fc1e6"/><path d="M114 40h12l-6 10z" fill="#9fc1e6"/>'
 };
 function svgIll(k) { return '<svg class="gill" viewBox="0 0 240 120" aria-hidden="true">' + ILL[k] + '</svg>'; }
-var GUIDE = [
-  { id: 'open', sec: 'Mở đầu', ill: 'doors', story: 1, html: '<p><b>Project Artos 07</b> là một trò chơi sinh tử có rất nhiều ảo cảnh. Thứ bạn sắp chơi chỉ là <b>một</b> trong số đó.</p><p>Bạn không cần biết trước câu chuyện để chơi. Tò mò thì đọc vài trang ngắn, còn không thì đi thẳng tới phần nhân vật.</p>' },
-  { id: 's1', sec: 'Câu chuyện', ill: 'card', story: 1, html: '<p>Trò chơi ấy, dường như, chưa bao giờ gửi lời mời. Nó chỉ để lại những tấm thẻ.</p>' },
-  { id: 's2', sec: 'Câu chuyện', ill: 'portal', story: 1, html: '<p>Ai chạm vào thẻ sẽ thành <b>Artoser</b>: nhận một năng lực theo mình suốt đời, và có lẽ từ đó không còn đường ra khỏi những ảo cảnh nối tiếp nhau.</p>' },
-  { id: 's3', sec: 'Câu chuyện', ill: 'tally', story: 1, html: '<p>Vượt ải thì nhận thẻ thưởng. Thua thì mất một bộ phận cơ thể. Thua 3 lần liên tiếp, hoặc hơn 12 lần, là chết thật.</p><p>Ngôi Làng Ăn Thịt có lẽ chỉ là một ải trong chuỗi đó.</p>' },
-  { id: 'chars', sec: 'Nhân vật', ill: 'duo', story: 1, html: '<p><b class="nm-mc">Clevia</b>, 19 tuổi, sinh viên năm nhất. Ít nói, hay quan sát, tin trực giác hơn lời người khác.</p><p><b class="nm-mc">Luke</b>, 21 tuổi, trưởng câu lạc bộ kiếm đạo. Bình tĩnh, đã qua nhiều ảo cảnh. Lần này anh đi cùng Clevia.</p>' },
-  { id: 'scene', sec: 'Ảo cảnh', ill: 'village', story: 1, html: '<p><b>Ngôi Làng Ăn Thịt.</b> 20 người chơi, 24 tiếng, một ngôi làng chia ba khu, ngăn nhau bằng tường kính. Phần lớn là người mới, nhưng dường như đôi khi có những người chơi kỳ cựu lẫn vào.</p><div class="quest gq"><span class="qk">Điều kiện chiến thắng chính thức</span><span class="qt">Khám phá toàn bộ các khu vực.</span></div>' },
-  { id: 'how', sec: 'Cách chơi', ill: 'play', html: '<ul class="gl"><li>Chọn Luke hoặc Clevia. Người còn lại cũng có mặt trong làng nhưng ở một nơi khác. Tìm nhau trước đã.</li><li>Mỗi hành động tốn thời gian. Hãy để ý đồng hồ.</li><li>Khám phá một nơi là làm xong việc ghi trong khung dưới tên nơi đó.</li><li>Bạn bị khoá trong khu nơi mình tỉnh lại. Sang khu khác cần <b>Bản đồ</b> và <b>thẻ Teleport</b>.</li><li>Hết 24 tiếng mà chưa khám phá đủ, hệ thống sẽ xử lý bạn.</li></ul>' },
-  { id: 'hub', sec: 'Tìm hiểu thêm', hub: 1 },
-  { id: 'q0', sec: 'Năng lực', q: 0 }, { id: 'q1', sec: 'Năng lực', q: 1 }, { id: 'q2', sec: 'Năng lực', q: 2 }, { id: 'q3', sec: 'Năng lực', q: 3 }, { id: 'q4', sec: 'Năng lực', q: 4 },
-  { id: 'res', sec: 'Gợi ý', result: 1 }
-];
+var GUIDE = [{ id: 'hub', sec: 'Tra cứu', hub: 1 }];
 var GPOP = {
+  how: ['flag', 'Luật cơ bản', '<ul class="gl"><li>Luke và Clevia cùng bị kéo vào làng nhưng tỉnh lại ở hai nơi khác nhau trong cùng khu. Tìm nhau trước đã.</li><li>Mỗi việc đều tốn thời gian. Đồng hồ chỉ chạy khi bạn làm gì đó.</li><li>Khám phá một nơi là làm xong việc ghi trong khung dưới tên nơi đó.</li><li>Bạn bị khoá trong khu nơi mình tỉnh lại. Sang khu khác cần <b>Bản đồ</b> và <b>thẻ Teleport</b>.</li><li>Hết 24 tiếng mà chưa khám phá đủ các khu vực thì bị xoá sổ.</li></ul>'],
   danger: ['ghost', 'Nguy hiểm', '<ul class="gl"><li>Ngôi làng không an toàn, và nó không báo trước.</li><li>Đi một mình, hoặc đang chảy máu, thì dễ bị nhắm tới.</li><li>Sức mạnh càng cao, chạm trán càng ít đau.</li><li>Người chơi khác có thể giúp, trao đổi, hoặc tấn công bạn.</li></ul>'],
   feat: ['compass', 'Tính năng quan trọng', '<dl class="gd"><dt>Quan sát</dt><dd>Thấy ai đang ở cùng chỗ và những dấu hiệu lạ.</dd><dt>Bảng thông báo</dt><dd>Số người còn sống và tiến độ khám phá của bạn.</dd><dt>Tìm rương</dt><dd>Mỗi nơi có thể có vài rương. Lục nhiều lần.</dd><dt>Nhà dân</dt><dd>Chỗ trú an toàn tạm thời. Mỗi căn chỉ vào được một lần.</dd><dt>Bản đồ + Teleport</dt><dd>Sang khu khác. Bàn Teleport ở Nhà họp làng cho mỗi người một lượt.</dd><dt>Trạm xá</dt><dd>Chữa lành hoàn toàn, cần ít nhất ba người.</dd><dt>Săn quỷ</dt><dd>Khi khu bạn đang có quỷ, bạn có thể chủ động ra tay. Hạ được thì mạnh hơn.</dd><dt>Thẻ vũ khí</dt><dd>Tăng sức mạnh vĩnh viễn.</dd><dt>Năng lực</dt><dd>Kỹ năng riêng của Luke và Clevia, nút có viền xanh băng.</dd><dt>Tương tác</dt><dd>Chạm Người ở đây trong tranh: nói chuyện, trao đổi, rủ đi cùng hoặc giao đấu.</dd></dl>'],
   ui: ['menu', 'Giao diện & cài đặt', '<dl class="gd"><dt>Tranh</dt><dd>Mọi thứ chơi trên tranh nơi bạn đang đứng. Túi đồ, Bản đồ và Người ở đây là các điểm chạm trong tranh, mở ra thành bảng. Nút Tất cả việc dưới tranh liệt kê mọi việc bằng chữ. Chạm vào đồ vật hay người trong tranh để làm việc; nhân vật sẽ bước tới rồi mới làm. Chỗ sáng màu là việc cần làm để khám phá nơi đó.</dd><dt>Bạn</dt><dd>Chạm vào nhân vật của mình để ăn, băng bó, dùng năng lực hoặc chờ. Khi yếu, trái tim trên đầu nhấp nháy.</dd><dt>Sự kiện</dt><dd>Lời đề nghị, giao kèo, ẩu đả, quỷ đầu đàn… tự bật lên kèm tranh. Chọn ngay trong khung đó.</dd><dt>Nhật ký</dt><dd>Nút cạnh tên nơi. Xem lại mọi chuyện đã xảy ra theo từng giờ, và xuất nhật ký ra chữ để lưu lại. Trong khung Diễn biến, bấm &quot;Nhật ký đầy đủ&quot; cũng tới đây.</dd><dt>Việc bị khoá</dt><dd>Icon xám trong tranh là việc chưa làm được; chạm vào để xem vì sao.</dd><dt>Cài đặt</dt><dd>Tab cuối cùng. Chỉnh nhạc nền, hiệu ứng, âm nút bấm. Bật "Hiện danh sách nút" nếu bạn muốn bấm nút thay cho tranh. Mở lại Hướng dẫn, Chỉ dẫn từng bước, Thành tựu, hoặc chơi lại từ đầu.</dd></dl>'],
   end: ['tree', 'Ending & thành tựu', '<p>Game có 21 ending, tuỳ vào việc bạn sống hay chết, bằng cách nào, và số phận của người đồng đội.</p><p>Mỗi ván mở thêm một nhánh trên cây ending. Thành tựu cộng dồn qua các ván, lưu trên trình duyệt này.</p>']
 };
-var GQ = [
-  { t: 'Bạn bước vào một nơi lạ. Việc đầu tiên bạn làm là…', a: [['Tìm xem nơi này giấu gì: ngăn kéo khoá, cánh cửa đóng, chiếc rương phủ bụi.', 'C'], ['Đứng yên vài giây, lắng nghe xem có gì đó sai sai không.', 'L']] },
-  { t: 'Khi cả nhóm bế tắc, bạn thường là người…', a: [['Nói "khoan đã", rồi chỉ ra lúc nào nên đi, lúc nào nên chờ.', 'L'], ['Tìm ra lối đi mà không ai nghĩ tới.', 'C']] },
-  { t: 'Giữa một trò chơi sinh tử, bạn muốn được tặng…', a: [['Một chiếc chìa khoá mở được mọi ổ khoá.', 'C'], ['Một chiếc đồng hồ báo trước khi nào tai hoạ ập đến.', 'L']] },
-  { t: 'Người khác hay tìm đến bạn khi họ cần…', a: [['Ai đó giữ bình tĩnh lúc mọi thứ rối tung.', 'L'], ['Ai đó mở giúp thứ họ đã bó tay.', 'C']] },
-  { t: 'Bạn tin vào điều gì hơn?', a: [['Cảm giác đầu tiên, kể cả khi chưa giải thích được.', 'C'], ['Những dấu hiệu lặp lại, khi đã thấy đủ nhiều.', 'L']] }
-];
-function gIndex(id) { for (var k = 0; k < GUIDE.length; k++) if (GUIDE[k].id === id) return k; return 0; }
 function renderGuide() {
-  UI.gans = UI.gans || [];
-  var i = UI.gstep || 0, pg = GUIDE[i], n = GUIDE.length, h = '';
-  h += '<div class="cardhead"><div class="eyebrow">' + pg.sec + '</div><button class="link" data-gskip="1">' + (UI.gStart ? 'Bỏ qua hướng dẫn' : 'Đóng') + '</button></div>';
-  h += '<div class="gdots">' + GUIDE.map(function (x, k) { return '<i class="' + (k === i ? 'on' : (k < i ? 'done' : '')) + '"></i>'; }).join('') + '</div>';
-  var back = i > 0 ? '<button class="btn" data-gnav="back"><b>Quay lại</b></button>' : '<span></span>';
-  var next = '<button class="btn primary" data-gnav="next"><b>Tiếp tục</b></button>';
-  if (pg.id === 'open') {
-    h += svgIll(pg.ill) + '<div class="gtext story">' + pg.html + '</div>';
-    h += '<div class="choices"><button class="btn primary" data-gnav="next"><b>Đọc câu chuyện</b><small>3 trang ngắn</small></button><button class="btn" data-gnav="go:chars"><b>Bỏ qua, xem nhân vật</b></button></div>';
-  } else if (pg.hub) {
-    h += '<h2>Tìm hiểu thêm</h2><p class="note">Bấm vào mục bạn muốn xem. Không cần thì cứ bấm Tiếp tục.</p><div class="ghub">' +
-      ['danger', 'feat', 'ui', 'end'].map(function (k) { return '<button class="btn gtile' + (k === 'danger' ? ' red' : '') + '" data-gpop="' + k + '"><span class="gti">' + ico(GPOP[k][0]) + '</span><b>' + GPOP[k][1] + '</b></button>'; }).join('') + '</div>';
-    h += '<div class="gnav">' + back + next + '</div>';
-  } else if (pg.q != null) {
-    var Q = GQ[pg.q];
-    h += '<h2>Bạn hợp với năng lực nào?</h2><p class="gqt">' + Q.t + '</p><div class="choices">' +
-      Q.a.map(function (a) { return '<button class="btn gopt' + (UI.gans[pg.q] === a[1] ? ' sel' : '') + '" data-gq="' + pg.q + ':' + a[1] + '"><b>' + a[0] + '</b></button>'; }).join('') + '</div>';
-    h += '<div class="gnav">' + back + '<span class="note">Câu ' + (pg.q + 1) + '/' + GQ.length + '</span></div>';
-  } else if (pg.result) {
-    var nl = UI.gans.filter(function (x) { return x === 'L'; }).length, sug = nl >= 3 ? 'Luke' : 'Clevia';
-    try { localStorage.setItem('artos_suggest', sug); } catch (e) { }
-    h += svgIll('duo') + '<h2>Bạn hợp với <span class="nm-mc">' + sug + '</span></h2><div class="gtext">' + (sug === 'Luke'
-      ? '<p>Bạn thích đọc tình hình trước khi hành động. Năng lực <b>Anomaly Sense</b> của Luke cho biết khu bạn đang đứng có bất thường không, và còn bao lâu nữa thì có chuyện.</p>'
-      : '<p>Bạn tin trực giác và thích mở những cánh cửa người khác bỏ qua. Năng lực <b>Unlock</b> của Clevia mở rương ngay lập tức và mở được những lối đi người khác không qua được.</p>') +
-      '<p class="note">Đây chỉ là gợi ý. Bạn vẫn chọn ai cũng được.</p></div>';
-    h += '<div class="choices">' + (UI.gStart ? '<button class="btn primary" data-gpick="' + sug + '"><b>Chọn ' + sug + '</b><small>Tiếp theo: vào làng</small></button><button class="btn" data-gskip="1"><b>Tự chọn nhân vật</b></button>'
-      : '<button class="btn primary" data-gskip="1"><b>Đã hiểu</b></button>') + '</div>';
-    h += '<div class="gnav">' + back + '<span></span></div>';
-  } else {
-    h += (pg.ill ? svgIll(pg.ill) : '') + '<div class="gtext' + (pg.story ? ' story' : '') + '">' + pg.html + '</div>';
-    h += '<div class="gnav">' + back + next + '</div>';
-  }
+  var h = '<div class="cardhead"><div class="eyebrow">Hướng dẫn</div><button class="link" data-gskip="1">Đóng</button></div>';
+  h += '<h2>Tra cứu</h2><p class="note">Bấm vào mục bạn muốn xem.</p><div class="ghub">' +
+    ['how', 'danger', 'feat', 'ui', 'end'].map(function (k) { return '<button class="btn gtile' + (k === 'danger' ? ' red' : '') + '" data-gpop="' + k + '"><span class="gti">' + ico(GPOP[k][0]) + '</span><b>' + GPOP[k][1] + '</b></button>'; }).join('') + '</div>';
+  h += '<div class="gnav"><span></span><button class="btn primary" data-gskip="1"><b>Đóng</b></button></div>';
   $('guideCard').innerHTML = h;
 }
-function openGuide(fromStart) { UI.gStart = !!fromStart; UI.gstep = 0; UI.gans = []; renderGuide(); $('guide').hidden = false; }
+function openGuide() { UI.gStart = false; renderGuide(); $('guide').hidden = false; }
 function guideDone() { $('guide').hidden = true; $('gpop').hidden = true; if (UI.gStart) showSelect(true); }
 function showSelect(on) { $('introHome').hidden = !!on; $('introSelect').hidden = !on; $('intro').hidden = false; }
 function gPop(k) {
@@ -6873,7 +6855,7 @@ var PROLOGUE = (function () {
     var A = [
       'Không có gì báo trước. Một nhịp thở trước, mọi thứ vẫn bình thường. Nhịp thở sau, dưới chân ' + H.name + ' đã là ' + (GROUND[H.loc] || 'đất nện') + ', ẩm và lạnh.',
       (LOC_LINE[H.loc] || '').replace(/\{o\}/g, o),
-      { sys: ['ẢO CẢNH: NGÔI LÀNG ĂN THỊT. CẤP C/R', 'Người chơi: 20. Thời gian: 24 tiếng.', 'Điều kiện vượt ải: Khám phá toàn bộ các khu vực.', 'Danh sách người chơi chỉ hiển thị một lần.'], lead: 'Chữ hiện ra giữa không trung, không có giọng đọc, không có ai đứng sau.' }
+      { sys: ['ẢO CẢNH: NGÔI LÀNG ĂN THỊT. CẤP C/R', 'Người chơi: 20. Thời gian: 24 tiếng.', 'Điều kiện vượt ải: Khám phá toàn bộ các khu vực.', 'Hết thời gian mà chưa đạt điều kiện: bị xoá sổ.', 'Danh sách người chơi chỉ hiển thị một lần.'], lead: 'Chữ hiện ra giữa không trung, không có giọng đọc, không có ai đứng sau.' }
     ];
     if (luke) A.push(
       'Hai mươi cái tên trượt qua, nhanh như ai đó đang lật sổ. Luke đọc theo thói quen: đếm, nhớ mặt chữ, xếp vào đầu. ' + names + ' Phần lớn chẳng để lại gì.',
@@ -7798,7 +7780,7 @@ function showEnd() {
   var pf = '';
   if (p.kills) pf += '<p>Số người bạn đã hạ: <b>' + p.kills + '</b>.</p>';
   if (p.hunts) pf += '<p>Số quỷ bạn đã săn: <b>' + p.hunts + '</b>.</p>';
-  if (p.alive && G.outcome !== 'dead') pf += '<p>Phần thưởng mang ra khỏi ải: nội tại <b>&lt;Sercurity&gt;</b>' + (p.rewards.length ? '; ' + p.rewards.map(function (r) { return esc(r.name); }).join('; ') : '') + '.</p>';
+  if (p.alive && G.outcome !== 'dead') pf += '<p>Phần thưởng mang ra khỏi ải: nội tại <b>&lt;Security&gt;</b>' + (p.rewards.length ? '; ' + p.rewards.map(function (r) { return esc(r.name); }).join('; ') : '') + '.</p>';
   $('endCard').innerHTML = '<div class="eyebrow">Ending ' + (E ? E.code : '') + '</div><h2>' + (E ? E.title : 'Kết thúc') + '</h2>' + body +
     '<div class="result-k"><div><b>' + aliveCount(G) + '/' + G.players.length + '</b><span>người còn sống</span></div><div><b>' + exploredCount(p) + '/13</b><span>địa điểm bạn đã khám phá</span></div><div><b>' + (G.passed == null ? '—' : G.passed) + '</b><span>người vượt ải</span></div><div><b>' + fmtT(Math.min(G.t, DAY)) + '</b><span>thời gian đã trôi</span></div></div>' +
     (pf ? '<div class="pbox">' + pf + '</div>' : '') + unlockBox(G) +
@@ -7875,24 +7857,11 @@ document.addEventListener('click', function (e) {
   if (t.dataset.sact) { SF.go(t.dataset.sact); return; }
   if (t.id === 'popClose') { closePop(); }
   else if (t.dataset.why) { t.classList.toggle('show'); }
-  else if (t.id === 'startBtn') {
-    var oldP = PROF.games > 0; t.hidden = true; $('whoBox').hidden = false;
-    $('whoBox').querySelectorAll('[data-who]').forEach(function (b) { b.classList.toggle('primary', (b.dataset.who === 'old') === oldP); });
-  }
-  else if (t.dataset.who) {
-    var isNew = t.dataset.who === 'new';
-    try { localStorage.setItem('artos_coach_v1', isNew ? '0' : '1'); } catch (x) { }
-    $('whoBox').hidden = true; $('startBtn').hidden = false;
-    if (isNew) openGuide(true); else showSelect(true);
-  }
-  else if (t.id === 'guideAgain') { openGuide(true); }
+  else if (t.id === 'startBtn') { showSelect(true); }
   else if (t.id === 'introBack') { showSelect(false); }
   else if (t.dataset.open === 'guide') { openGuide(false); }
   else if (t.dataset.gskip) { guideDone(); }
   else if (t.dataset.gpop) { gPop(t.dataset.gpop); }
-  else if (t.dataset.gnav) { var gn = t.dataset.gnav; if (gn === 'next') UI.gstep++; else if (gn === 'back') UI.gstep = Math.max(0, UI.gstep - 1); else if (gn.indexOf('go:') === 0) UI.gstep = gIndex(gn.slice(3)); renderGuide(); }
-  else if (t.dataset.gq) { var gq = t.dataset.gq.split(':'); UI.gans[+gq[0]] = gq[1]; UI.gstep++; renderGuide(); }
-  else if (t.dataset.gpick) { selProt = t.dataset.gpick; renderIntro(); guideDone(); }
   else if (t.id === 'openProf' || t.dataset.open === 'prof') { openProf(); }
   else if (t.dataset.close) { $(t.dataset.close).hidden = true; }
   else if (t.dataset.ptab) { UI.ptab = t.dataset.ptab; UI.resetArm = false; renderProf(); }
