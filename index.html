@@ -704,6 +704,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 #intro .btn.primary small{color:#cfe0f3}
 #intro .btn:hover{background:#1c2432}
 #intro .btn:active{transform:translateY(2px);box-shadow:0 -2px 0 0 #9fc1e6,0 2px 0 0 #9fc1e6,-2px 0 0 0 #9fc1e6,2px 0 0 0 #9fc1e6}
+#intro{background:radial-gradient(90% 70% at 50% 30%,#0d121b,#030406)!important}
+#intro .card{background:transparent;box-shadow:none;margin-left:auto;margin-right:auto}
 #intro .btn.sm b,#intro .btn.sm{font-size:20px}
 #intro .link,#intro .adv summary{font:400 20px var(--mono);letter-spacing:.03em}
 #intro input[type=text]{border-radius:0;font:400 20px var(--mono)}
@@ -5672,7 +5674,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.06-9';
+var GAME_VERSION = '2026.11.06-10';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7985,7 +7987,7 @@ document.addEventListener('click', function (e) {
     if (G) render();
   }
   else if (t.dataset.act) { if (!MAPV.intercept(t.dataset.act)) act(t.dataset.act); }
-  else if (t.dataset.restart || t.id === 'restart') { UI.last = null; $('end').hidden = true; showSelect(false); renderIntro(); }
+  else if (t.dataset.restart || t.id === 'restart') { UI.last = null; UI.setPop = null; UI.confirmRestart = false; try { renderSetPop(); } catch (e) { } $('end').hidden = true; showSelect(false); renderIntro(); }
   else if (t.id === 'rosterReset') { try { localStorage.removeItem('artos_roster_v1'); } catch (x) { } rosterMsg('Đã khôi phục roster mặc định.', 'ok'); renderIntro(); }
 });
 $('pop').addEventListener('click', function (e) { if (e.target === this) closePop(); });
