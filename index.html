@@ -976,10 +976,10 @@ body.playhud #herePanel{padding-top:8px}
 .sfslot .sf-stage{max-width:640px;margin:0 auto}
 .hot.q .hic{color:var(--on-p,#14110c);background:var(--acc);box-shadow:0 -2px 0 0 #07080a,0 2px 0 0 #07080a,-2px 0 0 0 #07080a,2px 0 0 0 #07080a,0 0 12px 3px rgba(var(--acc-rgb),.7)}
 .hot.q .hlb{color:#fff;box-shadow:0 0 0 1px var(--acc)}
-.hot.me{width:30px;height:30px;margin:-15px 0 0 -15px;z-index:1}
+.hot.me{width:42px;height:42px;margin:-21px 0 0 -21px;z-index:3}
 .hot.me .hlb{display:none}
-.hot.me .hic{width:16px;height:16px;background:rgba(10,12,16,.7);color:#9fc1e6;box-shadow:0 0 0 1px #07080a}
-.hot.me .hic .i{width:13px;height:13px}
+.hot.me .hic{width:22px;height:22px;background:rgba(10,12,16,.7);color:#9fc1e6;box-shadow:0 0 0 1px #07080a}
+.hot.me .hic .i{width:15px;height:15px}
 .hot.me.low .hic{color:#f0b0a6}
 @media (prefers-reduced-motion:no-preference){.hot.me.low .hic{animation:melow 1s steps(2) infinite}}
 @keyframes melow{50%{color:#d06a5c;box-shadow:0 -2px 0 0 #07080a,0 2px 0 0 #07080a,-2px 0 0 0 #07080a,2px 0 0 0 #07080a,0 0 10px 2px rgba(208,106,92,.6)}}
@@ -5524,7 +5524,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.05-26';
+var GAME_VERSION = '2026.11.05-27';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
