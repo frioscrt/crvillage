@@ -12,6 +12,8 @@
 .underscene .quest{margin-top:0;padding:7px 10px}
 .underscene .quest .qk{font-size:calc(10px * var(--mk,1))}
 .usrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.uslog{display:none}
+@media (max-width:640px){.uslog{display:block;margin-top:6px}.uslh{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font:500 calc(11px * var(--mk,1))/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--glass)}.uslmore{padding:4px 0;font:500 12px var(--sans);letter-spacing:0;text-transform:none;color:var(--dim);text-decoration:underline;text-underline-offset:3px;background:none;border:0}.usll{max-height:none;cursor:pointer;-webkit-mask-image:linear-gradient(to bottom,#000 70%,transparent);mask-image:linear-gradient(to bottom,#000 70%,transparent)}.usll .ln{grid-template-columns:40px minmax(0,1fr);gap:8px;padding:6px 0;font-size:14px}.usll .ln time{font-size:11px;line-height:1.7}.usll .ln.new p{color:var(--fg)}}
 .usrow .goal.open{flex-basis:100%;margin:0}
 .hintbtn,.allacts{display:inline-flex;align-items:center;gap:6px}.hintbtn .i,.allacts .i{width:16px;height:16px}
 .allacts{margin-left:auto}
@@ -5525,7 +5527,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.06-2';
+var GAME_VERSION = '2026.11.06-3';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6812,7 +6814,7 @@ function closePop() { UI.popOpen = false; $('pop').hidden = true; logFab(); setT
 function logFab() {
   var f = $('logFab'); if (!f) return;
   if (UI.last && !$('pop').hidden) UI.fabSeen = UI.last.t0 + ':' + UI.last.items.length;
-  var show = !!(G && !G.over && !G.isBackdrop && UI.last && $('pop').hidden);
+  var show = !!(G && !G.over && !G.isBackdrop && UI.last && $('pop').hidden) && !(window.innerWidth <= 640 && $('usLog'));
   f.hidden = !show;
   if (show) { var k = UI.last.t0 + ':' + UI.last.items.length; f.classList.toggle('fresh', UI.fabSeen !== k); }
 }
@@ -7316,7 +7318,7 @@ function renderHere(acts, d, p, l) {
     var grid = false;
     if (actView() === 'scene' && !G.isBackdrop && !G.over && p.alive) {
       b += '<div class="sfslot" id="sfSlot"></div>';
-      b += '<div class="underscene">' + questH + '<div class="usrow">' + goalH + '<button class="btn sm allacts" data-ui="tab:all">' + ico('menu') + ' Tất cả việc</button></div></div>';
+      b += '<div class="underscene">' + questH + '<div class="usrow">' + goalH + '<button class="btn sm allacts" data-ui="tab:all">' + ico('menu') + ' Tất cả việc</button></div><div class="uslog" id="usLog"></div></div>';
     } else if (grid) {
       var all = spec.concat(gen), ord = function (a) { return isQ(a) ? -1 : SF.order(p.loc, a.id); };
       all = all.map(function (a, i) { return [a, i]; }).sort(function (x, y) { return (ord(x[0]) - ord(y[0])) || (x[1] - y[1]); }).map(function (x) { return x[0]; });
@@ -7551,16 +7553,20 @@ function render() {
   $('abil').innerHTML = ABIL_HTML;
   MAP_HTML = mh;
   var lines = G.log.slice(-60).reverse(), lastT = G.log.length ? G.log[G.log.length - 1].t : 0;
-  LOG_HTML = lines.map(function (e) {
+  var LH = lines.map(function (e) {
     var ak = e.art ? 'a:' + e.art : (e.cg ? 'c:' + e.cg : '');
     return '<div class="ln ' + e.tone + (e.t === lastT ? ' new' : '') + '"><time>' + fmtT(e.t) + '</time><p>' + (ak ? '<button class="lnart" data-lnart="' + esc(ak) + '" aria-label="Xem tranh lúc ' + fmtT(e.t) + '"><img class="pix lnimg" alt="" data-artk="' + esc(ak) + '"></button>' : '') + paint(esc(e.text)) + '</p></div>';
-  }).join('');
+  });
+  LOG_HTML = LH.join('');
   $('log').innerHTML = LOG_HTML;
+  /* điện thoại: vài dòng mới nhất ngay dưới tranh, chạm để mở cả nhật ký */
+  UI.usLogHtml = LH.length ? '<div class="uslh"><span>Diễn biến</span><button class="uslmore" data-ui="fulllog">Xem cả nhật ký</button></div><div class="usll log">' + LH.slice(0, 8).join('') + '</div>' : '';
 
   updateBadges(G, acts, describeHere(G), p);
   var oldTb = document.querySelector('#herePanel .tabbody');
   var keep = oldTb && UI.shownTab === UI.tab && UI.shownLoc === p.loc ? oldTb.scrollTop : 0;
   $('herePanel').innerHTML = renderHere(acts, describeHere(G), p, l);
+  var ul = $('usLog'); if (ul) ul.innerHTML = UI.usLogHtml || '';
   UI.shownTab = UI.tab; UI.shownLoc = p.loc;
   document.body.classList.toggle('playhud', !!(actView() === 'scene' && !G.isBackdrop && !G.over && p.alive && UI.tab !== 'more' && UI.tab !== 'log'));
   try { SF.render(acts, p, l); } catch (e) { }
@@ -7801,6 +7807,7 @@ document.addEventListener('click', function (e) {
 });
 $('pop').addEventListener('click', function (e) { if (e.target === this) closePop(); });
 $('sceneFrame').addEventListener('click', function (e) { if (e.target === this) SF.close(); else if (!e.target.closest('button') && !e.target.closest('.hbub')) SF.closeBubble(); });
+document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.usll') && !e.target.closest('button')) { var mb = document.querySelector('.uslmore'); if (mb) mb.click(); } });
 document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('[data-tsclose]')) { UI.tinfo = null; if (G) render(); } });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && UI.sceneOpen) SF.close(); });
 $('mpop').addEventListener('click', function (e) { if (e.target === this) { UI.mpop = null; this.hidden = true; setTimeout(coachUpdate, 30); } });
