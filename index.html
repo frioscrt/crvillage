@@ -1037,17 +1037,18 @@ button.vm-n:focus-visible{outline:2px solid #9fc1e6;outline-offset:2px}
 .act .ico{border-radius:0;box-shadow:0 0 0 1px rgba(0,0,0,.4)}
 .act .m{border-radius:0}
 /* nút có màu theo loại việc, khung pixel cùng màu (trong bong bóng tranh và bảng Tương tác) */
-.hbub .act,#mpop .act{--pxb:color-mix(in srgb,var(--tc) 55%,#07080a);--pxh:rgba(255,255,255,.06);background:#1d2128;
+.hbub .act,#mpop .act,#evpop .act{--pxb:color-mix(in srgb,var(--tc) 55%,#07080a);--pxh:rgba(255,255,255,.06);background:#1d2128;
   box-shadow:0 -2px 0 0 var(--pxb),0 2px 0 0 var(--pxb),-2px 0 0 0 var(--pxb),2px 0 0 0 var(--pxb),0 5px 0 0 rgba(0,0,0,.6),inset 6px 0 0 0 var(--tc),inset 8px 0 0 0 #07080a,inset 0 2px 0 0 var(--pxh),inset 0 -2px 0 0 rgba(0,0,0,.25);padding-left:16px}
-.hbub .act:hover:not(.off),#mpop .act:hover:not(.off){--pxb:var(--tc)}
-.hbub .act:not(.off):active,#mpop .act:not(.off):active{box-shadow:0 -2px 0 0 var(--pxb),0 2px 0 0 var(--pxb),-2px 0 0 0 var(--pxb),2px 0 0 0 var(--pxb),inset 6px 0 0 0 var(--tc),inset 8px 0 0 0 #07080a,inset 0 2px 0 0 rgba(0,0,0,.28)}
-.hbub .act.off,#mpop .act.off{--tc:#5c6470!important;box-shadow:0 -2px 0 0 #2a2f37,0 2px 0 0 #2a2f37,-2px 0 0 0 #2a2f37,2px 0 0 0 #2a2f37,inset 6px 0 0 0 var(--tc),inset 8px 0 0 0 #07080a}
-.hbub .act .l,#mpop .act .l{color:#eef2f7}
-.hbub .act .ico,#mpop .act .ico{color:var(--tc);background:color-mix(in srgb,var(--tc) 16%,#0c0e12);box-shadow:0 0 0 2px color-mix(in srgb,var(--tc) 45%,#07080a)}
-.hbub .act .l::before,#mpop .act .l::before{content:none}
+.hbub .act:hover:not(.off),#mpop .act:hover:not(.off),#evpop .act:hover:not(.off){--pxb:var(--tc)}
+.hbub .act:not(.off):active,#mpop .act:not(.off):active,#evpop .act:not(.off):active{box-shadow:0 -2px 0 0 var(--pxb),0 2px 0 0 var(--pxb),-2px 0 0 0 var(--pxb),2px 0 0 0 var(--pxb),inset 6px 0 0 0 var(--tc),inset 8px 0 0 0 #07080a,inset 0 2px 0 0 rgba(0,0,0,.28)}
+.hbub .act.off,#mpop .act.off,#evpop .act.off{--tc:#5c6470!important;box-shadow:0 -2px 0 0 #2a2f37,0 2px 0 0 #2a2f37,-2px 0 0 0 #2a2f37,2px 0 0 0 #2a2f37,inset 6px 0 0 0 var(--tc),inset 8px 0 0 0 #07080a}
+.hbub .act .l,#mpop .act .l,#evpop .act .l{color:#eef2f7}
+.hbub .act .ico,#mpop .act .ico,#evpop .act .ico{color:var(--tc);background:color-mix(in srgb,var(--tc) 16%,#0c0e12);box-shadow:0 0 0 2px color-mix(in srgb,var(--tc) 45%,#07080a)}
+.hbub .act .l::before,#mpop .act .l::before,#evpop .act .l::before{content:none}
 .act{--tc:#9fc1e6}.act.t-heal{--tc:#86b393}.act.t-skill{--tc:#b7a0e6}.act.t-talk{--tc:#e0b25a}.act.t-rest{--tc:#7f95c6}.act.t-shop{--tc:#79c3b7}.act.t-danger{--tc:#d06a5c}.act.t-work{--tc:#9fc1e6}
-.hbub .act.questact,#mpop .act.questact{background:#2a2617;--pxb:var(--acc)}
-.hbub,#mpopCard{--hbf:#9fc1e6}
+.hbub .act.questact,#mpop .act.questact,#evpop .act.questact{background:#2a2617;--pxb:var(--acc)}
+.hbub,#mpopCard,.evcard{--hbf:#9fc1e6}
+#evpop .evcard{box-shadow:0 -3px 0 0 var(--hbf),0 3px 0 0 var(--hbf),-3px 0 0 0 var(--hbf),3px 0 0 0 var(--hbf),0 -6px 0 0 #07080a,0 6px 0 0 #07080a,-6px 0 0 0 #07080a,6px 0 0 0 #07080a,0 18px 50px rgba(0,0,0,.6)}
 #mpopCard{border:0;border-radius:0;box-shadow:0 -3px 0 0 var(--hbf),0 3px 0 0 var(--hbf),-3px 0 0 0 var(--hbf),3px 0 0 0 var(--hbf),0 -6px 0 0 #07080a,0 6px 0 0 #07080a,-6px 0 0 0 #07080a,6px 0 0 0 #07080a,0 12px 0 0 rgba(0,0,0,.5)}
 .hbub{box-shadow:0 -3px 0 0 var(--hbf),0 3px 0 0 var(--hbf),-3px 0 0 0 var(--hbf),3px 0 0 0 var(--hbf),0 -5px 0 0 #07080a,0 5px 0 0 #07080a,-5px 0 0 0 #07080a,5px 0 0 0 #07080a,0 9px 0 0 rgba(0,0,0,.55)}
 .quest{border:0;border-radius:0;box-shadow:0 -2px 0 0 rgba(var(--acc-rgb),.45),0 2px 0 0 rgba(var(--acc-rgb),.45),-2px 0 0 0 rgba(var(--acc-rgb),.45),2px 0 0 0 rgba(var(--acc-rgb),.45)}
@@ -5524,7 +5525,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.05-27';
+var GAME_VERSION = '2026.11.06-2';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -5640,12 +5641,24 @@ var AMB = (function () {
     if (ring) [[-1, 0], [1, 0], [0, -1], [0, 1]].forEach(function (o) { r.forEach(function (q) { fill(q[0] + o[0], q[1] + o[1], q[2], q[3], '#9fc1e6', .7); }); });
     r.forEach(function (q) { fill(q[0], q[1], q[2], q[3], q[4], 1); });
   }
+  /* dân làng: cùng dáng người, màu áo/tóc riêng; nón lá (non) hoặc khăn đóng (khan) để khác người chơi */
+  function drawNpc(v) {
+    var key = '~' + v.name; FIG[key] = [v.cloth, v.hair, v.long ? 1 : 0];
+    var x = Math.round(v.x), y = Math.round(v.y);
+    figRects(x, y, key, false).forEach(function (q) { fill(q[0], q[1], q[2], q[3], q[4], 1); });
+    if (v.hat === 'non') { fill(x - 3, y - 11, 7, 1, '#c9a86a', 1); fill(x - 2, y - 12, 5, 1, '#d8bb7e', 1); fill(x, y - 13, 1, 1, '#e3c98f', 1); }
+    else if (v.hat === 'khan') { fill(x - 1, y - 12, 3, 2, '#1d1f26', 1); fill(x - 1, y - 12, 3, 1, '#3a3020', 1); }
+    if (v.item === 'rod') { fill(x + 3, y - 12, 1, 10, '#8a6a44', 1); }
+    if (v.item === 'hammer') { fill(x + 3, y - 7, 1, 4, '#8a6a44', 1); fill(x + 2, y - 8, 3, 1, '#7d8794', 1); }
+    if (v.item === 'apron') { fill(x - 1, y - 6, 3, 4, '#d9d4c7', 1); }
+  }
   var FIGON = false;
   function figures(now) {
     var m = st && st.me; if (!m || !FIGON) return;
     var walking = false;
     if (m.t0) { var k = Math.min(1, (now - m.t0) / m.dur); m.x = m.fx + (m.tx - m.fx) * k; m.y = m.fy + (m.ty - m.fy) * k; walking = k < 1; if (k >= 1) { m.t0 = 0; var cb = m.cb; m.cb = null; if (cb) setTimeout(cb, 0); } }
     var step = walking && (Math.floor(now / 110) % 2 === 0);
+    (st.npcs || []).forEach(function (v) { drawNpc(v); });
     (st.others || []).forEach(function (o) { drawFig(o.x, o.y, o.name, false, false); });
     if (m.ally) drawFig(m.x - 6, m.y, m.ally, step, false);
     drawFig(m.x, m.y, m.who, step, true);
@@ -5667,6 +5680,7 @@ var AMB = (function () {
       st.present = present;
       if (who) { if (!st.me || st.me.who !== who.me) st.me = { who: who.me, x: who.home[0], y: who.home[1] }; st.me.ally = who.ally || null; } else st.me = null;
       st.others = (who && who.others) || [];
+      st.npcs = (who && who.npcs) || [];
       if (reduced()) { stop(); return; }
       if (!raf) raf = requestAnimationFrame(frame);
     },
@@ -5744,14 +5758,14 @@ function tileOf(a) {
 }
 var SF = (function () {
   function look(x, y) { return { k: 'look', x: x, y: y, ic: 'eye', name: 'Nhìn quanh', ids: /^(observe|sense|hunt)$/ }; }
-  function ppl(x, y, fy) { return { k: 'ppl', x: x, y: y, fy: fy, ic: 'people', name: 'Người ở đây', ids: /^talk$/, go: 'person', ui: [['tab:person', 'people', 'Xem những người ở đây']] }; }
+  function ppl(x, y, fy) { return { k: 'ppl', x: x, y: y, fy: fy, ic: 'people', name: 'Người ở đây', ids: /^$/, go: 'person', ui: [['tab:person', 'people', 'Xem những người ở đây']] }; }
   function chest(x, y, fy, name) { return { k: 'chest', x: x, y: y, fy: fy, ic: 'search', name: name || 'Góc khuất', ids: /^(findchest|openchest|unlockchest)$/ }; }
   var EXIT = { k: 'exit', x: 8, y: 60, fy: 64, ic: 'map', name: 'Bản đồ', ids: /^leave:go$/, go: 'go', ui: [['tab:go', 'map', 'Mở bản đồ di chuyển']] };
   var BAG = { k: 'bag', x: 8, y: 32, ic: 'bag', name: 'Túi đồ', ids: /^$/, go: 'bag', ui: [['tab:bag', 'bag', 'Mở túi đồ']] };
   var T = {
     hall: { home: [60, 63], hot: [{ k: 'board', x: 15, y: 46, fy: 59, ic: 'board', name: 'Bảng thông báo', ids: /^board$/ }, { k: 'bell', x: 64, y: 22, fy: 58, ic: 'bell', name: 'Chuông làng', ids: /^purify$/ }, ppl(112, 50, 64), look(32, 12), chest(90, 62, 66)] },
     chief: { home: [66, 64], hot: [{ k: 'door', x: 60, y: 43, fy: 53, ic: 'scroll', name: 'Cửa nhà trưởng làng', ids: /^register$/ }, { k: 'hearth', x: 40, y: 41, fy: 53, ic: 'bowl', name: 'Bếp lửa', ids: /^(cook(:.*)?|cookhint)$/ }, ppl(36, 62, 66), look(96, 14), chest(112, 64, 66)] },
-    market: { home: [46, 68], hot: [{ k: 's1', x: 19, y: 48, fy: 64, ic: 'coin', name: 'Thương nhân', ids: /^(info|sellfood|trade_mat)$/ }, { k: 's2', x: 51, y: 48, fy: 64, ic: 'card', name: 'Sạp thẻ', ids: /^buy:(?!weapon$|herb$)/ }, { k: 's3', x: 83, y: 48, fy: 64, ic: 'sword', name: 'Sạp vũ khí', ids: /^buy:weapon$/ }, { k: 's4', x: 113, y: 48, fy: 64, ic: 'leaf', name: 'Sạp thuốc', ids: /^buy:herb$/ }, ppl(66, 62, 68), look(24, 12), chest(120, 34, 64)] },
+    market: { home: [46, 68], hot: [{ k: 's1', x: 19, y: 48, fy: 64, ic: 'coin', name: 'Thương nhân', ids: /^(info|sellfood|trade_mat|talk)$/ }, { k: 's2', x: 51, y: 48, fy: 64, ic: 'card', name: 'Sạp thẻ', ids: /^buy:(?!weapon$|herb$)/ }, { k: 's3', x: 83, y: 48, fy: 64, ic: 'sword', name: 'Sạp vũ khí', ids: /^buy:weapon$/ }, { k: 's4', x: 113, y: 48, fy: 64, ic: 'leaf', name: 'Sạp thuốc', ids: /^buy:herb$/ }, ppl(66, 62, 68), look(24, 12), chest(120, 34, 64)] },
     clinic: { home: [64, 61], hot: [{ k: 'door', x: 63, y: 42, fy: 53, ic: 'cross', name: 'Cửa trạm xá', ids: /^(nurse|patient)$/ }, { k: 'stove', x: 14, y: 48, fy: 60, ic: 'pot', name: 'Bếp thuốc', ids: /^brew$/ }, ppl(86, 50, 60), look(96, 14), chest(116, 40, 60)] },
     farm: { home: [46, 66], hot: [{ k: 'field', x: 58, y: 56, fy: 64, ic: 'wheat', name: 'Ruộng', ids: /^harvest$/ }, ppl(110, 58, 66), look(56, 12), chest(95, 38, 46, 'Kho thóc')] },
     pier: { home: [62, 47], hot: [{ k: 'river', x: 28, y: 58, fx: 46, fy: 47, ic: 'fish', name: 'Mặt sông', ids: /^(startpier|fish)$/ }, ppl(57, 36, 47), look(96, 14), chest(89, 39, 47, 'Chòi câu')] },
@@ -5763,6 +5777,18 @@ var SF = (function () {
     var g = houseGeo(loc), hx = g.hx;
     return { home: [hx + 20, 61], hot: [{ k: 'hearth', x: hx + 18, y: 44, fy: 56, ic: 'bowl', name: 'Bếp lửa', ids: /^(cook(:.*)?|cookhint)$/ }, chest(hx + 34, 43, 56, 'Góc nhà'), ppl(Math.max(16, hx - 12), 56, 62), look(g.mz ? 96 : 22, g.mz ? 14 : 12)] };
   }
+  /* dân làng đứng trong tranh, chạm để Nói chuyện với dân làng. x, fy: chân người; at: gắn vào điểm có sẵn thay vì thêm điểm mới */
+  var NPC = {
+    hall: { name: 'Dân làng', x: 40, fy: 64, cloth: '#5a4a36', hair: '#2a2420', hat: 'non' },
+    chief: { name: 'Trưởng làng', x: 82, fy: 60, cloth: '#3f3a52', hair: '#cfcac0', hat: 'khan' },
+    market: { name: 'Thương nhân', x: 19, fy: 63, cloth: '#6a4a2a', hair: '#2a2420', hat: 'non', at: 's1' },
+    clinic: { name: 'Bác sĩ', x: 42, fy: 62, cloth: '#d9d4c7', hair: '#3a3530' },
+    farm: { name: 'Bác nông dân', x: 42, fy: 64, cloth: '#4f5a3a', hair: '#2a2420', hat: 'non' },
+    pier: { name: 'Ông câu cá', x: 116, fy: 52, cloth: '#3e4a52', hair: '#bdb6aa', hat: 'non', item: 'rod' },
+    mine: { name: 'Người gác cổng', x: 92, fy: 62, cloth: '#3b3530', hair: '#1c1c20', at: 'gate' },
+    forge: { name: 'Thợ rèn', x: 40, fy: 58, cloth: '#4a3a30', hair: '#1c1c20', item: 'hammer' }
+  };
+  function npcOf(loc) { if (NPC[loc]) return NPC[loc]; var g = houseGeo(loc); return { name: 'Chủ nhà', x: g.hx + 6, fy: 60, cloth: '#5b4636', hair: '#d4cec4', long: 1 }; }
   var cur = { hots: [], loc: null, acts: [] }, seen = {}, STAGE = null;
   /* lớp chữ đè lên mép trên tranh: tên nơi, đồng hồ, chỉ số, hiệu ứng, nút Nhật ký / Âm thanh / Cài đặt */
   function hud(p, l) {
@@ -5808,7 +5834,7 @@ var SF = (function () {
     function hit(b) { return boxes.some(function (o) { return b[0] < o[2] && o[0] < b[2] && b[1] < o[3] && o[1] < b[3]; }); }
     cur.hots.slice().sort(function (a, b) { return a.x - b.x; }).forEach(function (h) {
       if (h.k === 'me') return;
-      var one = single(h, acts), t = one ? tileOf(one) : null, label = t ? t.verb + (t.min ? ' · ' + t.min : '') : h.name;
+      var one = single(h, acts), t = one ? tileOf(one) : null, label = t ? (h.named ? h.name : t.verb) + (t.min ? ' · ' + t.min : '') : h.name;
       var w = (label.length * ch + 8) * u, lhU = lh * u, g = gap * u, side = (ih + 3) * u;
       function inb(b) { return b[0] >= 0.5 && b[2] <= 127.5 && b[1] >= (cur.topY || 0.5) && b[3] <= 71.5; }
       function horiz(cls) { var x0 = h.x - w / 2, x1 = h.x + w / 2; if (x0 < 1) { x0 = h.x - 19 * u + 6 * u; x1 = x0 + w; cls = ' el'; } else if (x1 > 127) { x1 = h.x + 19 * u - 6 * u; x0 = x1 - w; cls = ' er'; } return [x0, x1, cls]; }
@@ -5829,7 +5855,7 @@ var SF = (function () {
     cur.hots.forEach(function (h) {
       var l = hotActs(h, acts), one = single(h, acts), t = one ? tileOf(one) : null;
       var off = !h.ui && l.every(function (a) { return a.off; }), dng = l.some(function (a) { return TILE_DANGER[a.id.split(':')[0]]; });
-      var label = t ? t.verb + (t.min ? ' · ' + t.min : '') : h.name, aria = one ? one.label + (one.min ? ', ' + one.min + ' phút' : '') + (one.off ? ', đang khoá: ' + one.off : '') : h.name;
+      var label = t ? (h.named ? h.name : t.verb) + (t.min ? ' · ' + t.min : '') : h.name, aria = one ? one.label + (one.min ? ', ' + one.min + ' phút' : '') + (one.off ? ', đang khoá: ' + one.off : '') : h.name;
       var isQ = l.some(function (a) { return UI.qa && UI.qa[a.id.split(':')[0]]; });
       html += '<button class="hot' + (fl[h.k] || '') + (isQ && !off ? ' q' : '') + (h.k === 'me' ? ' me' + (G.players[0].hp < 50 ? ' low' : '') : '') + (off ? ' off' : '') + (dng && !off ? ' dng' : '') + (UI.hot === h.k ? ' sel' : '') + '" data-hot="' + h.k + '" style="left:' + (h.x / 128 * 100).toFixed(2) + '%;top:' + (h.y / 72 * 100).toFixed(2) + '%" aria-label="' + esc(aria) + '"><span class="hic">' + (h.face && window.ART2 && ART2.faceURL ? '<img class="pix hface" alt="" src="' + ART2.faceURL(h.face) + '">' : ico(t ? t.ic : h.ic)) + '</span><span class="hlb">' + esc(label) + '</span></button>';
     });
@@ -5863,7 +5889,8 @@ var SF = (function () {
       }
       var c = cfg(p.loc);
       cur.acts = acts;
-      cur.hots = c.hot.concat([EXIT, BAG]).map(function (h) { return Object.assign({}, h); }).filter(function (h) { return h.ui || hotActs(h, acts).length; });
+      var npc = npcOf(p.loc), npcHot = npc.at ? [] : [{ k: 'npc', x: npc.x, y: npc.fy - 15, fx: npc.x + 6, fy: npc.fy, ic: 'talk', name: npc.name, named: 1, ids: /^talk$/ }];
+      cur.hots = c.hot.concat(npcHot, [EXIT, BAG]).map(function (h) { return Object.assign({}, h); }).filter(function (h) { return h.ui || hotActs(h, acts).length; });
       /* việc ở nơi này mà không chỗ nào trong tranh nhận: gom vào "Việc khác" để không mất việc nào */
       var claimed = {}; cur.hots.forEach(function (h) { hotActs(h, acts).forEach(function (a) { claimed[a.id] = 1; }); });
       var left = acts.filter(function (a) { return a.group === 'here' && !claimed[a.id] && !isSkillAct(a); });
@@ -5871,7 +5898,7 @@ var SF = (function () {
       var mp = (function () { try { return AMB.mePos(); } catch (e) { return null; } })() || c.home;
       cur.hots.push({ k: 'me', x: mp[0] + 4, y: Math.max(6, mp[1] - 15), ic: 'heart', name: 'Bạn', ids: /^$/ });
       if (!cur.hots.some(function (h) { return h.k === UI.hot; })) UI.hot = null;
-      var al = partner(G), who = { me: p.name, ally: al && al.alive && allyHere(G) ? al.name : null, home: c.home };
+      var al = partner(G), who = { me: p.name, ally: al && al.alive && allyHere(G) ? al.name : null, home: c.home, npcs: [npc] };
       /* người đã quan sát ở đây (không tính đồng đội đã vẽ cạnh bạn): tối đa 4 người đứng quanh chỗ "Người ở đây" */
       var presAll = presentOthers(G).filter(function (o) { return o.alive && o.loc === p.loc && o !== al; }), pres = presAll.slice(0, 4);
       var anc = c.hot.filter(function (h) { return h.k === 'ppl'; })[0] || { x: Math.min(118, c.home[0] + 22), fy: c.home[1] };
@@ -7186,7 +7213,7 @@ function renderHere(acts, d, p, l) {
     if (!chq || chq.opened || chq.later || G.isBackdrop || actView() !== 'scene') return;
     var cl = acts.filter(function (a) { return a.id === 'openchest' || a.id === 'unlockchest'; });
     if (!cl.length) return;
-    h += '<div class="offer chestoffer"><b>Bạn thấy một chiếc rương. Mở bằng cách nào?</b><div class="list">' + actsOf(cl) + '<button class="act" data-ui="chestlater"><span class="l">Để sau</span><span class="m"></span></button></div></div>';
+    h += '<div class="offer chestoffer"><b>Bạn thấy một chiếc rương. Mở bằng cách nào?</b><div class="list">' + actsOf(cl) + '<button class="act t-rest" data-ui="chestlater"><span class="l"><span class="ico">' + ico('hourglass') + '</span>Để sau</span><span class="m"></span></button></div></div>';
   })();
   var lv = by('leave');
   if (lv.length) h += '<div class="offer"><b>Bạn đã khám phá đủ 13 nơi. Cửa ra đã mở.</b><div class="list">' + actsOf(lv) + '</div></div>';
