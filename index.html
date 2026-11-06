@@ -1026,10 +1026,20 @@ body.playhud #herePanel{padding-top:8px}
 .setbody{overflow-y:auto;padding:12px 16px 18px;display:grid;gap:16px;align-content:start}
 .setbody .gh{font:400 calc(16px * var(--mk,1))/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#9fc1e6}
 .setbody .btn{border-radius:0}
-.prologue{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:radial-gradient(90% 70% at 50% 35%,#0d121b,#030406)}
+.prologue{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;overflow-y:auto;background:radial-gradient(90% 70% at 50% 35%,#0d121b,#030406)}
 .prologue[hidden]{display:none}
 .plcard{width:min(560px,100%);display:grid;gap:22px;cursor:pointer}
-.plbody{min-height:180px;display:grid;align-content:center;gap:14px;animation:plin .6s ease both}
+.plart{position:relative;width:min(100%,calc(32dvh * 128 / 72));justify-self:center;aspect-ratio:128/72;background:#05070a;box-shadow:0 -3px 0 0 #3e5878,0 3px 0 0 #3e5878,-3px 0 0 0 #3e5878,3px 0 0 0 #3e5878,0 8px 0 0 rgba(0,0,0,.5);overflow:hidden}
+.plart img{display:block;width:100%;height:100%;image-rendering:pixelated;animation:plart .9s steps(6) both}
+@keyframes plart{from{opacity:0;filter:brightness(1.8)}to{opacity:1;filter:none}}
+.plov{position:absolute;left:18.75%;width:62.5%;top:11.1%;height:47.2%;overflow:hidden;background:#0e1a2a;display:grid;place-items:center;font-family:var(--mono);color:#cfe0f3;text-transform:uppercase}
+.plroll>div{position:absolute;left:0;right:0;top:0;display:grid;gap:2px;justify-items:center;font-size:clamp(14px,4vw,22px);letter-spacing:.12em;animation:plroll 2.2s linear infinite;filter:blur(.4px);opacity:.85}
+.plroll::after{content:'';position:absolute;inset:0;background:linear-gradient(#0e1a2a,transparent 25%,transparent 75%,#0e1a2a)}
+@keyframes plroll{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+.plone span{font-size:clamp(20px,6vw,34px);letter-spacing:.14em;color:#fff;text-shadow:0 0 8px #9fc1e6,0 0 2px #fff;animation:plone 1.6s steps(2) infinite}
+@keyframes plone{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){.plart img,.plroll>div,.plone span{animation:none}}
+.plbody{min-height:120px;display:grid;align-content:center;gap:14px;animation:plin .6s ease both}
 .plbody p{margin:0;font:500 20px/1.65 var(--serif);color:#efe9df}
 .plbody p i{display:block;font-style:normal;font-weight:700;font-size:28px;color:#fff;letter-spacing:.02em}
 .plsys{display:grid;gap:8px;padding:14px 16px;border:1px solid rgba(159,193,230,.55);background:rgba(20,30,46,.55);box-shadow:0 0 24px rgba(159,193,230,.15) inset;font:500 calc(14px * var(--mk,1))/1.5 var(--mono);color:#cfe0f3;letter-spacing:.04em}
@@ -5662,7 +5672,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.06-8';
+var GAME_VERSION = '2026.11.06-9';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6903,11 +6913,21 @@ var PROLOGUE = (function () {
       'Anh ấy cũng ở đây. Clevia siết chặt tay, nhìn quanh những gương mặt lạ. Em phải tìm anh trước khi…\nCô không để mình nghĩ tiếp.');
     return A;
   }
+  var ART_OF = ['pl_arrive', 'pl_place', 'pl_sys', 'pl_sys', 'pl_sys', 'pl_resolve'], G0 = null, NAMES = [], PNAME = '';
+  function artHtml() {
+    var k = ART_OF[i] || 'pl_sys', H = G0.players[0], src = window.ART2 && ART2.prologueURL ? ART2.prologueURL(k, H.loc, H.name) : '';
+    if (!src) return '';
+    var ov = '';
+    if (i === 3) ov = '<div class="plov plroll"><div>' + NAMES.concat(NAMES).map(function (q) { return '<span>' + esc(q) + '</span>'; }).join('') + '</div></div>';
+    else if (i === 4) ov = '<div class="plov plone"><span>' + esc(PNAME) + '</span></div>';
+    return '<div class="plart"><img src="' + src + '" alt="">' + ov + '</div>';
+  }
   function draw() {
     var pg = pages[i], last = i === pages.length - 1, body;
     if (typeof pg === 'string') body = pg.split('\n').map(function (s) { return '<p>' + s.replace(/&(?!amp;)/g, '&amp;') + '</p>'; }).join('');
     else body = '<p>' + esc(pg.lead) + '</p><div class="plsys">' + pg.sys.map(function (s) { return '<div>[' + esc(s) + ']</div>'; }).join('') + '</div>';
-    el.innerHTML = '<div class="plcard" role="dialog" aria-modal="true" aria-label="Mở đầu"><div class="plbody" key="' + i + '">' + body + '</div>' +
+    var art = ''; try { art = artHtml(); } catch (e) { }
+    el.innerHTML = '<div class="plcard" role="dialog" aria-modal="true" aria-label="Mở đầu">' + art + '<div class="plbody" key="' + i + '">' + body + '</div>' +
       '<div class="plfoot"><span class="pldots">' + pages.map(function (x, k) { return '<i class="' + (k === i ? 'on' : '') + '"></i>'; }).join('') + '</span>' +
       (seen() && !last ? '<button class="link" data-pl="skip">Bỏ qua</button>' : '') +
       '<button class="btn primary sm" data-pl="next"><b>' + (last ? 'Bắt đầu' : 'Tiếp') + '</b></button></div></div>';
@@ -6926,6 +6946,7 @@ var PROLOGUE = (function () {
           i++; draw(); SND.play('tick');
         });
       }
+      G0 = G; PNAME = partner(G).name; NAMES = shuffle(rng((G.seed ^ 0x11a7) >>> 0), G.players.map(function (q) { return first(q.name); }));
       pages = build(G); i = 0; UI.prologue = true; el.hidden = false; draw();
       try { $('coach').hidden = true; } catch (e) { }
     }
@@ -9272,6 +9293,11 @@ const SC = {
   execute: X => { const c = dim(bg(X.loc, X.sky), .45, [30, 0, 4]); for (let x = 0; x < 128; x += 8) for (let y = 0; y < 72; y++) if (y % 2) c.px(x, y, RED[2]); for (let y = 0; y < 72; y += 8) for (let x = 0; x < 128; x++) if (x % 2) c.px(x, y, RED[2]); sysWin(c, 36, 4, 56, 18, RED[1], '#1a0608'); text(c, '24:00', 44, 8, '#ff9a8a', 2); [X.me, X.ally].filter(Boolean).forEach((n, i) => { const s = spr(n, 'stand', i === 1); dissolve(s, 0, 0, 24, 34, .8, 20 + i); c.blit(s, (i ? 70 : 44) - 10, 36); }); particles(c, 20, 20, 96, 30, RED[0], 50, 8); return c; },
   intro: () => S.SYSTEM.find(s => s[0] === 'intro')[3](),
   home: () => h.homeArt(),
+  /* cảnh mở đầu (2026.11.06-9): trang 1–2 nơi xuất phát, trang 3–5 bảng hệ thống, trang 6 chân dung */
+  pl_arrive: X => { const c = vign(dim(bg(X.loc, 'night'), .45), 1.7); glow(c, 64, 68, 22, 3, ICE[2], 1); for (let a = 0; a < 48; a++) { const t = a / 48 * Math.PI * 2; c.px(64 + Math.cos(t) * 18, 68 + Math.sin(t) * 2.4, a % 3 ? ICE[2] : ICE[0]); } put(c, X.me, 'kneel', 64, 70); particles(c, 40, 26, 48, 40, ICE[0], 34, 3); return c; },
+  pl_place: X => { const c = bg(X.loc, 'night'); [[22, false], [106, true]].forEach(([x, l], k) => c.blit(dim(spr('Dân làng', k ? 'stand' : 'talk', l), .5), x - (l ? 13 : 10), 70 - 32)); put(c, X.me, 'stand', 64, 70); return c; },
+  pl_sys: X => { const c = dim(bg(X.loc, 'night'), .4); glow(c, 64, 24, 50, 24, ICE[3], 1); sysWin(c, 22, 6, 84, 36, ICE[1]); for (let y = 14; y < 39; y += 4) c.line(28, y, 28 + ((y * 13) % 46) + 20, y, ICE[2]); c.rect(28, 12, 40, 1, ICE[0]); const s = spr(X.me, 'stand'); c.blit(dim(s, .8), 54, 70 - s.h); glow(c, 64, 69, 8, 1.5, ICE[2]); particles(c, 16, 6, 96, 40, ICE[1], 30, 5); return c; },
+  pl_resolve: X => { const c = vign(dim(bg(X.loc, 'night'), .5), 1.6); bust(c, X.me, 'tense', 40, false); particles(c, 10, 10, 108, 50, ICE[1], 16, 9); return c; },
 };
 /* CG cốt truyện: key, biến thể (ai bị thương) */
 const MOOD = { houseAmbush1: ['tense', 'tense'], houseAmbush2: ['normal', 'tense'], reunite: ['normal', 'normal'], witnessDeath: ['tense', 'tense'], wall: ['hurt', 'tense'], firstFight: ['tense', 'tense'], shard2: ['normal', 'normal'], bell: ['normal', 'normal'], bossKill: ['tense', 'hurt'] };
@@ -9570,7 +9596,7 @@ renderIntro = function () {
   return r;
 };
 
-window.ART2 = { pickInto: pickInto, faceURL: faceURL, faceImg: faceImg, iconURL: iconURL, statusURL: statusURL, badgeURL: badgeURL, emblemURL: emblemURL, bannerURL: bannerURL, locURL: locURL, pick: pick, sceneURL: sceneURL2, cgURL: cgURL, cardScene: cardScene, params: paramsFor };
+window.ART2 = { pickInto: pickInto, faceURL: faceURL, faceImg: faceImg, iconURL: iconURL, statusURL: statusURL, badgeURL: badgeURL, emblemURL: emblemURL, bannerURL: bannerURL, locURL: locURL, pick: pick, sceneURL: sceneURL2, cgURL: cgURL, cardScene: cardScene, params: paramsFor, prologueURL: function (k, loc, me) { return url('pl:' + k + ':' + loc + ':' + me, function () { return RT.SC[k]({ loc: loc, me: me }); }); } };
 try { renderIntro(); if (G) render(); } catch (e) { }
 
 })();
