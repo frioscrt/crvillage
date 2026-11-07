@@ -287,6 +287,10 @@ body.lowhp::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:non
 .leaf .n{font:calc(11px * var(--mk)) var(--mono);color:var(--glass)}
 .newbox{display:grid;gap:4px}
 .newbox b{color:var(--glass);font-weight:600}
+.nwgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+.nwc{display:flex;gap:8px;align-items:center;padding:6px 8px;background:var(--surface2);border:1px solid var(--glass-dim);border-radius:4px}
+.nwc img{width:24px;height:24px;flex:none;image-rendering:pixelated}
+.nwc>div{display:grid;gap:1px;min-width:0}.nwc small{font-size:12px;color:var(--dim)}
 /* màu theo vai, theo khu, theo loại việc; tab báo mới */
 .nm-you{color:var(--glass);font-weight:500}
 .nm-mc{color:var(--amber);font-weight:500}
@@ -2003,10 +2007,10 @@ function createGame(zoneChoice, protagonist, seed) {
   var find = function (n) { return roster.filter(function (c) { return c.name === n; })[0]; };
   var allyName = protagonist === 'Luke' ? 'Clevia' : 'Luke';
   var rest = shuffle(R, roster.filter(function (c) { return c.name !== 'Luke' && c.name !== 'Clevia' && c.name !== 'Leon'; }));
-  var picked = [], vets = 0;  // tối đa 2 Veteran cả làng (Luke đã là Veteran)
+  var picked = [], vets = 0;  // tối đa 4 Veteran cả làng: Luke, Leon và 2 người khác
   rest.forEach(function (c) {
     if (picked.length >= NPLAYERS - (find('Leon') ? 3 : 2)) return;   /* bạn, người kia và Leon đã chiếm 3 chỗ */
-    if (c.faction === 'Veteran') { if (vets >= 1) return; vets++; }
+    if (c.faction === 'Veteran') { if (vets >= 2) return; vets++; }
     picked.push(c);
   });
 
@@ -4215,10 +4219,8 @@ function peopleActions(G, add) {
     var grpOk = !o.follow && (members(G, p).length > 1 || members(G, o).length > 1);
     [['solo', 'Solo với ' + who + ' (1 chọi 1)', 'Chỉ hai người đánh nhau, tính theo sức mạnh từng người'], ['group', 'Cả nhóm xông vào ' + who, 'Sức mạnh nhóm = người mạnh nhất + số người - 1']].forEach(function (m) {
       if (m[0] === 'group' && !grpOk) return;
-      if (G.arm === w + ':' + m[0]) {
-        add('person', 'patk:' + w + ':' + m[0], 'Xác nhận: ' + m[1], 5, 'Có thể có người chết', null, w);
-        add('person', 'parm:' + w + ':' + m[0], 'Thôi, không đánh', 0, '', null, w);
-      } else add('person', 'parm:' + w + ':' + m[0], m[1] + '…', 0, m[2] + '. Cần xác nhận ở bước sau', null, w);
+      if (G.arm === w + ':' + m[0]) add('person', 'patk:' + w + ':' + m[0], 'Xác nhận: ' + m[1], 5, 'Có thể có người chết', null, w);
+      add('person', 'parm:' + w + ':' + m[0], m[1] + '…', 0, m[2] + '. Cần xác nhận ở bước sau', null, w);
     });
     if (o.special === 'leon' && o.follow && G.leon.pact) {
       add('person', 'pchain:' + w, 'Nhờ Leon: Xích Trói', 5, 'Giữ chặt quỷ ở đây 20 phút: không bị vồ, săn quỷ dễ hơn. Leon dính Bleeding 30 phút', ghostPossible(G, p.loc) ? (chained(G, p.loc) ? 'Xích vẫn đang giữ con quỷ ở đây.' : null) : 'Ở đây không có quỷ để giữ.', w);
@@ -4259,7 +4261,7 @@ function peopleDo(G, k, parts, wasArm) {
   if (!o) return;
   var actL = meLine(k, o.name, arg);
   if (actL) say(G, actL, 'me');
-  function after(min) { var r = advance(G, min); if (G.over || !r.ok) return null; var o2 = presentNow(G, w); if (!o2) { say(G, o.name + ' đã rời đi trước khi bạn kịp nói xong.', 'info'); return null; } return o2; }
+  function after(min) { var r = advance(G, min); if (G.over || !r.ok) return null; var o2 = presentNow(G, w); if (!o2) { var o3 = playerById(G, w); if (!(o3 && !o3.alive && o3.diedLoc === me(G).loc)) say(G, o.name + ' đã rời đi trước khi bạn kịp nói xong.', 'info'); return null; }   /* chết ngay trước mặt thì không báo rời đi */ return o2; }
   if (k === 'parm') { var key = w + ':' + arg; G.arm = (G.arm === key) ? null : key; return; }
   if (k === 'patk') {
     if (wasArm !== w + ':' + arg) return;
@@ -4432,7 +4434,7 @@ function listActions(G) {
   switch (l.type) {
     case 'hall':
       add('here', 'board', 'Đọc bảng thông báo', 5, 'Xem số người còn sống và khu vực đã khám phá');
-      add('here', 'purify', 'Rung chuông làng', 10, 'Chiếc chuông cũ có một vết khuyết', p.items.amulet < 1 ? 'Thiếu thứ gì đó để gắn vào vết khuyết.' : (p.cards.enigma < 1 ? 'Bạn gắn thử lá bùa nhưng chuông không phản ứng. Còn thiếu một thứ nữa.' : null));
+      if (p.cards.enigma > 0) add('here', 'purify', 'Rung chuông làng', 10, 'Chiếc chuông cũ có một vết khuyết', p.items.amulet < 1 ? 'Thiếu thứ gì đó để gắn vào vết khuyết.' : null);   /* chưa có thẻ Mystery thì không thấy việc rung chuông */
       break;
     case 'chief':
       add('here', 'register', p.registered ? 'Đã đăng kí giao thương' : (G.chiefAlive ? 'Đăng kí giao thương' : 'Đăng kí với người nhà trưởng làng · 60đ'), 5, 'Cần để mua bán ở Chợ',
@@ -5182,7 +5184,7 @@ var ART = (function () {
     var cloth = W ? '#3b4039' : L ? '#2b3a55' : '#6b3b3f', clothS = W ? '#262a25' : L ? '#1d283d' : '#4c282c', clothH = W ? '#525a50' : L ? '#3e5476' : '#86494f';
     var iris = W ? '#2a2c31' : L ? '#4a3222' : '#18161c', OUTL = OUT;
     /* tóc dài phía sau (Clevia) */
-    if (!L) c.poly([[12, 14], [36, 14], [39, 46], [33, 47], [31, 34], [17, 34], [15, 47], [9, 46]], hairD);
+    if (!L) c.poly([[12, 14], [36, 14], [37, 46], [33, 47], [31, 34], [17, 34], [15, 47], [9, 46]], hairD);
     /* kiếm tre sau lưng (Luke) */
     if (L && !W) { c.line(33, 46, 44, 22, '#cfa86e'); c.line(34, 46, 45, 22, '#a9834e'); for (var k = 0; k < 4; k++) c.px(42 - k, 26 + k * 2, '#5a4030'); c.rect(36, 34, 4, 2, '#2e2218'); }
     /* thân */
@@ -5253,13 +5255,25 @@ var ART = (function () {
         c.line(16, 18, 22, 16, hairD);
       }
     } else {
+      /* đuôi ngựa lệch bên phải, buộc cao, rủ dài sau lọn mai */
+      c.poly([[33, 6], [38, 2], [42, 3], [45, 8], [45, 22], [44, 34], [42, 44], [40, 46], [40.5, 34], [40.5, 20], [39.5, 12], [36, 9]], hair);
+      c.poly([[43, 8], [45, 8], [45, 22], [44, 34], [42, 44], [43, 30], [44, 18]], hairD);
+      c.line(41, 8, 42, 32, hairH); c.line(38, 3, 41, 4, hairH);
       c.ell(24, 13.5, 11.4, 9.4, hair, function (x, y) { return y <= 17; });
       c.rect(14, 11, 20, 7, hair);
       for (var bx = 14; bx < 34; bx++) if (bx % 3) c.px(bx, 18, hair);
+      /* mái thưa rủ xuống giữa hai mắt */
+      c.line(24, 18, 24, 21, hair); c.px(23, 19, hair); c.px(25, 19, hairD);
       c.line(16, 8, 26, 6, hairH); c.line(15, 11, 19, 9, hairH); c.line(27, 12, 28, 16, '#2a2f3d');
-      c.poly([[12, 14], [16, 14], [16, 40], [12, 42]], hair); c.poly([[32, 14], [36, 14], [36, 42], [32, 40]], hairD);
-      c.line(13, 17, 13, 38, hairH);
-      c.rect(28, 12, 5, 2, '#9fc1e6'); c.px(28, 12, '#ffffff'); c.px(29, 12, '#e8eef6'); c.px(32, 13, '#6f8fbd'); c.px(30, 11, '#d06a5c'); c.px(31, 11, '#d06a5c'); c.px(30, 10, '#e88a7c');
+      /* lọn mai dài ôm mặt */
+      c.poly([[12, 14], [16, 14], [17, 24], [17, 32], [16, 40], [12, 42]], hair); c.poly([[32, 14], [36, 14], [36, 42], [32, 40], [31, 32], [31, 24]], hairD);
+      c.line(13, 17, 13, 38, hairH); c.line(16, 20, 16, 30, hairH);
+      /* nơ hoa trắng ở chỗ buộc tóc */
+      var RW = '#f4f1ea', RS = '#c9c3b6';
+      [[33.5, 4.5], [37.5, 4.5], [33.5, 8.5], [37.5, 8.5]].forEach(function (q) { c.ell(q[0], q[1], 1.8, 1.8, RW); });
+      c.px(35, 6, RS); c.px(36, 7, RS); c.px(35, 7, '#e3ddd0'); c.px(36, 6, '#e3ddd0');
+      c.px(33, 4, '#ffffff'); c.px(37, 4, '#ffffff'); c.px(34, 9, RS); c.px(38, 9, RS);
+      c.line(35, 10, 34, 13, RW); c.line(37, 10, 38, 13, RS);
     }
     /* mày */
     var bc = L ? hairD : '#2a2c34';
@@ -5292,12 +5306,12 @@ var ART = (function () {
         c.rect(x0 + 1, 22, 3, 2, iris); c.px(mir ? x0 + 3 : x0 + 1, 22, '#e8eef6');
         c.px(o, 23, skinS); c.line(x0 + 1, 24, x0 + 3, 24, skinS); return;
       }
-      c.line(x0 + 1, 20, x0 + 3, 20, OUTL); c.px(x0, 21, OUTL); c.px(x0 + 4, 21, OUTL);
-      if (!L) c.px(mir ? x0 + 5 : x0 - 1, 20, OUTL);
-      c.px(x0, 22, '#f2ece6'); c.px(x0 + 4, 22, '#f2ece6');
-      c.rect(x0 + 1, 21, 3, 3, iris); c.px(x0 + 2, 23, irisL);
-      c.px(mir ? x0 + 3 : x0 + 1, 21, '#ffffff'); c.px(mir ? x0 + 1 : x0 + 3, 23, '#c9d3df');
-      c.line(x0 + 1, 24, x0 + 3, 24, skinS);
+      var oc = mir ? x0 + 4 : x0, ic = mir ? x0 : x0 + 4, dd = mir ? 1 : -1;
+      c.line(x0, 21, x0 + 4, 21, OUTL); c.px(oc + dd, 22, OUTL);   /* mí trên nặng, đuôi mắt cụp xuống */
+      c.px(ic, 23, '#f2ece6'); c.px(oc, 23, '#e6dcd2');
+      c.rect(x0 + 1, 22, 3, 3, iris); c.line(x0 + 1, 22, x0 + 3, 22, '#2a2733'); c.px(x0 + 2, 24, irisL);
+      c.px(mir ? x0 + 3 : x0 + 1, 23, '#ffffff'); c.px(mir ? x0 + 1 : x0 + 3, 24, '#c9d3df');
+      c.line(x0 + 1, 25, x0 + 3, 25, skinS);
     }
     function closed(x0) { c.px(x0, 23, OUTL); c.line(x0 + 1, 22, x0 + 3, 22, OUTL); c.px(x0 + 4, 23, OUTL); }
     if (BLINK) { closed(17); closed(27); }
@@ -5530,6 +5544,29 @@ var ART = (function () {
     c.ell(64, 32, 4, 4, '#f2e0c0'); for (var i = 0; i < 8; i++) { var a = i / 8 * Math.PI * 2; c.line(64 + Math.cos(a) * 5, 32 + Math.sin(a) * 5, 64 + Math.cos(a) * 11, 32 + Math.sin(a) * 9, i % 2 ? '#d06a5c' : '#f2c07a'); }
     c.outline('#0a0b0d'); return c.flush();
   }
+  function betray() {
+    var c = PX.Canvas(128, 72); vignette(c, '#120809', '#3a1a1c');
+    c.rect(0, 60, 128, 12, '#1a0e0e');
+    /* đèn dầu treo lệch bên trái, quầng sáng đổ nghiêng xuống phải */
+    c.line(22, 0, 22, 9, '#2a1c16');
+    c.ell(46, 34, 38, 22, '#4a2420', function (x, y) { return (x + y) % 3 === 0; });
+    c.ell(22, 14, 7, 6, '#6a3a22'); c.rect(19, 10, 7, 9, '#c9a24a'); c.rect(20, 11, 5, 7, '#f2d27a'); c.px(22, 13, '#fff4d0'); c.rect(18, 19, 9, 2, '#3a2a1e');
+    /* bạn: bên trái, ngả người theo, tay vươn ra níu */
+    var me = '#0a0a0c';
+    c.ell(34, 30, 4, 4.5, me); c.poly([[29, 36], [39, 36], [38, 52], [30, 52]], me);
+    c.line(31, 52, 27, 60, me); c.line(32, 52, 29, 60, me); c.line(36, 52, 39, 60, me); c.line(37, 52, 41, 60, me);
+    c.line(38, 38, 52, 33, me); c.line(38, 39, 52, 34, me); c.line(30, 39, 26, 46, me);
+    /* người kia: bên phải, quay lưng bước đi, đầu ngoảnh hẳn ra ngoài, tay sau kéo tấm thẻ */
+    var tr = '#0c0708';
+    c.ell(84, 28, 4, 4.5, tr); c.poly([[89, 26], [92, 28], [89, 30]], tr);
+    c.poly([[79, 34], [90, 34], [92, 50], [81, 50]], tr);
+    c.line(83, 50, 82, 60, tr); c.line(84, 50, 84, 60, tr); c.line(88, 50, 94, 59, tr); c.line(89, 50, 96, 58, tr);
+    c.line(80, 37, 62, 33, tr); c.line(80, 38, 62, 34, tr); c.line(90, 37, 98, 44, tr);
+    /* tấm thẻ giữa hai bàn tay, nghiêng, vệt giật */
+    c.poly([[54, 28], [61, 27], [62, 38], [55, 39]], '#cfe0f3'); c.poly([[55, 29], [60, 28.5], [61, 37], [56, 37.5]], '#d06a5c'); c.poly([[58, 30], [60, 33], [58, 36], [56, 33]], '#f2c07a');
+    [[66, 26, 74, 25], [66, 30, 76, 30], [66, 40, 73, 41]].forEach(function (l) { c.line(l[0], l[1], l[2], l[3], '#8a3a36'); });
+    c.outline('#0a0b0d'); return c.flush();
+  }
   function boss() {
     var c = PX.Canvas(128, 72); vignette(c, '#0e0a0c', '#2a1218');
     c.rect(0, 60, 128, 12, '#140e10');
@@ -5573,9 +5610,33 @@ var ART = (function () {
     var R = rng(77); for (var k = 0; k < 10; k++) { var x = 20 + Math.floor(R() * 50), y = 36 + Math.floor(R() * 20); c.px(x, y, '#f2e8d8'); }
     c.outline('#0a0b0d'); return c.flush();
   }
-  function trade() {
+  /* món đồ nhỏ đặt trong tay, tâm (x, y) */
+  function tradeItem(c, k, x, y) {
+    c.ell(x, y, 9, 8, '#4e6688');
+    if (k === 'card') { c.rect(x - 5, y - 7, 10, 15, '#cfe0f3'); c.rect(x - 4, y - 6, 8, 13, '#9fc1e6'); c.poly([[x, y - 4], [x + 3, y + .5], [x, y + 5], [x - 3, y + .5]], '#e8eef6'); }
+    else if (k === 'money') { for (var i = 0; i < 5; i++) { var cx = x - 4 + (i % 3) * 4, cy = y + 3 - Math.floor(i / 3) * 3; c.ell(cx, cy, 2.5, 1.5, '#c9a24a'); c.px(cx, cy - 1, '#f2d27a'); } c.rect(x - 1, y - 6, 3, 3, '#f2d27a'); }
+    else if (k === 'map') { c.rect(x - 7, y - 5, 14, 10, '#d9c49a'); c.rect(x - 7, y - 5, 2, 10, '#b89f70'); c.rect(x + 5, y - 5, 2, 10, '#b89f70'); c.line(x - 4, y - 2, x + 3, y + 2, '#8a3a2e'); c.px(x + 3, y + 2, '#c0392b'); c.line(x - 3, y + 2, x, y - 3, '#7a6a4a'); }
+    else if (k === 'weapon') { c.line(x - 7, y + 6, x + 6, y - 7, '#cfd6de'); c.line(x - 6, y + 6, x + 6, y - 6, '#9aa4ae'); c.line(x - 7, y + 2, x - 3, y + 6, '#c9a24a'); c.rect(x - 9, y + 6, 3, 2, '#6b4a2a'); }
+    else if (k === 'herb') { c.line(x, y + 7, x, y - 2, '#3e5c36'); c.ell(x - 3, y - 2, 3, 2, '#5f9a4e'); c.ell(x + 3, y - 4, 3, 2, '#79b866'); c.ell(x, y - 6, 2, 3, '#5f9a4e'); c.ell(x + 2, y + 1, 3, 2, '#79b866'); }
+    else if (k === 'food') { c.ell(x, y + 1, 7, 5, '#c08a4a'); c.ell(x, y, 6, 3.5, '#d9a865'); c.line(x - 3, y - 1, x - 1, y + 1, '#a87038'); c.line(x + 1, y - 1, x + 3, y + 1, '#a87038'); }
+    else if (k === 'ore') { c.poly([[x - 6, y + 4], [x - 4, y - 4], [x + 2, y - 6], [x + 6, y - 1], [x + 5, y + 5]], '#5a5f68'); c.px(x - 2, y - 1, '#9fc1e6'); c.px(x + 2, y + 1, '#9fc1e6'); c.px(x, y - 3, '#cfe0f3'); }
+  }
+  function trade(give, want) {
     var c = PX.Canvas(128, 72); vignette(c, '#0f1116', '#262a33');
     c.ell(64, 36, 26, 18, '#2e3646'); c.ell(64, 36, 16, 11, '#3a4660');
+    if (give && want) {
+      c.poly([[0, 58], [0, 44], [30, 38], [44, 36], [46, 44], [30, 48]], '#2b3a55'); c.poly([[0, 44], [30, 38], [32, 41], [0, 48]], '#3e5476');
+      c.poly([[44, 35], [54, 33], [58, 36], [56, 40], [46, 44]], '#e9c7aa'); c.line(48, 37, 55, 36, '#c99a80');
+      c.poly([[128, 60], [128, 46], [98, 40], [84, 38], [82, 46], [98, 50]], '#6b3b3f'); c.poly([[128, 46], [98, 40], [96, 43], [128, 50]], '#86494f');
+      c.poly([[84, 37], [74, 35], [70, 38], [72, 42], [82, 46]], '#e9c7aa'); c.line(80, 39, 73, 38, '#c99a80');
+      /* tay trái (bạn) đưa món người kia đòi, tay phải (người kia) đưa món họ mời */
+      tradeItem(c, want, 46, 25); tradeItem(c, give, 82, 25);
+      /* hai mũi tên đổi chiều ở giữa */
+      c.line(58, 21, 70, 21, '#e8eef6'); c.px(69, 20, '#e8eef6'); c.px(69, 22, '#e8eef6'); c.px(68, 19, '#e8eef6'); c.px(68, 23, '#e8eef6');
+      c.line(58, 28, 70, 28, '#e8eef6'); c.px(59, 27, '#e8eef6'); c.px(59, 29, '#e8eef6'); c.px(60, 26, '#e8eef6'); c.px(60, 30, '#e8eef6');
+      [[50, 12], [78, 11], [64, 46], [40, 40], [90, 42]].forEach(function (p) { c.px(p[0], p[1], '#e8eef6'); c.px(p[0] - 1, p[1], '#6f8fbd'); c.px(p[0] + 1, p[1], '#6f8fbd'); });
+      c.outline('#0a0b0d'); return c.flush();
+    }
     /* tay trái: tay áo xanh than */
     c.poly([[0, 58], [0, 44], [30, 38], [44, 36], [46, 44], [30, 48]], '#2b3a55'); c.poly([[0, 44], [30, 38], [32, 41], [0, 48]], '#3e5476');
     c.poly([[44, 35], [54, 33], [58, 36], [56, 40], [46, 44]], '#e9c7aa'); c.line(48, 37, 55, 36, '#c99a80');
@@ -5595,8 +5656,8 @@ var ART = (function () {
     return ({ hall: hall, chief: chief, market: market, clinic: clinic, farm: farm, pier: pier, mine: mine, forge: forge })[t](k);
   }
   var LOCS_T = { hall: 'hall', chief: 'chief', market: 'market', clinic: 'clinic', farm: 'farm', pier: 'pier', mine: 'mine', forge: 'forge' };
-  var EVENTS = { ambush: ambush, chest: chest, brawl: brawl, boss: boss, bell: bell, cleared: cleared, trade: trade, chain: chain };
-  return { portrait: portrait, setLuke: function (o) { LUKE = o; }, scene: scene, event: function (k) { return EVENTS[k](); }, skyOf: function (ph) { return ph === 'dawn' ? 'dawn' : (ph === 'dusk' ? 'dusk' : ((ph === 'evening' || ph === 'night') ? 'night' : 'day')); } };
+  var EVENTS = { ambush: ambush, chest: chest, brawl: brawl, betray: betray, boss: boss, bell: bell, cleared: cleared, trade: trade, chain: chain };
+  return { portrait: portrait, setLuke: function (o) { LUKE = o; }, scene: scene, event: function (k) { var a = String(k).split(':'); return a[0] === 'trade' ? trade(a[1], a[2]) : EVENTS[a[0]](); }, skyOf: function (ph) { return ph === 'dawn' ? 'dawn' : (ph === 'dusk' ? 'dusk' : ((ph === 'evening' || ph === 'night') ? 'night' : 'day')); } };
 })();
 /* ===== GIAO DIỆN ===== */
 var G = null, selProt = 'Clevia';
@@ -5619,7 +5680,7 @@ var DESC = {
 /* ---------- màn mở đầu ---------- */
 function rosterOf(n) { return getRoster().filter(function (c) { return c.name === n; })[0]; }
 var PROT_INFO = {
-  Clevia: { tag: 'Tân thủ', look: 'Tóc đen dài, kẹp tóc xanh băng, mắt tối, gương mặt trầm lặng.', persona: 'Ít nói, hay quan sát. Tin trực giác hơn lời người khác, quen chịu đựng trong im lặng.',
+  Clevia: { tag: 'Tân thủ', look: 'Tóc đen rất dài, buộc lệch một bên bằng nơ hoa trắng, mắt tối mí cụp, gương mặt trầm lặng.', persona: 'Ít nói, hay quan sát. Tin trực giác hơn lời người khác, quen chịu đựng trong im lặng.',
     abil: ['Unlock', 'Mở rương khoá không cần giải mã, qua cổng Hầm mỏ không cần đưa đồ cho người gác. Có thể ép mở tường kính giữa các khu, nhưng mất Unlock tới hết ván.'],
     pass: ['Trực giác', 'Khi đi một mình, 25% nhận ra quỷ trước và lẩn đi. Đã giao chiến thì dễ chạy thoát hơn.'] },
   Luke: { tag: 'Kỳ cựu', look: 'Tóc nâu rối, ánh mắt sắc, đeo thanh kiếm tre sau lưng.', persona: 'Thân thiện bề ngoài, bình tĩnh. Tin vào logic, không nói chắc khi chưa đủ bằng chứng.',
@@ -5752,7 +5813,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.07-9';
+var GAME_VERSION = '2026.11.07-22';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6784,7 +6845,14 @@ var SND = (function () {
     else if (surf === 'dirt') { noise(t, 0.1, 'lowpass', 700 * j, 0.7, 0.55 * v, 0.01); noise(t + 0.02, 0.06, 'bandpass', 1800 * j, 1, 0.1 * v); tone(170, 'sine', t, 0.003, 0.06, 0.12 * v); }
     else { noise(t, 0.06, 'bandpass', 1200 * j, 1, 0.45 * v); tone(190 * j, 'sine', t, 0.003, 0.05, 0.12 * v); }
   }
+  function runFoot(t, v) {   /* bước chạy: gót nện xuống, mũi bật lên, lạo xạo sỏi */
+    var j = 0.9 + Math.random() * 0.2;
+    tone(105 * j, 'sine', t, 0.002, 0.07, 0.32 * v, null, 65); noise(t, 0.05, 'lowpass', 900 * j, 0.8, 0.6 * v, 0.002);
+    noise(t + 0.035, 0.04, 'bandpass', 2300 * j, 1.2, 0.22 * v);
+    for (var i = 0; i < 2; i++) noise(t + 0.05 + i * 0.02 + Math.random() * 0.01, 0.015, 'bandpass', 3000 + Math.random() * 2000, 3, 0.1 * v, 0.001);
+  }
   function walk(surf, n, run, t0) {
+    if (run) { var tr = t0, gr = 0.27; for (var k = 0; k < n; k++) { runFoot(tr, k % 2 ? 0.85 : 1); tr += gr + (Math.random() - 0.5) * 0.02; gr = Math.max(0.19, gr - 0.012); } return tr; }
     var t = t0, gap = run ? 0.22 : 0.42;
     for (var i = 0; i < n; i++) { foot(surf, t, (i % 2 ? 0.78 : 1) * (run ? 1.15 : 1)); t += gap + (Math.random() - 0.5) * (run ? 0.03 : 0.06); }
     return t;
@@ -6927,10 +6995,12 @@ var SND = (function () {
       noise(t + 0.3, 0.25, 'highpass', 6000, 0.7, 0.07, 0.01);
     },
     whoosh: function (t) {   /* dịch chuyển: kính ngân dâng lên, gió hút, chạm đất 'thụp' */
-      [1568, 2093, 2637].forEach(function (f, i) { tone(f, 'sine', t + i * 0.07, 0.45, 0.35, 0.05, null, f * 1.06); });
-      noise(t + 0.35, 0.75, 'bandpass', 300, 1.3, 0.5, 0.5, 3000);
-      noise(t + 0.55, 0.5, 'highpass', 2500, 0.8, 0.12, 0.3, 7000);
-      tone(140, 'sine', t + 1.15, 0.003, 0.3, 0.55, null, 60); tone(220, 'triangle', t + 1.15, 0.002, 0.1, 0.16, null, 120); noise(t + 1.15, 0.22, 'lowpass', 600, 1, 0.35, 0.003, 150);
+      [1568, 2093, 2637].forEach(function (f, i) { tone(f, 'sine', t + i * 0.07, 0.45, 0.35, 0.08, null, f * 1.06); });
+      [3136, 3150, 3951].forEach(function (f, i) { tone(f, 'sine', t + 0.15 + i * 0.05, 0.3, 0.5, 0.03); });   /* kính rung */
+      noise(t + 0.3, 0.45, 'bandpass', 400, 4, 0.35, 0.3, 2400); noise(t + 0.75, 0.4, 'bandpass', 2400, 4, 0.3, 0.05, 500);   /* vút xoáy lên rồi xuống */
+      noise(t + 0.35, 0.75, 'bandpass', 300, 1.3, 0.75, 0.5, 3000);
+      noise(t + 0.55, 0.5, 'highpass', 2500, 0.8, 0.18, 0.3, 7000);
+      tone(140, 'sine', t + 1.15, 0.003, 0.3, 0.8, null, 60); tone(220, 'triangle', t + 1.15, 0.002, 0.1, 0.24, null, 120); noise(t + 1.15, 0.22, 'lowpass', 600, 1, 0.5, 0.003, 150);
     },
     glass: function (t) { noise(t, 0.3, 'highpass', 3000, 0.7, 0.45); [2637, 3520, 4186].forEach(function (f, i) { tone(f, 'sine', t + i * 0.03, 0.002, 0.3, 0.12); }); tone(220, 'triangle', t + 0.1, 0.01, 0.45, 0.2, null, 110); },
     hit: function (t) { tone(150, 'sine', t, 0.002, 0.2, 0.55, null, 70); noise(t, 0.12, 'lowpass', 1200, 1, 0.5); crunch(t + 0.03, 1); tone(330, 'sawtooth', t, 0.005, 0.3, 0.12, null, 90); },
@@ -6944,8 +7014,19 @@ var SND = (function () {
     /* âm nút bấm: ngắn, nhỏ */
     tick: function (t) { var j = 0.97 + Math.random() * 0.06; tone(520 * j, 'sine', t, 0.002, 0.06, 0.12, null, 490 * j); noise(t, 0.012, 'lowpass', 1400, 1, 0.035); },   /* mõ gỗ, trầm và nhỏ */
     tab: function (t) { noise(t, 0.09, 'highpass', 3500, 0.7, 0.07, 0.01, 6000); noise(t + 0.05, 0.06, 'bandpass', 5000, 1, 0.05); },   /* lật giấy */
-    flip: function (t) { noise(t, 0.03, 'bandpass', 3000, 1.5, 0.12); noise(t + 0.07, 0.04, 'bandpass', 2200, 1.5, 0.15); tone(620, 'sine', t + 0.07, 0.002, 0.05, 0.06); },   /* lật bài */
-    ting: function (t) { tone(2093, 'sine', t, 0.002, 0.16, 0.08); tone(3136, 'sine', t + 0.02, 0.002, 0.12, 0.05); },
+    flip: function (t) {   /* dùng thẻ: rút thẻ sột, lật 'tạch', nốt ngân sáng có vang */
+      noise(t, 0.08, 'bandpass', 2400, 1.2, 0.13, 0.02, 4200);
+      noise(t + 0.09, 0.03, 'bandpass', 3200, 1.5, 0.2); noise(t + 0.12, 0.04, 'bandpass', 1900, 1.5, 0.15);
+      tone(660, 'triangle', t + 0.12, 0.002, 0.1, 0.09);
+      tone(1319, 'sine', t + 0.16, 0.003, 0.5, 0.09); tone(1976, 'sine', t + 0.2, 0.003, 0.4, 0.05); tone(2637, 'sine', t + 0.24, 0.003, 0.3, 0.025);
+      noise(t + 0.16, 0.45, 'highpass', 5500, 0.7, 0.03, 0.03);
+    },
+    ting: function (t) {   /* năng lực: ngân như niệm phép (~0,8 giây), đi lên, lấp lánh rồi tắt */
+      tone(784, 'triangle', t, 0.1, 0.6, 0.05, null, 1175);
+      tone(1568, 'sine', t + 0.02, 0.02, 0.75, 0.07); tone(2093, 'sine', t + 0.06, 0.02, 0.7, 0.05); tone(2101, 'sine', t + 0.06, 0.02, 0.7, 0.035);
+      [2637, 3136, 4186].forEach(function (f, i) { tone(f, 'sine', t + 0.12 + i * 0.09, 0.003, 0.3, 0.025); });
+      noise(t + 0.08, 0.6, 'highpass', 6000, 0.7, 0.025, 0.2);
+    },
     thud: function (t) { tone(160, 'sine', t, 0.002, 0.2, 0.34, null, 92); tone(430, 'triangle', t, 0.001, 0.05, 0.13); noise(t, 0.06, 'lowpass', 700, 1, 0.14); },   /* gõ gỗ nặng */
     swish: function (t) { noise(t, 0.16, 'bandpass', 1800, 0.9, 0.11, 0.03, 4200); },
     /* âm sự kiện */
@@ -6957,7 +7038,14 @@ var SND = (function () {
     heal: function (t) { [392, 494, 587, 784].forEach(function (f, i) { tone(f, 'sine', t + i * 0.08, 0.03, 0.45, 0.1); }); },
     poison: function (t) { [0, 0.22, 0.5].forEach(function (d, i) { tone(900 - i * 120, 'sine', t + d, 0.003, 0.12, 0.12, null, 300); }); tone(150, 'sawtooth', t, 0.2, 0.8, 0.05, null, 120); },
     done: function (t) { tone(784, 'triangle', t, 0.004, 0.18, 0.12); tone(1175, 'triangle', t + 0.1, 0.004, 0.4, 0.13); },
-    toll: function (t) { [[1, 0.16], [2.4, 0.06], [3.9, 0.03]].forEach(function (pp) { tone(147 * pp[0], 'sine', t, 0.01, 1.6 / Math.sqrt(pp[0]), pp[1]); }); },
+    toll: function (t) {   /* có người chết cạnh bạn: nhát chém xé gió, trúng thịt nặng, máu xịt từng đợt rồi rỏ xuống */
+      noise(t, 0.12, 'bandpass', 1400, 1.5, 0.24, 0.07, 6000);   /* lưỡi chém xé gió */
+      var c = t + 0.12;
+      tone(85, 'sine', c, 0.002, 0.22, 0.7, null, 45); noise(c, 0.14, 'lowpass', 500, 0.8, 0.6, 0.003, 150);   /* trúng thịt: trầm, nặng, đục */
+      noise(c + 0.01, 0.12, 'bandpass', 380, 2.5, 0.3, 0.01, 200);   /* thớ thịt toạc */
+      [[0.07, 0.24], [0.27, 0.17], [0.45, 0.11], [0.6, 0.06]].forEach(function (p) { noise(c + p[0], 0.17, 'bandpass', 3200, 1.1, p[1], 0.015, 1700); });   /* máu xịt từng đợt, yếu dần */
+      for (var i = 0; i < 4; i++) { var d = c + 0.5 + i * 0.12 + Math.random() * 0.06; noise(d, 0.05, 'bandpass', 450 + Math.random() * 350, 2, 0.1 - i * 0.02, 0.003); }   /* máu rỏ xuống đất, đặc */
+    },
     wind: function (t) { noise(t, 2.6, 'bandpass', 500, 4, 0.3, 0.8, 1600); noise(t + 0.6, 2, 'bandpass', 900, 6, 0.18, 0.6, 400); },
     drum: function (t) { [0, 0.45, 0.9, 1.15].forEach(function (d, i) { tone(70, 'sine', t + d, 0.005, 0.5, 0.5 - i * 0.05, null, 42); noise(t + d, 0.12, 'lowpass', 400, 1, 0.2); }); },
     loss: function (t) { tone(440, 'triangle', t, 0.01, 0.6, 0.12, null, 220); tone(523, 'triangle', t + 0.12, 0.01, 0.6, 0.08, null, 247); },
@@ -6987,8 +7075,7 @@ var SND = (function () {
       if (!ctx || prefs.muted) return 0;
       if (ctx.state !== 'running') ctx.resume();
       var t0 = ctx.currentTime + 0.03 + (delay || 0);
-      if (run && chased) growl(t0, 1.4, 0.16);
-      var end = walk(surf, n, run, t0 + (run && chased ? 0.15 : 0));
+      var end = walk(surf, n, run, t0);
       if (run) breath(t0 + 0.3, Math.max(2, Math.round((end - t0) / 0.44)));
       return end - ctx.currentTime;
     },
@@ -7153,7 +7240,7 @@ function act(id) {
   if (hgv && UI.confirmHeal !== id) { UI.confirmHeal = id; render(); return; }
   UI.confirmHeal = null; UI.tinfo = null;
   var heal0 = healCount(G.players[0]);
-  if (!(UI.mpop && UI.mpop.kind === 'person' && /^parm:/.test(id))) UI.mpop = null;
+  UI.mpop = null;
   SND.init();
   var n0 = G.log.length, t0 = G.t, loc0 = G.players[0].loc, hp0 = G.players[0].hp, m0 = G.players[0].money;
   var S0 = sndSnap(G);
@@ -7375,7 +7462,7 @@ function isSkillAct(a) {
 }
 function actHtml(a) {
   var k = a.id.split(':')[0];
-  var cls = 'act' + ((k === 'patk' || a.id === 'offer:fight' || a.id === 'offer:grab' || (k === 'parm' && !/^Thôi/.test(a.label))) ? ' danger' : '') + (a.group === 'card' ? ' card' : '') + (ACT_SHOP[k] ? ' shop' : '') + (ACT_SOCIAL[k] ? ' social' : '') +
+  var cls = 'act' + ((k === 'patk' || a.id === 'offer:fight' || a.id === 'offer:grab' || k === 'parm') ? ' danger' : '') + (a.group === 'card' ? ' card' : '') + (ACT_SHOP[k] ? ' shop' : '') + (ACT_SOCIAL[k] ? ' social' : '') +
     (KEEP_DESC[a.group] ? ' keepd' : '') + (UI.qa && UI.qa[k] ? ' questact' : '') + (a.cls ? ' ' + a.cls : '') + (isSkillAct(a) ? ' skill keepd' : '');
   var d = a.off ? a.off : a.desc;
   cls += ' t-' + actTone(a, cls);
@@ -7408,7 +7495,7 @@ function personPop(o, acts) {
   var mine = acts.filter(function (a) { return a.who === o.id; });
   function pk(pref) { return mine.filter(function (a) { return a.id.indexOf(pref + ':') === 0; }); }
   var groups = [['Trò chuyện', pk('ptalk').concat(pk('pinfo'))], ['Nhờ giúp', pk('pchain').concat(pk('pmedic'), pk('pherb'), pk('psense'))],
-    ['Đồng hành', mine.filter(function (a) { return /^(pjoin|pleave):/.test(a.id); })], ['Rủ rời nhóm', null], ['Hỏi mua', pk('pbuy')], ['Giao đấu', pk('parm').concat(pk('patk'))]];
+    ['Đồng hành', mine.filter(function (a) { return /^(pjoin|pleave):/.test(a.id); })], ['Rủ rời nhóm', null], ['Hỏi mua', pk('pbuy')], ['Giao đấu', pk('parm')]];
   var mc = isMC(o.name), gv = pk('pgive'), ak = pk('pask'), lu = pk('plure'), step = UI.mpop && UI.mpop.step;
   if (step === 'lure') {
     var hl = '<div class="cardhead"><div><div class="eyebrow">Thuyết phục rời nhóm</div><h2 class="mpt nm-bot">' + esc(o.name) + '</h2><div class="pmeta">' + esc(o.name) + ' đang đi cùng nhóm ' + o.groupN + ' người. Phải có lý do thì họ mới bỏ nhóm sang với bạn.</div></div><button class="btn sm" data-ui="mpstep:">Quay lại</button></div><div class="ipbody">';
@@ -7554,10 +7641,17 @@ function renderHere(acts, d, p, l) {
   var off = by('offer');
   if (off.length && G.offer) {
     var ob = playerById(G, G.offer.id);
-    var oprio = /^(betray|boss|brawl)$/.test(G.offer.type) ? 1 : 3, okind = ({ betray: 'brawl', leonChest: 'chest', leonWave: 'chain', leonPact: 'trade', leonShare: 'trade', chest: 'chest', boss: 'boss', brawl: 'brawl', trade: 'trade' })[G.offer.type] || 'trade';
+    var oprio = /^(betray|boss|brawl)$/.test(G.offer.type) ? 1 : 3, okind = ({ betray: 'betray', leonChest: 'chest', leonWave: 'chain', leonPact: 'trade', leonShare: 'trade', chest: 'chest', boss: 'boss', brawl: 'brawl', trade: 'trade' })[G.offer.type] || 'trade';
+    if (G.offer.type === 'trade' && G.offer.want) okind = 'trade:' + (/^(map|weapon|herb)$/.test(G.offer.give) ? G.offer.give : 'card') + ':' + (G.offer.want.kind === 'money' ? 'money' : G.offer.want.kind === 'item' ? G.offer.want.k : 'card');
     var LH = G.offer.type === 'betray' ? (ob ? ob.name : 'Đồng đội') + ' trở mặt, giật ' + stealName(G.offer) + ' của bạn' : { leonChest: 'Leon chạm vào cùng chiếc rương', leonWave: 'Leon đang dùng xích giữ một con quỷ', leonPact: 'Giao kèo hợp tác với Leon', leonShare: 'Tới lượt Leon chia rương' }[G.offer.type];
     if (LH) EVS.push([oprio, '<div class="offer"><b>' + paint(esc(LH)) + '</b>' + (G.offer.type === 'leonPact' ? '<p class="note">Leon mạnh, sòng phẳng, và không tha cho kẻ phá luật. Anh ta có thể giúp bạn, hoặc quay lưng với bạn.</p>' : '') + '<div class="list">' + actsOf(off) + '</div></div>', okind]);
     else EVS.push([oprio, '<div class="offer"><b>' + (G.offer.type === 'chest' ? 'Tranh rương với ' + paint(esc(ob ? ob.name : '')) : G.offer.type === 'boss' ? bossOfferHead(G.offer) : G.offer.type === 'brawl' ? 'Ẩu đả ngay trước mặt bạn. Bạn tính sao?' : (ob ? paint(esc(ob.name)) : '')) + (G.offer.type === 'brawl' || G.offer.type === 'boss' || G.offer.type === 'chest' ? '' : G.offer.type === 'trade' ? ' muốn đổi: ' + esc(offerName(G.offer.give)) + ' ⇄ ' + esc(wantName(G.offer.want)) : ' muốn đi cùng bạn') + '</b>' + (G.offer.type === 'trade' || G.offer.type === 'join' || G.offer.type === 'chest' ? whoCard(ob) : G.offer.type === 'brawl' ? '<div class="whopair">' + whoCard(playerById(G, G.offer.A[0])) + whoCard(playerById(G, G.offer.B[0])) + '</div>' : '') + '<div class="list">' + actsOf(off) + '</div></div>', okind]);
+  }
+  if (G.arm) {   /* xác nhận lao vào đánh: khung bật lên, không nằm lẫn trong danh sách */
+    var am = G.arm.split(':'), ao = presentNow(G, parseInt(am[0], 10));
+    if (ao) EVS.push([0, '<div class="offer"><b>' + (am[1] === 'group' ? 'Cả nhóm xông vào ' : 'Solo với ') + paint(esc(ao.name)) + (am[1] === 'group' ? '' : ' (1 chọi 1)') + '? Có thể có người chết.</b>' + whoCard(ao) +
+      '<div class="list"><button class="act danger" data-act="patk:' + am[0] + ':' + am[1] + '"><span class="l">Đánh</span><span class="m"></span></button><button class="act" data-act="parm:' + am[0] + ':' + am[1] + '"><span class="l">Thôi, không đánh</span><span class="m"></span></button></div></div>', 'brawl']);
+    else G.arm = null;
   }
   if (UI.confirmHeal && healGiveOf(UI.confirmHeal)) {
     var hn = healCount(p);
@@ -7985,9 +8079,10 @@ function endingText(G) {
 function unlockBox(G) {
   var u = G.newUnlocks; if (!u) return '';
   var rows = [];
-  if (u.ending) rows.push('<p><b>Ending mới: ' + u.ending + ' · ' + ENDINGS[u.ending][0] + '</b></p>');
-  u.ach.forEach(function (a) { rows.push('<p><b>Thành tựu: ' + a.name + '</b> · ' + a.desc + '</p>'); });
-  return '<div class="pbox newbox">' + (rows.length ? rows.join('') : '<p>Không mở khoá gì mới ván này.</p>') + '<p>Đã mở ' + endCount(PROF) + '/' + Object.keys(ENDINGS).length + ' ending. <button class="link" data-open="prof">Xem cây ending</button></p></div>';
+  function img(src) { return src ? '<img src="' + src + '" alt="">' : ''; }   /* huy hiệu nhỏ, cùng hình với bảng Thành tựu */
+  if (u.ending) rows.push('<div class="nwc">' + img(window.ART2 ? ART2.emblemURL(String(u.ending).charAt(0)) : '') + '<div><small>Ending mới · ' + u.ending + '</small><b>' + ENDINGS[u.ending][0] + '</b></div></div>');
+  u.ach.forEach(function (a) { rows.push('<div class="nwc">' + img(window.ART2 ? ART2.achBadgeURL(a.id) : '') + '<div><small>Thành tựu</small><b>' + a.name + '</b><small>' + a.desc + '</small></div></div>'); });
+  return '<div class="pbox newbox">' + (rows.length ? '<div class="nwgrid">' + rows.join('') + '</div>' : '<p>Không mở khoá gì mới ván này.</p>') + '<p>Đã mở ' + endCount(PROF) + '/' + Object.keys(ENDINGS).length + ' ending. <button class="link" data-open="prof">Xem cây ending</button></p></div>';
 }
 function showEnd() {
   if (G.newUnlocks && (G.newUnlocks.ending || G.newUnlocks.ach.length)) SND.play('ach', 2.6);
@@ -8614,7 +8709,7 @@ const NPCS = [
 module.exports = { CHARS, NPCS };
 const MAIN = {
   Luke: { sex: 'm', skin: 'light', hair: 'messy', hairColor: 'brown', back: 'sword', cloth: { c: ['#2b3a55', '#1d283d', '#3e5476'], t: 'v', inner: '#cfd8e2' }, pants: '#22262e' },
-  Clevia: { sex: 'f', skin: 'light', hair: 'long', hairColor: 'black', clip: '#9fc1e6', cloth: { c: ['#6b3b3f', '#4c282c', '#86494f'], t: 'v', inner: '#ebe6df' }, pants: '#2a2a30' },
+  Clevia: { sex: 'f', skin: 'light', hair: 'long', hairColor: 'black', sidetail: '#f4f1ea', cloth: { c: ['#6b3b3f', '#4c282c', '#86494f'], t: 'v', inner: '#ebe6df' }, pants: '#2a2a30' },
   Leon: { sex: 'm', skin: 'light', hair: 'short', hairColor: 'black', eye: 'sharp', thickBrow: true, mouth: 'flat', scar: [20, 27], cloth: { c: ['#3b4039', '#262a25', '#525a50'], t: 'v', inner: '#18191c', strap: '#c4cbd3' }, pants: '#22262e' },
 };
 module.exports.MAIN = MAIN;
@@ -8648,6 +8743,7 @@ function sprite(o, pose) {
   const hy = 1 + P;
   if (LONG[o.hair] && !o.hatHide) c.rect(X - 4, hy + 4, 8, o.hair === 'long' && o.hairLen < 42 ? 7 : 10, hrD);
   if (TAIL[o.hair]) { const ty = o.hair === 'highpony' ? hy + 1 : hy + 4; c.rect(X - 6, ty, 2, 7, hrD); c.px(X - 5, ty + 7, hrD); }
+  if (o.sidetail) { c.rect(X - 4, hy, 2, 2, hr); c.rect(X - 7, hy + 1, 2, 12, hrD); c.px(X - 6, hy + 13, hrD); }   /* đuôi ngựa lệch buộc cao (Clevia) */
   if (o.back === 'rod') { c.line(X - 4, 24 + P, X + 4, 2 + P, '#8a6a44'); }
   if (o.back === 'bag') c.rect(X - 7, 13 + P, 4, 7, '#c96a2a');
   if (o.back === 'sword') { c.line(X - 5, 22 + P, X + 3, 8 + P, '#cfa86e'); c.px(X - 4, 20 + P, '#5a4030'); }
@@ -8749,6 +8845,7 @@ function hairTop(c, o, X, hy, hr, hrH, hrD, sk) {
   else if (hat === 'hood') { c.ell(X + 0.5, hy + 4, 5.6, 5.6, H[0], (x, y) => y <= hy + 4 || x <= X - 3); c.rect(X - 5, hy + 4, 2, 7, H[0]); }
   if (o.headset) { c.rect(X - 5, hy + 4, 1, 3, '#2a2d33'); c.px(X - 5, hy + 5, o.headset); }
   if (o.clip) c.px(X + 3, hy + 2, o.clip);
+  if (o.sidetail) { c.rect(X - 5, hy, 2, 2, o.sidetail); c.px(X - 6, hy + 1, o.sidetail); }   /* nơ trắng chỗ buộc */
 }
 
 function fallen(o) { // nằm ngang, đầu bên phải
@@ -9506,6 +9603,8 @@ function faceURL(name) { return url('f:' + name, function () { return POR.portra
 function faceImg(name, cls) { return '<img class="pix a2face ' + (cls || '') + '" src="' + faceURL(name) + '" alt="">'; }
 function iconURL(k) { return AR.I[k] ? url('i:' + k, AR.I[k]) : ''; }
 function statusURL(k) { return AR.S[k] ? url('st:' + k, AR.S[k]) : ''; }
+var ACH_BADGE = ['first', 'survive', 'survive5', 'explorer', 'hunt1', 'hunt10', 'boss', 'bitten', 'escape', 'poison', 'brawler', 'target', 'blood', 'chest', 'shard', 'amulet', 'clear', 'bell', 'farm', 'fish', 'armed', 'party', 'trader', 'traveler', 'shelter', 'nurse', 'cards', 'wall', 'endings4', 'endingsAll', 'leonChain', 'leonFair', 'leonTrio', 'leonOathbreak', 'leonBetray', 'naive', 'payback', 'readpeople', 'traitor', 'beggar', 'picky'];
+function achBadgeURL(id) { var i = ACH_BADGE.indexOf(id); return i < 0 ? '' : badgeURL(i); }
 function badgeURL(i) { var a = AR.ACH[i]; return a ? url('b:' + i, function () { return AR.badge(AR.G[a[1]], a[2]); }) : ''; }
 function emblemURL(k) { return url('em:' + k, function () { return AR.emblem(k); }); }
 function bannerURL(k) { return url('bn:' + k, function () { return AR.banner(k); }); }
@@ -9704,7 +9803,7 @@ renderProf = function () {
   var r = _renderProf.apply(this, arguments);
   try {
     var P = PROF, body = $('profBody');
-    body.querySelectorAll('.achv').forEach(function (el, i) { if (el.querySelector('img')) return; var aid = ACH[i] && ACH[i].id; var bi = ['first', 'survive', 'survive5', 'explorer', 'hunt1', 'hunt10', 'boss', 'bitten', 'escape', 'poison', 'brawler', 'target', 'blood', 'chest', 'shard', 'amulet', 'clear', 'bell', 'farm', 'fish', 'armed', 'party', 'trader', 'traveler', 'shelter', 'nurse', 'cards', 'wall', 'endings4', 'endingsAll', 'leonChain', 'leonFair', 'leonTrio', 'leonOathbreak', 'leonBetray', 'naive', 'payback', 'readpeople', 'traitor', 'beggar', 'picky'].indexOf(aid); if (bi < 0) return; var hide = ACH[i].secret && !P.ach[aid]; el.classList.add('a2b'); el.insertAdjacentHTML('afterbegin', '<img src="' + badgeURL(bi) + '" alt=""' + (hide ? ' style="filter:grayscale(1) brightness(.3)"' : '') + '>'); });
+    body.querySelectorAll('.achv').forEach(function (el, i) { if (el.querySelector('img')) return; var aid = ACH[i] && ACH[i].id; var bi = ACH_BADGE.indexOf(aid); if (bi < 0) return; var hide = ACH[i].secret && !P.ach[aid]; el.classList.add('a2b'); el.insertAdjacentHTML('afterbegin', '<img src="' + badgeURL(bi) + '" alt=""' + (hide ? ' style="filter:grayscale(1) brightness(.3)"' : '') + '>'); });
     body.querySelectorAll('.branch').forEach(function (el, i) {
       if (el.querySelector(':scope > img')) return; var br = TREE[i]; if (!br) return;
       var any = br.leaves.some(function (l) { return P.endings[l[0]]; });
@@ -9754,7 +9853,7 @@ renderIntro = function () {
   return r;
 };
 
-window.ART2 = { pickInto: pickInto, faceURL: faceURL, faceImg: faceImg, iconURL: iconURL, statusURL: statusURL, badgeURL: badgeURL, emblemURL: emblemURL, bannerURL: bannerURL, locURL: locURL, pick: pick, sceneURL: sceneURL2, cgURL: cgURL, cardScene: cardScene, params: paramsFor, prologueURL: function (k, loc, me) { return url('pl:' + k + ':' + loc + ':' + me, function () { return RT.SC[k]({ loc: loc, me: me }); }); } };
+window.ART2 = { pickInto: pickInto, faceURL: faceURL, faceImg: faceImg, iconURL: iconURL, statusURL: statusURL, badgeURL: badgeURL, achBadgeURL: achBadgeURL, emblemURL: emblemURL, bannerURL: bannerURL, locURL: locURL, pick: pick, sceneURL: sceneURL2, cgURL: cgURL, cardScene: cardScene, params: paramsFor, prologueURL: function (k, loc, me) { return url('pl:' + k + ':' + loc + ':' + me, function () { return RT.SC[k]({ loc: loc, me: me }); }); } };
 try { renderIntro(); if (G) render(); } catch (e) { }
 
 })();
