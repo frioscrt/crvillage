@@ -2319,6 +2319,16 @@ function sceneChecks(G) {
     say(G, 'Bạn nhận ra ' + al.name + ' giữa ' + LOCS[H.loc].name + '.', 'good');
     scene(G, 'meet');
   }
+  /* đã gặp rồi mà lạc nhau: đứng chung một chỗ là nhận ra bóng lưng nhau và đi cùng lại (trừ khi bạn đã bảo đi riêng, hoặc người kia đã trở mặt) */
+  if (al && G.metPartner && !al.follow && !al.turned && !G.partnerSent && al.loc === H.loc && al.zone === H.zone) {
+    al.follow = true; al.party = null;
+    var bl = al.name === 'Luke'
+      ? ['Giữa ' + LOCS[H.loc].name + ', bạn nhận ra một bóng lưng quen thuộc: vai hơi nghiêng, thanh kiếm tre sau lưng. Luke quay lại, thở ra một hơi rồi bước về phía bạn.',
+         'Một bóng lưng cao, cây kiếm tre đeo chéo. Chưa cần thấy mặt, bạn đã biết là Luke. Anh quay lại như thể cũng đang tìm bạn.']
+      : ['Giữa ' + LOCS[H.loc].name + ', bạn nhận ra một bóng lưng nhỏ, mái tóc đen dài buộc lệch với chiếc nơ trắng. Clevia quay lại, mắt sáng lên một chút rồi chạy về phía bạn.',
+         'Một bóng lưng mảnh khảnh, đuôi tóc đen buộc nơ trắng khẽ lay. Chưa cần thấy mặt, bạn đã biết là Clevia. Cô quay lại, khẽ gọi tên bạn.'];
+    say(G, pick(G.R, bl), 'good');
+  }
   var ah = allyHere(G), sf = G.sceneFlags = G.sceneFlags || {}, A = G.ach || {};
   if (al) { if (ah) { if (G.apartSince != null && G.t - G.apartSince >= 30) scene(G, 'reunite'); G.apartSince = null; } else if (G.apartSince == null) G.apartSince = G.t; }
   if (ah && (H.hp < 30 || ah.hp < 30)) scene(G, 'lowHp', H.hp < 30 ? H.name : ah.name);
@@ -3565,7 +3575,7 @@ function leonTick(G) {
   if (!L.met) {
     if (lp.zone !== H.zone && G.R() < 0.05) lp.zone = H.zone;   /* lần theo khu của bạn */
     /* như tìm Luke/Clevia: từ giờ thứ 2, tới đúng nơi Leon đang đứng là chạm mặt */
-    if (G.t >= 120 && lp.loc === H.loc && lp.zone === H.zone && !G.offer && !G.busy) {
+    if (G.t >= 120 && lp.loc === H.loc && lp.zone === H.zone && !G.offer && !G.busy && !G.talking) {
       leonArrive(G); leonSeen(G, lp);
       say(G, (isHouse(LOCS[H.loc]) ? 'Trong ' : 'Giữa ') + LOCS[H.loc].name + ' có một thanh niên gầy, tóc cắt ngắn, cổ tay quấn một sợi xích. Anh ta nhìn bạn một lúc lâu rồi mới quay đi.', 'event');
       scene(G, 'leonFind', leonVar(G));
@@ -3589,13 +3599,13 @@ function leonTick(G) {
     return;
   }
   /* đủ tin mà chưa có giao kèo: Leon tự tìm tới đề nghị */
-  if (!L.pact && L.pts >= 6 && !(L.pactAsk > G.t - 120) && companions(G).length < 3 && !G.offer && !G.busy && G.R() < 0.08) {
+  if (!L.pact && L.pts >= 6 && !(L.pactAsk > G.t - 120) && companions(G).length < 3 && !G.offer && !G.busy && !G.talking && G.R() < 0.08) {   /* đang chờ người khác trả lời thì Leon chưa tới */
     if (lp.zone !== H.zone || !usable(lp, H.loc)) return;
     if (lp.loc !== H.loc) botArrive(G, lp, H.loc, true);
     leonSeen(G, lp); L.pactAsk = G.t;
     G.offer = { type: 'leonPact', id: lp.id, loc: H.loc, until: G.t + 30 };
-    scene(G, 'leonPact', G.players[0].name);
     say(G, 'Leon tìm đến chỗ bạn. "Tôi có một đề nghị."', 'event');
+    scene(G, 'leonPact', G.players[0].name);
     G.interrupt = true;
   }
 }
@@ -4257,11 +4267,19 @@ function meLine(k, N, arg) {
   return null;
 }
 function peopleDo(G, k, parts, wasArm) {
+  G.held = [];
+  try { peopleDoCore(G, k, parts, wasArm); }
+  finally { var hd = G.held || []; G.held = null; hd.forEach(function (e) { e.t = G.t; G.log.push(e); }); }   /* lời chen trong lúc chờ: đưa xuống sau câu trả lời */
+}
+function peopleDoCore(G, k, parts, wasArm) {
   var p = me(G), w = parseInt(parts[1], 10), arg = parts[2], o = presentNow(G, w);
   if (!o) return;
   var actL = meLine(k, o.name, arg);
   if (actL) say(G, actL, 'me');
-  function after(min) { var r = advance(G, min); if (G.over || !r.ok) return null; var o2 = presentNow(G, w); if (!o2) { var o3 = playerById(G, w); if (!(o3 && !o3.alive && o3.diedLoc === me(G).loc)) say(G, o.name + ' đã rời đi trước khi bạn kịp nói xong.', 'info'); return null; }   /* chết ngay trước mặt thì không báo rời đi */ return o2; }
+  function after(min) {
+    var n0 = G.log.length; G.talking = true; var r; try { r = advance(G, min); } finally { G.talking = false; }
+    if (G.held && !G.over && r.ok) { var nw = G.log.splice(n0); nw.forEach(function (e) { if (e.tone === 'bad' || e.tone === 'warn') G.log.push(e); else G.held.push(e); }); }
+    if (G.over || !r.ok) return null; var o2 = presentNow(G, w); if (!o2) { if (G.held && G.held.length) { G.held.forEach(function (e) { G.log.push(e); }); G.held = []; } var o3 = playerById(G, w); if (!(o3 && !o3.alive && o3.diedLoc === me(G).loc)) say(G, o.name + ' đã rời đi trước khi bạn kịp nói xong.', 'info'); return null; }   /* chết ngay trước mặt thì không báo rời đi */ return o2; }
   if (k === 'parm') { var key = w + ':' + arg; G.arm = (G.arm === key) ? null : key; return; }
   if (k === 'patk') {
     if (wasArm !== w + ':' + arg) return;
@@ -4297,7 +4315,7 @@ function peopleDo(G, k, parts, wasArm) {
       else say(G, 'Leon gật đầu: "Giao kèo xong. Sòng phẳng." Anh ta cuộn xích lại rồi đi đường khác.', 'info');
       return;
     }
-    if (o !== partner(G)) { ach(G, 'kicks'); if (o.plotAt) { o.plotAt = 0; ach(G, 'readPeople'); } }
+    if (o !== partner(G)) { ach(G, 'kicks'); if (o.plotAt) { o.plotAt = 0; ach(G, 'readPeople'); } } else G.partnerSent = true;
     say(G, 'Bạn và ' + o.name + ' đường ai nấy đi.', 'info'); return;
   }
   if (k === 'ptalk') {
@@ -4327,7 +4345,6 @@ function peopleDo(G, k, parts, wasArm) {
     bump(o3, arg === 'money' ? 0.1 : (['map', 'teleport', 'weapon', 'shard', 'amulet'].indexOf(arg) >= 0 ? 0.25 : 0.15));
     if (arg === 'banhngo') { G.cornGift = G.cornGift || {}; if (!G.cornGift[o3.id]) { G.cornGift[o3.id] = 1; bump(o3, 0.25); if (o3.special === 'leon') leonPts(G, 2); } }
     if (o3 === allyHere(G)) {
-      say(G, 'Bạn đưa ' + (arg === 'money' ? '30 tiền' : kindName(arg)) + ' cho ' + o3.name + '.', 'good');
       if (arg === 'weapon') {
         if ((o3.atkCards || 0) < 3) { o3.items.weapon--; o3.atkCards = (o3.atkCards || 0) + 1; }
         if (!G.storyDone['scene_' + (o3.name === 'Luke' ? 'giveSwordLuke' : 'giveSwordClevia')]) { scene(G, o3.name === 'Luke' ? 'giveSwordLuke' : 'giveSwordClevia'); say(G, o3.name === 'Luke' ? 'Luke đeo vũ khí lên, cầm thử vài đường. Động tác gọn và chắc tay.' : 'Clevia nắm chặt vũ khí, tay vẫn còn hơi run.', 'info'); }
@@ -4335,8 +4352,8 @@ function peopleDo(G, k, parts, wasArm) {
       } else if (arg === 'protect' && !G.storyDone.scene_giveProtect) scene(G, 'giveProtect', o3.name);
       else banter(G, arg === 'food' || arg === 'banhngo' ? 'giveFood' : arg === 'herb' ? 'giveHerb' : arg === 'money' ? 'giveMoney' : 'giveGear');
     }
-    else if (o3.special === 'leon') { say(G, 'Bạn đưa ' + (arg === 'money' ? '30 tiền' : kindName(arg)) + ' cho Leon. Leon: ' + pick(G.R, ['"Tôi ghi nhớ."', '"Được. Tôi nợ cậu."', '"Không cần, nhưng tôi nhận."']), 'good'); leonPts(G, arg === 'money' ? 1 : (['food', 'herb', 'ore'].indexOf(arg) >= 0 ? 2 : 3)); }
-    else say(G, 'Bạn đưa ' + (arg === 'money' ? '30 tiền' : kindName(arg)) + ' cho ' + o3.name + '. ' + pick(G.R, ['Họ gật đầu, ánh mắt dịu đi.', 'Họ nhận lấy mà không nói gì.', '"Tôi sẽ nhớ chuyện này."']), 'good');
+    else if (o3.special === 'leon') { say(G, 'Leon: ' + pick(G.R, ['"Tôi ghi nhớ."', '"Được. Tôi nợ cậu."', '"Không cần, nhưng tôi nhận."']), 'good'); leonPts(G, arg === 'money' ? 1 : (['food', 'herb', 'ore'].indexOf(arg) >= 0 ? 2 : 3)); }
+    else say(G, pick(G.R, [o3.name + ' gật đầu, ánh mắt dịu đi.', o3.name + ' nhận lấy mà không nói gì.', o3.name + ': "Tôi sẽ nhớ chuyện này."']), 'good');   /* dòng "Bạn đưa…" đã có ở trên */
     if (arg === 'food' && (o3.hp < 100 || injured(o3))) { o3.items.food--; o3.hp = Math.min(100, o3.hp + 8); say(G, o3.name + ' đang bị thương nên ăn ngay: hồi sức thấy rõ.', 'good'); }
     if (arg === 'banhngo' && (o3.hp < 100 || injured(o3)) && o3.items.banhngo > 0) { o3.items.banhngo--; o3.hp = Math.min(100, o3.hp + 14); say(G, o3.name + ' bẻ đôi chiếc bánh ăn ngay, nét mặt giãn ra hẳn.', 'good'); }
     if (arg === 'herb' && (o3.hp < 100 || injured(o3))) { o3.items.herb--; o3.hp = Math.min(100, o3.hp + 20); o3.fx.bleeding = 0; o3.fx.poison = 0; o3.bloody = false; say(G, o3.name + ' đang bị thương nên dùng thảo dược ngay: vết thương ngừng chảy máu, mùi máu cũng hết.', 'good'); }
@@ -4388,6 +4405,7 @@ function peopleDo(G, k, parts, wasArm) {
     if (companions(G).length >= 3) return;
     var o6 = after(5); if (!o6) return;
     if (o6.special === 'leon') { leonAskJoin(G, o6); return; }
+    if (o6 === partner(G) && !o6.turned) { G.partnerSent = false; o6.follow = true; o6.party = null; say(G, o6.name === 'Luke' ? 'Luke gật đầu: "Đi thôi. Đừng để lạc nữa."' : 'Clevia gật đầu, nắm lấy vạt áo bạn: "Em đi cùng anh."', 'good'); return; }
     var pj = clamp(o6.trust - 0.25 + (JOIN_MOD[o6.name] || 0) + (o6.trait === 'naive' ? 0.15 : 0) - (o6.faction === 'Veteran' ? 0.1 : 0) + (injured(p) ? 0.08 : 0) + (p.hp < 50 ? 0.05 : 0), 0.03, 0.92);
     if (o6.turned) { say(G, o6.name + ': ' + pick(G.R, ['"Đừng có mơ."', '"Đi với bạn thêm lần nữa à? Thôi."']), 'npc'); return; }
     if (G.R() < pj) { ach(G, 'recruits'); o6.joinedAt = G.t; o6.follow = true; o6.party = null; bump(o6, 0.05); say(G, o6.name + ' gật đầu: "Được, tôi đi cùng bạn."', 'good'); }
@@ -5813,7 +5831,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.07-22';
+var GAME_VERSION = '2026.11.07-26';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
