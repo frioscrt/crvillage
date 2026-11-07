@@ -572,6 +572,8 @@ body.lowhp::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:non
 .pl.event p{color:var(--teal)}
 .pl.story p,.pl.npc p{font:italic 500 20px/1.4 var(--serif)}
 .pl.story p{color:var(--glass)}
+.pl.me p,.ln.me p,.e.me p{color:#a9b4c3;font-size:.92em}
+.pl.me p::before,.ln.me p::before,.e.me p::before{content:"› ";color:#9fc1e6}
 .popfoot{display:grid;gap:10px}
 .popfoot .btn{text-align:center;justify-items:center}
 .popfoot label{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--dim);cursor:pointer}
@@ -609,6 +611,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 .panel{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02) 40%,rgba(0,0,0,.22));border:1px solid rgba(255,255,255,.1);border-radius:18px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .card{background:linear-gradient(170deg,#30333a 0%,#1d1f24 55%,#141518 100%);border:1px solid rgba(255,255,255,.1);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.55)}
 .veil{background:radial-gradient(80% 60% at 50% 30%,rgba(0,0,0,.45),rgba(0,0,0,.8))}
+#end{background:#07080a}
+#end::before{content:"";position:fixed;inset:-12px;background:radial-gradient(80% 60% at 50% 35%,rgba(7,8,10,.25),rgba(7,8,10,.85)),var(--endbg,none) center/cover no-repeat;image-rendering:pixelated;filter:blur(3px) brightness(.5) saturate(.75);pointer-events:none}
+#end>.card{position:relative;z-index:1}
 .eyebrow,.kicker{color:var(--acc)}
 .where,.top h1{color:#fff}
 .clock{color:#fff}
@@ -1000,6 +1005,9 @@ body.playhud #herePanel{padding-top:8px}
 .sfslot .sf-stage{max-width:640px;margin:0 auto}
 .hot.q .hic{color:var(--on-p,#14110c);background:var(--acc);box-shadow:0 -2px 0 0 #07080a,0 2px 0 0 #07080a,-2px 0 0 0 #07080a,2px 0 0 0 #07080a,0 0 12px 3px rgba(var(--acc-rgb),.7)}
 .hot.q .hlb{color:#fff;box-shadow:0 0 0 1px var(--acc)}
+.hud .hud-out{display:inline-flex;align-items:center;gap:4px;font:inherit;color:#0f1a12;background:#86b393;border:0;padding:1px 6px;cursor:pointer;box-shadow:0 -2px 0 0 #07080a,0 2px 0 0 #07080a,-2px 0 0 0 #07080a,2px 0 0 0 #07080a,0 0 10px 2px rgba(134,179,147,.55)}
+.hud .hud-out .i{color:#0f1a12}
+.hud .hud-out:hover{background:#a6d1b2}
 .hot.me{width:42px;height:42px;margin:-21px 0 0 -21px;z-index:3}
 .hot.me .hlb{display:none}
 .hot.me .hic{width:22px;height:22px;background:rgba(10,12,16,.7);color:#9fc1e6;box-shadow:0 0 0 1px #07080a}
@@ -1130,7 +1138,11 @@ button.vm-n:focus-visible{outline:2px solid #9fc1e6;outline-offset:2px}
 .hbub .act .ico,#mpop .act .ico,#evpop .act .ico{color:var(--tc);background:color-mix(in srgb,var(--tc) 16%,#0c0e12);box-shadow:0 0 0 2px color-mix(in srgb,var(--tc) 45%,#07080a)}
 .hbub .act .l::before,#mpop .act .l::before,#evpop .act .l::before{content:none}
 .act{--tc:#9fc1e6}.act.t-heal{--tc:#86b393}.act.t-skill{--tc:#b7a0e6}.act.t-talk{--tc:#e0b25a}.act.t-rest{--tc:#7f95c6}.act.t-shop{--tc:#79c3b7}.act.t-danger{--tc:#d06a5c}.act.t-work{--tc:#9fc1e6}
-.hbub .act.questact,#mpop .act.questact,#evpop .act.questact{background:#2a2617;--pxb:var(--acc)}
+.hbub .act.questact,#mpop .act.questact,#evpop .act.questact{background:#2a2617;--pxb:#e0b25a;--tc:#e0b25a}
+.hbub .act.questact:not(.off) .l,#mpop .act.questact:not(.off) .l,#evpop .act.questact:not(.off) .l{color:#f6ecd2!important}
+.hbub .act.questact:not(.off) .d,#mpop .act.questact:not(.off) .d,#evpop .act.questact:not(.off) .d{color:#d9cba6!important}
+.hbub .act.questact:not(.off) .m,#mpop .act.questact:not(.off) .m,#evpop .act.questact:not(.off) .m{background:rgba(0,0,0,.35);color:#f6ecd2}
+.hbub .act.questact:not(.off) .ico,#mpop .act.questact:not(.off) .ico,#evpop .act.questact:not(.off) .ico{color:#e0b25a}
 .hbub,#mpopCard,.evcard{--hbf:#9fc1e6}
 #evpop .evcard{box-shadow:0 -3px 0 0 var(--hbf),0 3px 0 0 var(--hbf),-3px 0 0 0 var(--hbf),3px 0 0 0 var(--hbf),0 -6px 0 0 #07080a,0 6px 0 0 #07080a,-6px 0 0 0 #07080a,6px 0 0 0 #07080a,0 18px 50px rgba(0,0,0,.6)}
 #mpopCard{border:0;border-radius:0;box-shadow:0 -3px 0 0 var(--hbf),0 3px 0 0 var(--hbf),-3px 0 0 0 var(--hbf),3px 0 0 0 var(--hbf),0 -6px 0 0 #07080a,0 6px 0 0 #07080a,-6px 0 0 0 #07080a,6px 0 0 0 #07080a,0 12px 0 0 rgba(0,0,0,.5)}
@@ -1230,7 +1242,7 @@ var DEFAULT_ROSTER = [
 "job": "Sinh viên, trưởng CLB kiếm đạo",
 "str": 7,
 "luck": 5,
-"ability": "Anomaly Sense: phát hiện bất thường, đọc dấu hiệu nguy hiểm, hiểu quy luật game nhanh hơn người thường. Trong game: biết khu đang đứng có sắp gặp nguy hiểm không và còn bao lâu.",
+"ability": "Anomaly Sense: phát hiện bất thường, đọc dấu hiệu nguy hiểm, hiểu quy luật game nhanh hơn người thường. Trong game: biết trong 2 tiếng tới khu đang đứng có gặp nguy hiểm không và còn bao lâu.",
 "limit": "Mỗi lần dùng tốn thêm 5 phút tập trung và hồi lại sau 60 phút; chỉ cho dấu hiệu, không chỉ thẳng đáp án.",
 "persona": "Thân thiện bề ngoài, bình tĩnh, tin vào logic và mô hình; ít khi lộ sơ hở. Về sau lạnh và thực dụng hơn.",
 "faction": "Veteran",
@@ -1713,7 +1725,7 @@ var DEFAULT_ROSTER = [
 ];
 'use strict';
 /* ===== ENGINE: dữ liệu + mô phỏng thời gian (mỗi tick = 5 phút) ===== */
-var BASE_ATK = 0.036, STEP = 5, DAY = 1440, WAVE = 240, FIRST = 60, HOUSE_SAFE = 180, NPLAYERS = 20;
+var BASE_ATK = 0.036, STEP = 5, DAY = 1440, WAVE = 180, FIRST = 60, SENSE_RANGE = 120, HOUSE_SAFE = 180, NPLAYERS = 20;
 
 var ZONES = {
   farm:   { id: 'farm',   name: 'Khu Nông nghiệp' },
@@ -3765,7 +3777,7 @@ function askInfo(G, o) {
     var m = memOf(o), out2 = [];
     if (!m.told['ded' + G.waves]) {
       m.told['ded' + G.waves] = 1;
-      out2.push(G.waves >= 2 && G.lastInfected ? '"Đợt vừa rồi rơi vào ' + ZONES[G.lastInfected].name + '. Tới giờ chưa khu nào bị hai đợt liền nhau, mỗi đợt cách nhau tầm bốn tiếng. Nếu quy luật vẫn vậy, đợt tới sẽ là một trong hai khu còn lại."' : (G.waves === 1 ? '"Mới thấy một đợt. Chưa đủ để đoán quy luật, anh đang để ý."' : '"Chưa có đợt nhiễm nào. Cứ tranh thủ lúc yên mà làm việc."'));
+      out2.push(G.waves >= 2 && G.lastInfected ? '"Đợt vừa rồi rơi vào ' + ZONES[G.lastInfected].name + '. Tới giờ chưa khu nào bị hai đợt liền nhau, mỗi đợt cách nhau tầm ba tiếng. Nếu quy luật vẫn vậy, đợt tới sẽ là một trong hai khu còn lại."' : (G.waves === 1 ? '"Mới thấy một đợt. Chưa đủ để đoán quy luật, anh đang để ý."' : '"Chưa có đợt nhiễm nào. Cứ tranh thủ lúc yên mà làm việc."'));
     }
     out2 = out2.concat(infoAnswer(G, o, { honest: true, precise: true, n: 1 }));
     say(G, 'Luke: ' + (out2.length ? out2.join(' ') : '"Anh chưa thấy gì mới hơn những gì em biết."'), 'npc'); return;
@@ -4043,13 +4055,13 @@ var SENSE_LINES = {
     solved: ['"Yên rồi. Anh không còn thấy gì bất thường nữa."'],
     now: ['"Ngay lúc này khu này đang nguy hiểm. Khoảng {X} nữa mới yên. Đi sát anh."', '"Đang có chuyện ở đây đấy. Chừng {X} nữa mới qua. Đừng tách ra."'],
     soon: ['"Khoảng {X} nữa khu này sẽ có chuyện. Mình nên tính đường trước."', '"Còn chừng {X}. Sau đó ở đây không an toàn nữa đâu."'],
-    calm: ['"Khu này tạm ổn. Từ giờ tới {X} nữa chưa có gì đâu."', '"Yên. Phải {X} nữa mới có chuyện."']
+    calm: ['"Khu này tạm ổn, ít nhất trong {X} tới. Xa hơn thì anh không nhìn thấu được."', '"Yên. Trong {X} tới chưa có gì. Sau đó thì anh không dám chắc."']
   },
   self: {
     solved: ['Bạn nhắm mắt. Không còn cảm giác gai người nào nữa. Ngôi làng đã yên.'],
     now: ['Bạn nhắm mắt. Cảm giác gai người dội lên ngay: khu này đang có nguy hiểm, khoảng {X} nữa mới lắng xuống.'],
     soon: ['Bạn nhắm mắt. Có thứ gì đó đang dồn lại quanh đây: khoảng {X} nữa, khu này sẽ có nguy hiểm.'],
-    calm: ['Bạn nhắm mắt. Mọi thứ vẫn yên: trong {X} tới, khu này chưa có nguy hiểm.']
+    calm: ['Bạn nhắm mắt. Mọi thứ vẫn yên: trong {X} tới, khu này chưa có nguy hiểm. Xa hơn thế thì bạn không cảm nhận được.']
   }
 };
 function senseMsg(G, zz, who, loc) {
@@ -4065,8 +4077,9 @@ function senseMsg(G, zz, who, loc) {
   }
   if (G.solved) k = 'solved';
   else if (G.infected === zz) { k = 'now'; x = r5(G.nextWave - G.t); }
-  else if (G.upcoming === zz) { k = 'soon'; x = r5(G.nextWave - G.t); }
-  else { k = 'calm'; x = r5(G.nextWave - G.t + WAVE); }
+  else if (G.upcoming === zz && G.nextWave - G.t <= SENSE_RANGE) { k = 'soon'; x = r5(G.nextWave - G.t); }
+  /* xa hơn 2 tiếng thì khu sắp nhiễm và khu yên nghe như nhau: không lộ khu kế tiếp quá sớm */
+  else { k = 'calm'; x = SENSE_RANGE; }
   return pick(G.R, SENSE_LINES[who || 'self'][k]).replace('{X}', fmt(x));
 }
 
@@ -4180,7 +4193,7 @@ function peopleActions(G, add) {
     (o.follow ? allKinds().filter(function (k) { return holds2(o, k); }) : ['food', 'herb']).forEach(function (k) {
       add('person', 'pask:' + w + ':' + k, 'Xin ' + kindName(k) + (o.follow ? ' (×' + kindCount(o, k) + ')' : ''), 5, '', noRoom(p, k) ? FULL_MSG : null, w);
     });
-    if (o.follow && has(o, 'Anomaly Sense') && !p.human === false && abil(p) !== 'Anomaly Sense') add('person', 'psense:' + w, 'Nhờ ' + o.name + ' cảm nhận bất thường', 5, 'Anomaly Sense: khu này có bất thường không, trong bao nhiêu phút nữa', o.senseReadyAt > G.t ? 'Còn ' + (o.senseReadyAt - G.t) + ' phút nữa mới dùng lại được.' : null, w);
+    if (o.follow && has(o, 'Anomaly Sense') && !p.human === false && abil(p) !== 'Anomaly Sense') add('person', 'psense:' + w, 'Nhờ ' + o.name + ' cảm nhận bất thường', 5, 'Anomaly Sense: trong 2 tiếng tới khu này có bất thường không', o.senseReadyAt > G.t ? 'Còn ' + (o.senseReadyAt - G.t) + ' phút nữa mới dùng lại được.' : null, w);
     if (has(o, 'Field Medic') && (o.follow || o.trust >= 0.5)) add('person', 'pmedic:' + w, 'Nhờ sơ cứu (+20 HP, cầm máu)', 10, 'Còn ' + (3 - (o.medicUsed || 0)) + ' lần', (o.medicUsed || 0) >= 3 ? 'Đã hết lượt sơ cứu.' : (p.hp >= 100 && !p.fx.bleeding ? 'Bạn không bị thương.' : null), w);
     if (has(o, 'Herbalist') && o.follow && LOCS[p.loc].type === 'farm') add('person', 'pherb:' + w, 'Nhờ tìm thảo dược', 15, '', noRoom(p, 'herb') ? FULL_MSG : null, w);
     botSells(o).forEach(function (k) {
@@ -4210,9 +4223,30 @@ function peopleActions(G, add) {
     else add('person', 'pjoin:' + w, 'Rủ đi cùng', 5, 'Đi cùng thì cả hai bớt cô độc', cs >= 3 ? 'Nhóm đã đủ 3 người đi cùng.' : null, w);
   });
 }
+/* dòng "bạn đã làm gì" đứng trước câu đáp của người kia trong Diễn biến và Nhật ký */
+function meLine(k, N, arg) {
+  var it = function (x) { return x === 'money' ? '30 tiền' : kindName(x); };
+  switch (k) {
+    case 'ptalk': return 'Bạn bắt chuyện với ' + N + '.';
+    case 'pinfo': return 'Bạn hỏi ' + N + ' có nghe được tin gì không.';
+    case 'pgive': return 'Bạn đưa ' + N + ' ' + it(arg) + '.';
+    case 'pask': return 'Bạn xin ' + N + ' ' + it(arg) + '.';
+    case 'pbuy': return 'Bạn hỏi mua ' + sellName(arg) + ' của ' + N + '.';
+    case 'pjoin': return 'Bạn rủ ' + N + ' đi cùng.';
+    case 'pleave': return 'Bạn nói với ' + N + ' rằng từ giờ mình sẽ đi riêng.';
+    case 'plure': return arg === 'words' ? 'Bạn tìm lời thuyết phục ' + N + ' sang phe mình.' : arg === 'money' ? 'Bạn chìa tiền, mời ' + N + ' sang phe mình.' : 'Bạn đưa ' + N + ' ' + kindName(String(arg).replace(/^gift_/, '')) + ', mời sang phe mình.';
+    case 'pmedic': return 'Bạn nhờ ' + N + ' sơ cứu.';
+    case 'pherb': return 'Bạn nhờ ' + N + ' tìm giúp thảo dược.';
+    case 'psense': return 'Bạn nhờ ' + N + ' cảm nhận xem khu này có gì bất thường.';
+    case 'pchain': return 'Bạn nhờ ' + N + ' dùng xích.';
+  }
+  return null;
+}
 function peopleDo(G, k, parts, wasArm) {
   var p = me(G), w = parseInt(parts[1], 10), arg = parts[2], o = presentNow(G, w);
   if (!o) return;
+  var actL = meLine(k, o.name, arg);
+  if (actL) say(G, actL, 'me');
   function after(min) { var r = advance(G, min); if (G.over || !r.ok) return null; var o2 = presentNow(G, w); if (!o2) { say(G, o.name + ' đã rời đi trước khi bạn kịp nói xong.', 'info'); return null; } return o2; }
   if (k === 'parm') { var key = w + ':' + arg; G.arm = (G.arm === key) ? null : key; return; }
   if (k === 'patk') {
@@ -4445,7 +4479,7 @@ function listActions(G) {
     else if (cvAny && cvAny.unlockLost) add('here', 'unlockchest', 'Unlock rương', 0, 'Unlock: ổ khoá bật ra ngay', 'Clevia đã ép Unlock vào bức tường kính; năng lực không còn đáp lại tới hết ván.');
   }
   if (p.name === 'Luke') {
-    add('here', 'sense', 'Cảm nhận bất thường', 5, 'Anomaly Sense: biết khu này có bất thường không và trong bao nhiêu phút nữa. Hồi lại sau 60 phút', p.senseReadyAt > G.t ? 'Còn ' + (p.senseReadyAt - G.t) + ' phút nữa mới dùng lại được.' : null);
+    add('here', 'sense', 'Cảm nhận bất thường', 5, 'Anomaly Sense: biết trong 2 tiếng tới khu này có bất thường không, và bao lâu nữa. Hồi lại sau 60 phút', p.senseReadyAt > G.t ? 'Còn ' + (p.senseReadyAt - G.t) + ' phút nữa mới dùng lại được.' : null);
   }
   if (isHouse(l) && s.since != null && !s.expired) {
     var hLeft = houseSafe(G) - (G.t - s.since);
@@ -4488,7 +4522,7 @@ function listActions(G) {
   if (allExplored(p)) {
     if (!p.leaveDismissed) {
       add('leave', 'leave:go', 'Rời ải', 0, 'Kết thúc ván ngay. Những người còn lại vẫn tiếp tục chơi');
-      add('leave', 'leave:stay', 'Ở lại', 0, 'Có thể rời ải bất cứ lúc nào ở tab Hành động');
+      add('leave', 'leave:stay', 'Ở lại', 0, 'Muốn đi lúc nào thì chạm nút Cửa ra màu xanh lục ở mép trên tranh');
     } else add('here', 'leave:go', 'Rời ải', 0, 'Kết thúc ván ngay. Những người còn lại vẫn tiếp tục chơi');
   }
   if (p.blessPick) {
@@ -4575,9 +4609,10 @@ function doActionCore(G, id) {
   var p = me(G); if (G.over) return;
   var parts = id.split(':'), k = parts[0], arg = parts[1];
   var wasArm = G.arm; if (k !== 'parm') G.arm = null;
-  if (G.offer && /^leon/.test(G.offer.type) && k !== 'offer') { var ofl = G.offer; G.offer = null; resolveLeon(G, ofl, null); if (G.over || !p.alive) return; }
+  var careAct = k === 'pgive' && (function () { var oc = presentNow(G, parseInt(arg, 10)); return !!(oc && oc.follow); })();
+  if (G.offer && /^leon/.test(G.offer.type) && k !== 'offer' && !careAct) { var ofl = G.offer; G.offer = null; resolveLeon(G, ofl, null); if (G.over || !p.alive) return; }
   if (G.offer && G.offer.type === 'betray' && k !== 'offer') { var ofbt = G.offer; G.offer = null; resolveBetray(G, ofbt, null); if (G.over || !p.alive) return; }
-  if (G.offer && G.offer.type === 'chest' && k !== 'offer') { var ofc = G.offer; G.offer = null; resolveChest(G, ofc, 'yield'); if (G.over || !p.alive) return; }
+  if (G.offer && G.offer.type === 'chest' && k !== 'offer' && !careAct) { var ofc = G.offer; G.offer = null; resolveChest(G, ofc, 'yield'); if (G.over || !p.alive) return; }
   if (G.offer && G.offer.type === 'boss' && k !== 'offer') { var ofq = G.offer; G.offer = null; resolveBoss(G, ofq, 'flee'); if (G.over || !p.alive) return; }
   if (G.offer && G.offer.type === 'brawl' && k !== 'offer') { var ofb = G.offer; G.offer = null; resolveBrawl(G, ofb, ['move', 'tp', 'tpt', 'wall', 'leave'].indexOf(k) >= 0 ? 'away' : 'ignore'); if (G.over || !p.alive) return; }
   if (['ptalk', 'pinfo', 'pgive', 'pask', 'pbuy', 'pjoin', 'plure', 'pleave', 'parm', 'patk', 'pmedic', 'pherb', 'psense', 'pchain'].indexOf(k) >= 0) { peopleDo(G, k, parts, wasArm); return; }
@@ -4854,6 +4889,7 @@ function doActionCore(G, id) {
       if (!G.over) run(5); return;
     }
     var pool = TALK[l.type] || TALK.house;
+    say(G, 'Bạn bắt chuyện với người dân ở đây.', 'me');
     var r2 = run(5);
     if (!G.over) {
       say(G, pick(G.R, pool), 'npc');
@@ -5575,7 +5611,7 @@ var PROT_INFO = {
     abil: ['Unlock', 'Mở rương khoá không cần giải mã, qua cổng Hầm mỏ không cần đưa đồ cho người gác. Có thể ép mở tường kính giữa các khu, nhưng mất Unlock tới hết ván.'],
     pass: ['Trực giác', 'Khi đi một mình, 25% nhận ra quỷ trước và lẩn đi. Đã giao chiến thì dễ chạy thoát hơn.'] },
   Luke: { tag: 'Kỳ cựu', look: 'Tóc nâu rối, ánh mắt sắc, đeo thanh kiếm tre sau lưng.', persona: 'Thân thiện bề ngoài, bình tĩnh. Tin vào logic, không nói chắc khi chưa đủ bằng chứng.',
-    abil: ['Anomaly Sense', 'Biết khu đang đứng có sắp gặp nguy hiểm không và còn bao lâu. Tốn 5 phút, 60 phút mới dùng lại được. Chỉ cho dấu hiệu, không chỉ thẳng đáp án.'],
+    abil: ['Anomaly Sense', 'Biết trong 2 tiếng tới khu đang đứng có gặp nguy hiểm không và còn bao lâu; xa hơn thì không cảm nhận được. Tốn 5 phút, 60 phút mới dùng lại được. Chỉ cho dấu hiệu, không chỉ thẳng đáp án.'],
     pass: ['Kiếm đạo', 'Khi quỷ vồ vào ai trong nhóm, 15% gạt được cú đó (30% nếu có vũ khí).'] }
 };
 function protInfoHtml(n) {
@@ -5704,7 +5740,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.06-11';
+var GAME_VERSION = '2026.11.07-8';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -5979,7 +6015,7 @@ var SF = (function () {
       '<div class="hud-r"><span class="hud-clk" title="' + esc(fmtT(villageMin(tNow)) + ' trong làng · ' + phaseOf(tNow)[1]) + '">' + fmtT(tNow) + '<small>còn ' + fmtT(Math.max(0, DAY - G.t)) + '</small></span>' +
       '<button class="hud-b hud-log" data-ui="fulllog" aria-label="Nhật ký">' + ico('scroll') + '</button><button class="hud-b" data-hudsnd="1" aria-label="Bật hoặc tắt âm thanh">♪</button><button class="hud-b hud-gear" data-ui="tab:more" aria-label="Cài đặt">' + ico('menu') + '</button></div>' +
       '<div class="hud-s hud-stats"><span class="hud-hp' + (hp <= 35 ? ' low' : '') + '" title="Sinh lực">' + ico('heart') + hp + '<em class="hbar"><i style="width:' + hp + '%"></i></em></span><span title="Tiền">' + ico('coin') + p.money + 'đ</span><span title="Sức mạnh">' + ico('sword') + (+(effStr(p)).toFixed(1)) + '</span>' +
-      '<span class="hud-ex" title="Vượt ải: khám phá đủ 13 nơi và sống tới hết 24 tiếng">' + ico('flag') + ex + '/13</span><span title="Thời gian đã trôi">' + ico('hourglass') + tp + '%</span>' + (st ? '<span class="hud-fx">' + st + '</span>' : '') + '</div>';
+      (ex >= 13 && !G.over && p.alive ? '<button class="hud-out" data-ui="cuara" aria-label="Cửa ra: rời ải hoặc ở lại">' + ico('door') + 'Cửa ra</button>' : '<span class="hud-ex" title="Vượt ải: khám phá đủ 13 nơi và sống tới hết 24 tiếng">' + ico('flag') + ex + '/13</span>') + '<span title="Thời gian đã trôi">' + ico('hourglass') + tp + '%</span>' + (st ? '<span class="hud-fx">' + st + '</span>' : '') + '</div>';
     el.hidden = false;
   }
   /* việc của riêng bạn: Dùng nhanh, năng lực, chờ, xin đồng đội thảo dược */
@@ -6009,7 +6045,7 @@ var SF = (function () {
   function layout(acts) {
     var W = ($('sfStage') && $('sfStage').clientWidth) || 343, u = 128 / W, small = W < 420, ch = small ? 5.6 : 6.2, ih = small ? 11 : 13, lh = 14, gap = small ? 14 : 16;
     var boxes = [], flags = {};
-    cur.hots.forEach(function (h) { if (h.k !== 'me') boxes.push([h.x - ih * u, h.y - ih * u, h.x + ih * u, h.y + ih * u]); });
+    cur.hots.forEach(function (h) { var r = h.k === 'me' ? ih - 2 : ih; boxes.push([h.x - r * u, h.y - r * u, h.x + r * u, h.y + r * u]); });
     function hit(b) { return boxes.some(function (o) { return b[0] < o[2] && o[0] < b[2] && b[1] < o[3] && o[1] < b[3]; }); }
     cur.hots.slice().sort(function (a, b) { return a.x - b.x; }).forEach(function (h) {
       if (h.k === 'me') return;
@@ -6022,9 +6058,16 @@ var SF = (function () {
         ['' + hz[2], [hz[0], h.y + g, hz[1], h.y + g + lhU]],
         [' up' + hz[2], [hz[0], h.y - g - lhU, hz[1], h.y - g]],
         [' rt', [h.x + side, h.y - lhU / 2, h.x + side + w, h.y + lhU / 2]],
-        [' lt', [h.x - side - w, h.y - lhU / 2, h.x - side, h.y + lhU / 2]]
+        [' lt', [h.x - side - w, h.y - lhU / 2, h.x - side, h.y + lhU / 2]],
+        /* thêm chỗ: nhãn lệch trái/phải ở dưới hoặc trên icon, khi bốn chỗ trên đều vướng */
+        [' el', [h.x - 13 * u, h.y + g, h.x - 13 * u + w, h.y + g + lhU]],
+        [' er', [h.x + 13 * u - w, h.y + g, h.x + 13 * u, h.y + g + lhU]],
+        [' up el', [h.x - 13 * u, h.y - g - lhU, h.x - 13 * u + w, h.y - g]],
+        [' up er', [h.x + 13 * u - w, h.y - g - lhU, h.x + 13 * u, h.y - g]]
       ];
-      var pickC = cand.filter(function (c) { return inb(c[1]) && !hit(c[1]); })[0] || cand.filter(function (c) { return inb(c[1]); })[0] || cand[0];
+      function ovl(b) { return boxes.reduce(function (s, o) { var ox = Math.min(b[2], o[2]) - Math.max(b[0], o[0]), oy = Math.min(b[3], o[3]) - Math.max(b[1], o[1]); return s + (ox > 0 && oy > 0 ? ox * oy : 0); }, 0); }
+      /* chỗ nào cũng vướng thì chọn chỗ đè ít nhất */
+      var pickC = cand.filter(function (c) { return inb(c[1]) && !hit(c[1]); })[0] || cand.filter(function (c) { return inb(c[1]); }).sort(function (a, b) { return ovl(a[1]) - ovl(b[1]); })[0] || cand[0];
       boxes.push(pickC[1]); flags[h.k] = pickC[0];
     });
     return flags;
@@ -6041,6 +6084,33 @@ var SF = (function () {
     var sel = cur.hots.filter(function (h) { return h.k === UI.hot; })[0];
     if (sel) html += bubble(sel, acts);
     $('sfHot').innerHTML = html;
+    try { fixLabels(); fixLabels(); } catch (e) { }
+  }
+  /* đo thật trên màn hình: nhãn nào còn đè lên nút hay nhãn khác thì thử các hướng đặt nhãn, giữ hướng đè ít nhất (điện thoại chật nên cần bước này) */
+  function fixLabels() {
+    var wrap = $('sfHot'), hs = [].slice.call(wrap.querySelectorAll('.hot')); if (!hs.length || !wrap.clientWidth) return;
+    var st = wrap.getBoundingClientRect();
+    function vis(e) { return e && getComputedStyle(e).display !== 'none'; }
+    function score(b) {
+      var l = b.querySelector('.hlb'); if (!vis(l)) return 0;
+      var a = l.getBoundingClientRect(), s = (a.left < st.left - 1 || a.right > st.right + 1 || a.top < st.top - 1 || a.bottom > st.bottom + 1) ? 1e6 : 0;
+      hs.forEach(function (o) {
+        if (o === b) return;
+        [o.querySelector('.hic'), o.querySelector('.hlb')].forEach(function (e) {
+          if (!vis(e)) return; var c = e.getBoundingClientRect();
+          var ox = Math.min(a.right, c.right) - Math.max(a.left, c.left), oy = Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top);
+          if (ox > 0 && oy > 0) s += ox * oy * (e.classList.contains('hic') ? 3 : 1);
+        });
+      });
+      return s;
+    }
+    var opts = ['', ' up', ' rt', ' lt', ' el', ' er', ' up el', ' up er'];
+    hs.forEach(function (b) {
+      if (score(b) <= 4) return;
+      var base = (' ' + b.className + ' ').replace(/ (up|rt|lt|el|er)(?= )/g, '').replace(/\s+/g, ' ').trim(), best = b.className, bs = Infinity;
+      opts.forEach(function (o) { b.className = base + o; var s = score(b); if (s < bs) { bs = s; best = b.className; } });
+      b.className = best;
+    });
   }
   function blocked() { return !$('pop').hidden || !$('scene').hidden || !$('mpop').hidden || ($('end') && !$('end').hidden) || UI.coach != null; }
   function pref() { try { return localStorage.getItem('artos_scenepop') || 'first'; } catch (e) { return 'first'; } }
@@ -6081,18 +6151,56 @@ var SF = (function () {
       /* người đã quan sát ở đây (không tính đồng đội đã vẽ cạnh bạn): tối đa 4 người đứng quanh chỗ "Người ở đây" */
       var presAll = presentOthers(G).filter(function (o) { return o.alive && o.loc === p.loc && o !== al; }), pres = presAll.slice(0, 4);
       var anc = c.hot.filter(function (h) { return h.k === 'ppl'; })[0] || { x: Math.min(118, c.home[0] + 22), fy: c.home[1] };
-      var half = (pres.length - 1) / 2 * 13, cx0 = Math.max(8 + half, Math.min(120 - half, anc.x));
-      who.others = pres.map(function (o, i) { var x = cx0 + (i - (pres.length - 1) / 2) * 13; return { name: o.name, id: o.id, x: x, y: anc.fy != null ? anc.fy : 62 }; });
+      if (pres.length) cur.hots.forEach(function (h) { if (h.k === 'ppl') h.y = Math.max(6, h.y - 14); });
+      /* xếp người đứng né mọi nút trong tranh (tính theo cỡ khung thật, điện thoại nút to hơn so với tranh); không còn chỗ thì người đó chỉ tính vào (+n) */
+      var Wp = (STAGE && STAGE.clientWidth) || 343, uu = 128 / Wp, sm = Wp < 420, chw = sm ? 5.6 : 6.2, ihp = sm ? 11 : 13, gp = sm ? 14 : 16;
+      function lblOf(h) { if (!h.ids) return h.name || ''; var one = single(h, acts), t = one ? tileOf(one) : null; return t ? (h.named ? h.name : t.verb) + (t.min ? ' · ' + t.min : '') : h.name; }
+      var hdp = $('sfHud'), Hsp = STAGE && STAGE.clientHeight, minYp = hdp && Hsp && !hdp.hidden ? (hdp.offsetHeight + 15) / Hsp * 72 : 0;
+      function boxesOf(h, me) {
+        var y = Math.max(h.y, minYp), bx = [[h.x - (ihp + 2) * uu, y - (ihp + 2) * uu, h.x + (ihp + 2) * uu, y + (ihp + 2) * uu]];
+        if (!me) { var lw = (lblOf(h).length * chw + 10) / 2 * uu; bx.push([h.x - lw, y + (gp - 2) * uu, h.x + lw, y + (gp + 15) * uu]); }
+        /* nhãn "Người ở đây (+n)" còn có thể bị đẩy lên trên hoặc sang hai bên: giữ chỗ cả ba hướng để người không đứng đè */
+        if (h.k === 'ppl') { var lw2 = ((lblOf(h).length + 5) * chw + 10) * uu, sd = (ihp + 3) * uu; bx.push([h.x - lw2 / 2, y - (gp + 15) * uu, h.x + lw2 / 2, y - (gp - 2) * uu], [h.x + sd, y - 8 * uu, h.x + sd + lw2, y + 8 * uu], [h.x - sd - lw2, y - 8 * uu, h.x - sd, y + 8 * uu]); }
+        return bx;
+      }
+      var taken = []; cur.hots.forEach(function (h) { taken = taken.concat(boxesOf(h, h.k === 'me')); });
+      function clash(bs) { return bs.some(function (b) { return taken.some(function (o) { return b[0] < o[2] && o[0] < b[2] && b[1] < o[3] && o[1] < b[3]; }); }); }
+      var pyF = anc.fy != null ? anc.fy : 62, pyH = Math.max(6, pyF - 15), xs = [];
+      for (var dx = 0; dx <= 120; dx += 1) { if (anc.x + dx <= 121) xs.push(anc.x + dx); if (dx && anc.x - dx >= 7) xs.push(anc.x - dx); }
+      who.others = [];
+      var rows = [0, 6, -6, 10].map(function (d) { return pyF + d; }).filter(function (f) { return f - 15 >= 8 && f <= 70; });
+      pres.forEach(function (o) {
+        for (var r = 0; r < rows.length; r++) for (var i = 0; i < xs.length; i++) {
+          var h = { k: 'p' + o.id, x: xs[i], y: Math.max(6, rows[r] - 15), name: o.name }, bs = boxesOf(h);
+          if (!clash(bs)) { taken = taken.concat(bs); who.others.push({ name: o.name, id: o.id, x: xs[i], y: rows[r] }); return; }
+        }
+      });
       who.others.forEach(function (o) { cur.hots.push({ k: 'p' + o.id, x: o.x, y: Math.max(6, o.y - 15), ic: 'people', name: o.name, pid: o.id, face: o.name, ids: /^$/, ui: [] }); });
-      if (pres.length) cur.hots.forEach(function (h) { if (h.k === 'ppl') { h.y = Math.max(6, h.y - 14); if (presAll.length > pres.length) h.name = 'Người ở đây (+' + (presAll.length - pres.length) + ')'; } });
+      if (presAll.length > who.others.length) cur.hots.forEach(function (h) { if (h.k === 'ppl') h.name = who.others.length ? 'Người ở đây (+' + (presAll.length - who.others.length) + ')' : 'Người ở đây (' + presAll.length + ')'; });
       try { AMB.set(p.loc, skyk, presentOthers(G).length, who); AMB.attach(true); } catch (e) { }
       var mp2 = (function () { try { return AMB.mePos(); } catch (e) { return null; } })();
       if (mp2) cur.hots.forEach(function (h) { if (h.k === 'me') { h.x = mp2[0] + 4; h.y = Math.max(6, mp2[1] - 15); } });
+      /* trái tim trên đầu nhân vật luôn nằm trên cùng để dễ chạm, nên không được che nút khác: đè thì nhích sang chỗ trống gần nhất */
+      (function () {
+        var meH = cur.hots.filter(function (h) { return h.k === 'me'; })[0]; if (!meH) return;
+        var others = []; cur.hots.forEach(function (h) { if (h.k !== 'me') others = others.concat(boxesOf(h)); });
+        function hitAt(x, y) { y = Math.max(y, minYp); var hr = (sm ? 9 : 10) * uu, b = [x - hr, y - hr, x + hr, y + hr]; return others.some(function (o) { return b[0] < o[2] && o[0] < b[2] && b[1] < o[3] && o[1] < b[3]; }); }
+        if (!hitAt(meH.x, meH.y)) return;
+        var x0 = meH.x, y0 = meH.y, best = null;
+        var offs = []; for (var rr = 3; rr <= 27; rr += 3) [[0, -1], [1, 0], [-1, 0], [.7, -.7], [-.7, -.7], [0, 1], [.7, .7], [-.7, .7]].forEach(function (v) { offs.push([v[0] * rr, v[1] * rr * .7]); });
+        offs.some(function (d) {
+          var x = x0 + d[0], y = y0 + d[1]; if (x < 4 || x > 124 || y < 4 || y > 68) return false;
+          if (!hitAt(x, y)) { best = [x, y]; return true; } return false;
+        });
+        if (best) { meH.x = best[0]; meH.y = best[1]; }
+      })();
       hud(p, l);
       var hd = $('sfHud'), Hs = STAGE.clientHeight;
       cur.topY = 0.5; if (hd && Hs && !hd.hidden) { cur.topY = hd.offsetHeight / Hs * 72; var minY = (hd.offsetHeight + 15) / Hs * 72; cur.hots.forEach(function (h) { if (h.y < minY) h.y = minY; }); }
       draw(acts);
     },
+    /* để soi: mỗi điểm chạm nhận việc nào ("misc" = Việc khác) */
+    audit: function () { return { hots: cur.hots.map(function (h) { return [h.k, hotActs(h, cur.acts).map(function (a) { return a.id; })]; }), acts: cur.acts.map(function (a) { return [a.id, a.group, a.label]; }) }; },
     tryPending: function () { if (UI.scenePending && stillHere() && !blocked()) { UI.scenePending = false; open(true); } },
     open: function () { if (stillHere()) open(true); },
     close: function () { if (UI.sceneOpen) open(false); },
@@ -6481,7 +6589,7 @@ var EVP = (function () {
   }
   return {
     render: function () {
-      var e = ensure(), on = !!(UI.evHtml && G && !G.over && !G.isBackdrop && G.players[0].alive);
+      var e = ensure(), on = !!(UI.evHtml && G && !G.over && !G.isBackdrop && G.players[0].alive && !UI.popOpen);
       if (!on) { e.hidden = true; e.innerHTML = ''; e.dataset.k = ''; return; }
       var key = UI.evKind + '|' + UI.evHtml;
       if (e.dataset.k !== key) {
@@ -6986,7 +7094,7 @@ var PROLOGUE = (function () {
 })();
 /* khung diễn biến: tuỳ chọn chỉ bật khi có chuyện đáng chú ý (lưu trên trình duyệt) */
 function popQuiet() { try { return localStorage.getItem('artos_popquiet') === '1'; } catch (e) { return false; } }
-function notable(items) { return items.length > 1 || items.some(function (e) { return e.tone !== 'info' && e.tone !== 'sys'; }); }
+function notable(items) { items = items.filter(function (e) { return e.tone !== 'me'; }); return items.length > 1 || items.some(function (e) { return e.tone !== 'info' && e.tone !== 'sys'; }); }
 function renderPop() {
   var el = $('pop');
   if (!(UI.popOpen && UI.last && G && !G.isBackdrop)) { el.hidden = true; return; }
@@ -7018,7 +7126,7 @@ function renderScene() {
   if (!el.hidden && el.dataset.k === q[0]) return;
   el.dataset.k = q[0]; el.hidden = false; SND.play('chime');
 }
-function closePop() { UI.popOpen = false; $('pop').hidden = true; logFab(); setTimeout(coachUpdate, 30); setTimeout(function () { try { SF.tryPending(); } catch (e) { } }, 40); }
+function closePop() { UI.popOpen = false; $('pop').hidden = true; try { EVP.render(); } catch (e) { } logFab(); setTimeout(coachUpdate, 30); setTimeout(function () { try { SF.tryPending(); } catch (e) { } }, 40); }
 function logFab() {
   var f = $('logFab'); if (!f) return;
   if (UI.last && !$('pop').hidden) UI.fabSeen = UI.last.t0 + ':' + UI.last.items.length;
@@ -7405,6 +7513,8 @@ function renderHere(acts, d, p, l) {
   })();
   if (actView() === 'scene' && !G.isBackdrop && !G.over) h = h.slice(0, QB0);
   var EV0 = h.length;
+  /* sự kiện xếp hàng: [ưu tiên, html, tranh]. 0 xác nhận vừa bấm, 1 nguy tới mạng, 2 đồng đội yếu, 3 Leon và giao kèo, 4 rương, 5 chúc phúc, 6 cửa ra */
+  var EVS = [];
   companions(G).forEach(function (o) {
     if (!o.alive || o.loc !== p.loc || G.isBackdrop) return;
     var low = o.hp < 40 || o.fx.poison > 0;
@@ -7414,38 +7524,39 @@ function renderHere(acts, d, p, l) {
       var herb = /herb$/.test(a.id);
       return { id: a.id, group: 'care', label: herb ? 'Đưa thảo dược (còn ' + p.items.herb + ')' : 'Đưa thực phẩm (còn ' + p.items.food + ')', min: 5, desc: herb ? 'Hồi 20 HP, cầm máu, chữa độc' : 'Hồi 8 HP', off: a.off };
     });
-    h += '<div class="offer care"><b>' + paint(esc(o.name)) + ' đang yếu (HP ' + Math.max(0, Math.round(o.hp)) + (o.fx.poison > 0 ? ', trúng độc' : '') + '). Giúp hay mặc kệ?</b>' +
+    EVS.push([2, '<div class="offer care"><b>' + paint(esc(o.name)) + ' đang yếu (HP ' + Math.max(0, Math.round(o.hp)) + (o.fx.poison > 0 ? ', trúng độc' : '') + '). Giúp hay mặc kệ?</b>' +
       (give.length ? '' : '<p class="note">Bạn không có thực phẩm hay thảo dược để đưa.</p>') +
-      '<div class="list">' + actsOf(give) + '<button class="act" data-ui="care:' + o.id + '"><span class="l">Mặc kệ</span><span class="m"></span></button></div></div>';
+      '<div class="list">' + actsOf(give) + '<button class="act" data-ui="care:' + o.id + '"><span class="l">Mặc kệ</span><span class="m"></span></button></div></div>', '']);
   });
   (function () {
     var chq = seenChest(G, p.loc);
     if (!chq || chq.opened || chq.later || G.isBackdrop || actView() !== 'scene') return;
     var cl = acts.filter(function (a) { return a.id === 'openchest' || a.id === 'unlockchest'; });
     if (!cl.length) return;
-    h += '<div class="offer chestoffer"><b>Bạn thấy một chiếc rương. Mở bằng cách nào?</b><div class="list">' + actsOf(cl) + '<button class="act t-rest" data-ui="chestlater"><span class="l"><span class="ico">' + ico('hourglass') + '</span>Để sau</span><span class="m"></span></button></div></div>';
+    EVS.push([4, '<div class="offer chestoffer"><b>Bạn thấy một chiếc rương. Mở bằng cách nào?</b><div class="list">' + actsOf(cl) + '<button class="act t-rest" data-ui="chestlater"><span class="l"><span class="ico">' + ico('hourglass') + '</span>Để sau</span><span class="m"></span></button></div></div>', 'chest']);
   })();
   var lv = by('leave');
-  if (lv.length) h += '<div class="offer"><b>Bạn đã khám phá đủ 13 nơi. Cửa ra đã mở.</b><div class="list">' + actsOf(lv) + '</div></div>';
+  if (lv.length) EVS.push([6, '<div class="offer"><b>Bạn đã khám phá đủ 13 nơi. Cửa ra đã mở.</b><div class="list">' + actsOf(lv) + '</div></div>', 'cleared']);
   var bl = by('bless');
-  if (bl.length) h += '<div class="offer"><b>Chúc phúc lớn: chọn một</b><div class="list">' + actsOf(bl) + '</div></div>';
+  if (bl.length) EVS.push([5, '<div class="offer"><b>Chúc phúc lớn: chọn một</b><div class="list">' + actsOf(bl) + '</div></div>', 'bell']);
   var off = by('offer');
   if (off.length && G.offer) {
     var ob = playerById(G, G.offer.id);
+    var oprio = /^(betray|boss|brawl)$/.test(G.offer.type) ? 1 : 3, okind = ({ betray: 'brawl', leonChest: 'chest', leonWave: 'chain', leonPact: 'trade', leonShare: 'trade', chest: 'chest', boss: 'boss', brawl: 'brawl', trade: 'trade' })[G.offer.type] || 'trade';
     var LH = G.offer.type === 'betray' ? (ob ? ob.name : 'Đồng đội') + ' trở mặt, giật ' + stealName(G.offer) + ' của bạn' : { leonChest: 'Leon chạm vào cùng chiếc rương', leonWave: 'Leon đang dùng xích giữ một con quỷ', leonPact: 'Giao kèo hợp tác với Leon', leonShare: 'Tới lượt Leon chia rương' }[G.offer.type];
-    if (LH) h += '<div class="offer"><b>' + paint(esc(LH)) + '</b>' + (G.offer.type === 'leonPact' ? '<p class="note">Leon mạnh, sòng phẳng, và không tha cho kẻ phá luật. Anh ta có thể giúp bạn, hoặc quay lưng với bạn.</p>' : '') + '<div class="list">' + actsOf(off) + '</div></div>';
-    else h += '<div class="offer"><b>' + (G.offer.type === 'chest' ? 'Tranh rương với ' + paint(esc(ob ? ob.name : '')) : G.offer.type === 'boss' ? bossOfferHead(G.offer) : G.offer.type === 'brawl' ? 'Ẩu đả ngay trước mặt bạn. Bạn tính sao?' : (ob ? paint(esc(ob.name)) : '')) + (G.offer.type === 'brawl' || G.offer.type === 'boss' || G.offer.type === 'chest' ? '' : G.offer.type === 'trade' ? ' muốn đổi: ' + esc(offerName(G.offer.give)) + ' ⇄ ' + esc(wantName(G.offer.want)) : ' muốn đi cùng bạn') + '</b>' + (G.offer.type === 'trade' || G.offer.type === 'join' || G.offer.type === 'chest' ? whoCard(ob) : G.offer.type === 'brawl' ? '<div class="whopair">' + whoCard(playerById(G, G.offer.A[0])) + whoCard(playerById(G, G.offer.B[0])) + '</div>' : '') + '<div class="list">' + actsOf(off) + '</div></div>';
+    if (LH) EVS.push([oprio, '<div class="offer"><b>' + paint(esc(LH)) + '</b>' + (G.offer.type === 'leonPact' ? '<p class="note">Leon mạnh, sòng phẳng, và không tha cho kẻ phá luật. Anh ta có thể giúp bạn, hoặc quay lưng với bạn.</p>' : '') + '<div class="list">' + actsOf(off) + '</div></div>', okind]);
+    else EVS.push([oprio, '<div class="offer"><b>' + (G.offer.type === 'chest' ? 'Tranh rương với ' + paint(esc(ob ? ob.name : '')) : G.offer.type === 'boss' ? bossOfferHead(G.offer) : G.offer.type === 'brawl' ? 'Ẩu đả ngay trước mặt bạn. Bạn tính sao?' : (ob ? paint(esc(ob.name)) : '')) + (G.offer.type === 'brawl' || G.offer.type === 'boss' || G.offer.type === 'chest' ? '' : G.offer.type === 'trade' ? ' muốn đổi: ' + esc(offerName(G.offer.give)) + ' ⇄ ' + esc(wantName(G.offer.want)) : ' muốn đi cùng bạn') + '</b>' + (G.offer.type === 'trade' || G.offer.type === 'join' || G.offer.type === 'chest' ? whoCard(ob) : G.offer.type === 'brawl' ? '<div class="whopair">' + whoCard(playerById(G, G.offer.A[0])) + whoCard(playerById(G, G.offer.B[0])) + '</div>' : '') + '<div class="list">' + actsOf(off) + '</div></div>', okind]);
   }
   if (UI.confirmHeal && healGiveOf(UI.confirmHeal)) {
     var hn = healCount(p);
-    h += '<div class="offer care"><b>Đồ chữa thương còn ' + hn + ' món. ' + (UI.confirmHeal === 'sellfood' ? 'Bán' : 'Cho đi') + ' ' + esc(healGiveOf(UI.confirmHeal)) + ' thật không?</b><div class="list"><button class="act danger" data-act="' + esc(UI.confirmHeal) + '"><span class="l">' + (UI.confirmHeal === 'sellfood' ? 'Bán' : 'Cho') + '</span></button><button class="act" data-act="healcancel"><span class="l">Thôi, giữ lại</span></button></div></div>';
+    EVS.push([0, '<div class="offer care"><b>Đồ chữa thương còn ' + hn + ' món. ' + (UI.confirmHeal === 'sellfood' ? 'Bán' : 'Cho đi') + ' ' + esc(healGiveOf(UI.confirmHeal)) + ' thật không?</b><div class="list"><button class="act danger" data-act="' + esc(UI.confirmHeal) + '"><span class="l">' + (UI.confirmHeal === 'sellfood' ? 'Bán' : 'Cho') + '</span></button><button class="act" data-act="healcancel"><span class="l">Thôi, giữ lại</span></button></div></div>', '']);
   }
+  EVS.sort(function (a, b) { return a[0] - b[0]; });
   UI.evHtml = ''; UI.evKind = '';
-  if (actView() === 'scene' && !G.isBackdrop && !G.over && p.alive && h.length > EV0) {
-    UI.evHtml = h.slice(EV0); h = h.slice(0, EV0);
-    var oft = G.offer && by('offer').length ? G.offer.type : '';
-    UI.evKind = by('bless').length ? 'bell' : /chestoffer/.test(UI.evHtml) && !oft ? 'chest' : (oft ? ({ betray: 'brawl', leonChest: 'chest', leonWave: 'chain', leonPact: 'trade', leonShare: 'trade', chest: 'chest', boss: 'boss', brawl: 'brawl', trade: 'trade' })[oft] || 'trade' : (by('leave').length ? 'cleared' : ''));
-  }
+  if (actView() === 'scene' && !G.isBackdrop && !G.over && p.alive && EVS.length) {
+    /* mỗi lần chỉ một sự kiện, cái gấp nhất trước; xong cái này mới tới cái sau */
+    UI.evHtml = EVS[0][1] + (EVS.length > 1 ? '<p class="note evmore">Còn ' + (EVS.length - 1) + ' chuyện nữa đang chờ sau chuyện này.</p>' : ''); UI.evKind = EVS[0][2];
+  } else h += EVS.map(function (e) { return e[1]; }).join('');
   h += '<div class="tabs">' + tabs.map(function (t) { return '<button class="tab' + (UI.tab === t[0] ? ' on' : '') + '' + (UI.badge && UI.badge[t[0]] ? ' new' : '') + '" data-ui="tab:' + t[0] + '"><em>' + ico(TAB_ICO[t[0]]) + '</em>' + t[1] + '</button>'; }).join('') + '</div>';
   function bodyFor(TAB) {
   var b = '';
@@ -7893,6 +8004,8 @@ function showEnd() {
     (pf ? '<div class="pbox">' + pf + '</div>' : '') + unlockBox(G) +
     '<p class="msg">Mã ván: <b>' + gameCode(G) + '</b> (nhập lại mã này để chơi đúng ván này).</p>' +
     '<div class="choices"><button class="btn" id="endLog"><b>Xem và sao chép nhật ký ván</b><small>Dòng thời gian, ai chết lúc nào, ai còn sống</small></button><button class="btn primary" data-restart="1"><b>Về màn chọn nhân vật</b><small>Khu bị nhiễm, vị trí rương và những người cùng làng được xáo lại</small></button></div>';
+  /* nền màn ending: tranh nơi bạn kết thúc ván, tối và mờ đi, phủ kín (không lộ giao diện phía sau) */
+  try { $('end').style.setProperty('--endbg', 'url("' + sceneURL(p.loc, ART.skyOf(phaseOf(Math.min(G.t, DAY))[0])) + '")'); } catch (e) { $('end').style.removeProperty('--endbg'); }
   $('end').hidden = false;
 }
 
@@ -7997,6 +8110,7 @@ document.addEventListener('click', function (e) {
     else if (u[0] === 'setview') { try { localStorage.setItem('artos_actview', u[1]); } catch (x) { } }
     else if (u[0] === 'setscene') { try { localStorage.setItem('artos_scenepop', u[1]); } catch (x) { } }
     else if (u[0] === 'chestlater') { var chl = G && seenChest(G, G.players[0].loc); if (chl) chl.later = true; }
+    else if (u[0] === 'cuara') { if (G && !G.over) G.players[0].leaveDismissed = false; }   /* mở lại khung Cửa ra: Rời ải hoặc Ở lại */
     else if (u[0] === 'tinfo') UI.tinfo = t.dataset.ui.slice(6) || null;
     else if (u[0] === 'sceneopen') { UI.tinfo = null; SF.open(); }
     else if (u[0] === 'sceneclose') { SF.close(); var th = t.dataset.then; if (th && /^tab:/.test(th)) { UI.tab = th.slice(4); UI.sub = null; } }
