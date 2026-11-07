@@ -2005,7 +2005,7 @@ function createGame(zoneChoice, protagonist, seed) {
   var rest = shuffle(R, roster.filter(function (c) { return c.name !== 'Luke' && c.name !== 'Clevia' && c.name !== 'Leon'; }));
   var picked = [], vets = 0;  // tối đa 2 Veteran cả làng (Luke đã là Veteran)
   rest.forEach(function (c) {
-    if (picked.length >= NPLAYERS - 2) return;
+    if (picked.length >= NPLAYERS - (find('Leon') ? 3 : 2)) return;   /* bạn, người kia và Leon đã chiếm 3 chỗ */
     if (c.faction === 'Veteran') { if (vets >= 1) return; vets++; }
     picked.push(c);
   });
@@ -2181,6 +2181,10 @@ var SCENES = {
     L: [['Leon', '"Buông tay ra."'], ['Luke', '"...Leon?"'], ['Leon', '"Luke... Không ngờ gặp cậu ở chỗ này."'], ['Luke', '"Tôi cũng không ngờ. Cậu bỏ CLB không nói một lời, giờ lại đứng đây."'], ['Leon', '"Chuyện cũ để sau. Cái rương này sẽ là của tôi."']],
     CL: [['Leon', '"Buông tay ra."'], ['Luke', '"...Leon?"'], ['Clevia', '"Anh quen người này hả?"'], ['Luke', '"Người cũ trong CLB. Bỏ đi lâu rồi."'], ['Leon', '"Chuyện cũ để sau. Cái rương này sẽ là của tôi."']],
     C: [['Leon', '"Tôi chạm vào trước."'], ['Clevia', '"Em cũng vừa tìm thấy nó mà."'], ['Leon', '"Vậy thì chọn đi. Đánh, nhường, hay chia. Chọn nhanh."']] } },
+  leonFind: { title: 'Người cầm xích', solo: true, variants: {
+    L: [['Luke', '"...Leon?"'], ['Leon', '"Luke. Tưởng cậu không bao giờ dính vào mấy chỗ thế này."'], ['Luke', '"Cậu bỏ CLB không nói một lời, giờ lại đứng đây."'], ['Leon', '"Chuyện cũ để sau. Ở đây lo giữ mạng trước đã."']],
+    CL: [['Luke', '"...Leon?"'], ['Clevia', '"Anh quen người này hả?"'], ['Luke', '"Người cũ trong CLB. Bỏ đi lâu rồi."'], ['Leon', '"Đừng nhìn tôi như kẻ thù. Ở đây ai cũng chỉ đang cố sống thôi."']],
+    C: [['Leon', '"Đừng nhìn chằm chằm vào cái xích."'], ['Clevia', '"Em... xin lỗi."'], ['Leon', '"Ở đây ai cũng chỉ đang cố sống. Không cản đường nhau là được."']] } },
   leonWave: { title: 'Xích', solo: true, variants: {
     L: [['Leon', '"Luke. Đánh đi, tôi không giữ lâu được."'], ['Luke', '"Leon? Cậu... Năng lực đó là gì vậy?"'], ['Leon', '"Hỏi sau đi, hành động mau. Đừng có đứng đó mà nhìn nữa."']],
     CL: [['Leon', '"Đánh đi, tôi không giữ lâu được."'], ['Clevia', '"Cái xích đó... từ tay anh ta ra à?"'], ['Luke', '"Leon? Lại là cậu à… cái năng lực gì thế kia?"'], ['Leon', '"Hỏi sau đi, hành động mau. Đừng có đứng đó mà nhìn nữa."']],
@@ -3556,6 +3560,14 @@ function leonTick(G) {
   if (H.ghostUntil > G.t && !lp.follow) return;
   if (!L.met) {
     if (lp.zone !== H.zone && G.R() < 0.05) lp.zone = H.zone;   /* lần theo khu của bạn */
+    /* như tìm Luke/Clevia: từ giờ thứ 2, tới đúng nơi Leon đang đứng là chạm mặt */
+    if (G.t >= 120 && lp.loc === H.loc && lp.zone === H.zone && !G.offer && !G.busy) {
+      leonArrive(G); leonSeen(G, lp);
+      say(G, (isHouse(LOCS[H.loc]) ? 'Trong ' : 'Giữa ') + LOCS[H.loc].name + ' có một thanh niên gầy, tóc cắt ngắn, cổ tay quấn một sợi xích. Anh ta nhìn bạn một lúc lâu rồi mới quay đi.', 'event');
+      scene(G, 'leonFind', leonVar(G));
+      G.interrupt = true;
+      return;
+    }
     if (G.t >= 360 && G.t < 1200 && G.infected === H.zone && !isHouse(LOCS[H.loc]) && !G.offer && !G.busy && G.R() < 0.25) {
       leonArrive(G);
       G.offer = { type: 'leonWave', id: lp.id, loc: H.loc, until: G.t + 30 };
@@ -4868,7 +4880,7 @@ function doActionCore(G, id) {
     var r1 = run(5);
     if (G.over) return;
     var s = G.locs[p.loc], t = [];
-    var oth = allOthers(G); oth.forEach(function (o) { p.noticed[o.id] = true; o.personaKnown = true; });
+    var oth = allOthers(G).filter(function (o) { return o.special !== 'leon' || (G.leon && G.leon.met); }); oth.forEach(function (o) { p.noticed[o.id] = true; o.personaKnown = true; });
     t.push(oth.length ? 'Có ' + oth.length + ' người chơi khác ở đây: ' + oth.map(function (o) { return o.name + (injured(o) ? ' (đang bị thương)' : ''); }).join(', ') + '.' : 'Không có người chơi nào khác ở đây.');
     if (isHouse(l)) {
       if (s.expired) t.push('Lửa bếp đã tắt. Những cái bóng cựa mình ở góc nhà.');
@@ -5740,7 +5752,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.07-8';
+var GAME_VERSION = '2026.11.07-9';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6244,7 +6256,7 @@ function tileSheet(a) {
   return '<div class="tsheet-bg" data-tsclose="1"></div><div class="bagsheet" role="dialog" aria-label="' + esc(a.label) + '"><div class="bs-top"><span class="bs-ic">' + ico(t.ic) + '</span><div><h3>' + esc(a.label) + '</h3><span class="bs-n">' + (a.min ? a.min + ' phút' : 'Không tốn thời gian') + '</span></div></div>' +
     '<p>' + esc(a.desc || '') + (a.off ? '<br><em>Đang khoá: ' + esc(a.off) + '</em>' : '') + '</p><div class="bs-btns">' + (a.off ? '' : '<button class="btn primary" data-act="' + esc(a.id) + '">' + esc(t.verb) + (a.min ? ' · ' + a.min + '′' : '') + '</button>') + '<button class="btn" data-ui="tinfo:">Đóng</button></div></div>';
 }
-var SCENE_MOOD = { betrayal: 'tense', leonWave: 'tense', leonDown: 'hurt', leonMeet: 'tense', houseAmbush1: 'tense', witnessDeath: 'tense', firstFight: 'tense', bossKill: 'tense', bossAppear: 'tense', lastHour: 'tense' };
+var SCENE_MOOD = { betrayal: 'tense', leonWave: 'tense', leonDown: 'hurt', leonMeet: 'tense', leonFind: 'tense', houseAmbush1: 'tense', witnessDeath: 'tense', firstFight: 'tense', bossKill: 'tense', bossAppear: 'tense', lastHour: 'tense' };
 
 /* ---------- "Việc nên làm tiếp": một dòng gợi ý mục tiêu, kèm nút đi tới ---------- */
 function nextGoal(G, p, idx) {
