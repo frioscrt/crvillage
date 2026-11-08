@@ -2387,6 +2387,10 @@ var SCENES = {
     L: [['Luke', '"...Leon?"'], ['Leon', '"Luke. Tưởng cậu không bao giờ dính vào mấy chỗ thế này."'], ['Luke', '"Cậu bỏ CLB không nói một lời, giờ lại đứng đây."'], ['Leon', '"Chuyện cũ để sau. Ở đây lo giữ mạng trước đã."']],
     CL: [['Luke', '"...Leon?"'], ['Clevia', '"Anh quen người này hả?"'], ['Luke', '"Người cũ trong CLB. Bỏ đi lâu rồi."'], ['Leon', '"Đừng nhìn tôi như kẻ thù. Ở đây ai cũng chỉ đang cố sống thôi."']],
     C: [['Leon', '"Đừng nhìn chằm chằm vào cái xích."'], ['Clevia', '"Em... xin lỗi."'], ['Leon', '"Ở đây ai cũng chỉ đang cố sống. Không cản đường nhau là được."']] } },
+  leonSave: { title: 'Kẻ chạy về phía tiếng xích', solo: true, variants: {
+    L: [['Luke', '"Leon? Cậu..."'], ['Leon', '"Đừng đỡ. Tôi tự đứng được."'], ['Luke', '"Cậu bỏ CLB không nói một lời. Giờ gặp lại thì cậu nằm giữa vũng máu."'], ['Leon', '"Chuyện cũ để sau. Lần này tôi nợ cậu. Tôi không thích nợ ai."']],
+    CL: [['Clevia', '"Anh ấy còn thở! Anh Luke, người này..."'], ['Luke', '"...Leon. Người cũ trong CLB."'], ['Leon', '"Đừng đỡ. Tôi tự đứng được."'], ['Leon', '"Hai người không cần tới đây. Nhưng tới rồi thì tôi ghi nhớ. Tôi không thích nợ ai."']],
+    C: [['Clevia', '"Anh... anh còn nghe em nói không?"'], ['Leon', '"Nghe. Đừng lay nữa."'], ['Clevia', '"Em nghe tiếng xích nên mới chạy tới."'], ['Leon', '"Không ai chạy về phía tiếng quỷ cả, trừ kẻ ngốc."'], ['Leon', '"...Leon. Tôi nợ cậu một lần."']] } },
   leonWave: { title: 'Xích', solo: true, variants: {
     L: [['Leon', '"Luke. Đánh đi, tôi không giữ lâu được."'], ['Luke', '"Leon? Cậu... Năng lực đó là gì vậy?"'], ['Leon', '"Hỏi sau đi, hành động mau. Đừng có đứng đó mà nhìn nữa."']],
     CL: [['Leon', '"Đánh đi, tôi không giữ lâu được."'], ['Clevia', '"Cái xích đó... từ tay anh ta ra à?"'], ['Luke', '"Leon? Lại là cậu à… cái năng lực gì thế kia?"'], ['Leon', '"Hỏi sau đi, hành động mau. Đừng có đứng đó mà nhìn nữa."']],
@@ -2652,6 +2656,11 @@ function addFx(G, p) {
 }
 function kill(G, p, cause, quiet) {
   if (!p.alive) return;
+  if (p.special === 'leon' && G.leon && !G.over && !G.leon.finalBlow) {   /* Leon gặp nạn: xem leonPerilStart */
+    var H9 = G.players[0];
+    if (G.leon.peril) { p.hp = Math.max(p.hp, 1); return; }
+    if (/quỷ|hiệu ứng|mất máu/.test(cause || '') && H9.alive && H9.loc !== p.loc) { leonPerilStart(G, p, cause); return; }
+  }
   if (!p.human && has(p, 'Last Stand') && !p.lastStandUsed) {
     p.lastStandUsed = true;
     if (G.R() < 0.5) { p.hp = 20; if (G.players[0].loc === p.loc) say(G, p.name + ' gục xuống rồi bất ngờ gượng dậy, thở hồng hộc.', 'warn'); return; }
@@ -2899,7 +2908,7 @@ function checkCleared(G) {
   G.over = true; G.cleared = true; G.outcome = 'pass'; G.clearedAt = G.t; ach(G, 'cleared');
   G.players.forEach(function (q) { q.passed = q.alive && ids.indexOf(q.id) >= 0; });
   G.passed = G.players.filter(function (q) { return q.passed; }).length;
-  G.endKey = !P.alive ? '5.3' : (P.loc === H.loc && P.follow ? '5.1' : '5.2'); leonCodaSet(G, false);
+  G.endKey = !P.alive ? '5.3' : (P.loc === H.loc && P.follow ? '5.1' : '5.2'); leonCodaSet(G, false); leonGate(G);
   say(G, 'Con quỷ đầu đàn cuối cùng đã gục. Ngôi làng im bặt. Ảo cảnh bị phá giải.', 'good');
 }
 
@@ -3399,7 +3408,7 @@ function botAct(G, b) {
     if (b.items.map > 0 && b.cards.teleport > 0) { b.cards.teleport--; b.zone = 'center'; b.party = null; botArrive(G, b, 'hall'); return; }
   }
   /* có từ 2 mảnh bùa trở lên: 50% bot ghép thành lá bùa (mỗi lần số mảnh thay đổi chỉ cân nhắc một lần) */
-  if (b.items.shard >= 2 && b.combineAt !== b.items.shard) { b.combineAt = b.items.shard; if (R() < 0.5) { b.items.shard -= 2; b.items.amulet++; b.combineAt = b.items.shard; } }
+  if (b.items.shard >= 2 && b.special !== 'leon' && b.combineAt !== b.items.shard) { b.combineAt = b.items.shard; if (R() < 0.5) { b.items.shard -= 2; b.items.amulet++; b.combineAt = b.items.shard; } }
   if (b.items.herb > 0 && (b.fx.poison > 0 || b.hp < 50)) { b.items.herb--; b.hp = Math.min(100, b.hp + 20); b.fx.poison = 0; b.fx.bleeding = 0; b.bloody = false; }
   else if (b.items.food > 0 && b.hp < 70 && R() < 0.3) { b.items.food--; b.hp = Math.min(100, b.hp + 8); }
   var inValidHouse = isHouse(l) && !s.expired;
@@ -3507,7 +3516,9 @@ function botExplore(G, b) {
   var l = LOCS[b.loc], s = G.locs[b.loc];
   /* chợ đóng hoặc trưởng làng chết: bot vẫn khám phá được bằng cách nói chuyện, như người chơi */
   b.dwell[b.loc] = (b.dwell[b.loc] || 0) + STEP;
-  if (b.dwell[b.loc] >= BOT_NEED[l.type]) { b.explored[b.loc] = true; if (l.type === 'pier' && G.R() < 0.1) b.knowsBell = true; }   /* 10% bot hiểu ra bí mật ở chòi câu */
+  /* 2026.11.08-28: đi cùng bạn quay lại nơi bạn đã khám phá thì chỉ cần đứng đó 10 phút (bạn chỉ lại cách làm) */
+  var need = (withMe(G, b) && G.players[0].explored[b.loc]) ? Math.min(10, BOT_NEED[l.type]) : BOT_NEED[l.type];
+  if (b.dwell[b.loc] >= need) { b.explored[b.loc] = true; if (l.type === 'pier' && G.R() < 0.1) b.knowsBell = true; }   /* 10% bot hiểu ra bí mật ở chòi câu */
 }
 
 /* ---------- một tick (5 phút) ---------- */
@@ -3525,7 +3536,7 @@ function tick(G) {
   if (!G.starved && G.t >= 600 && !G.locs.farm.visited) {
     G.starved = true; say(G, 'Làng rơi vào trạng thái thiếu lương thực. Chợ đóng cửa.', 'warn');
   }
-  G.players.forEach(function (p) { if (!p.human) { if (!followHuman(G, p) && !followLeader(G, p) && !(p.special && G.leon.stayUntil > G.t && p.loc === G.players[0].loc)) botAct(G, p); botExplore(G, p); } });
+  G.players.forEach(function (p) { if (!p.human) { if (p.special && G.leon.peril) return; if (!followHuman(G, p) && !followLeader(G, p) && !(p.special && G.leon.stayUntil > G.t && p.loc === G.players[0].loc)) botAct(G, p); botExplore(G, p); } });
   // trạm xá cho bot
   var cl = occupants(G, 'clinic');
   if (cl.length >= 3 && G.heals > 0 && G.R() < 0.5) {
@@ -3534,6 +3545,7 @@ function tick(G) {
   }
   botAggress(G);
   abilityTick(G);
+  leonPerilTick(G);
   leonTick(G);
   betrayTick(G);
   botNotice(G);
@@ -3584,6 +3596,7 @@ function leaveGame(G) {
   if (P.alive && P.loc === H.loc && allExplored(P)) { G.endKey = '1.2'; P.passed = true; }
   else if (P.alive && (allExplored(P) || (shielded(P) && P.hp > 75))) G.endKey = '1.1.2';
   else G.endKey = '1.1.1';
+  leonGate(G);
   say(G, 'Bạn bước qua cửa ra và rời khỏi ảo cảnh.', 'good');
 }
 /* hết giờ: ai chưa khám phá đủ, không đứng cạnh lúc rung chuông, không có mảnh bùa thì bị hệ thống xử tử */
@@ -3605,6 +3618,13 @@ function finish(G) {
   else if (bell.indexOf(H.id) >= 0) G.endKey = bell.indexOf(P.id) >= 0 ? (P.alive ? '2.1.1' : '2.1.2') : (P.alive ? '2.2.2' : '2.2.1');
   else if (hExplored) G.endKey = !P.alive ? '1.1.1' : (withYou ? '1.2' : '1.1.2');
   else G.endKey = withYou ? (P.alive ? (shielded(P) ? '4.1.1' : '4.1.3') : '4.1.2') : (P.alive ? '4.2.2' : (pBefore ? '4.2.1' : '4.2.3'));
+  leonGate(G);
+}
+/* true ending cần cả Leon còn sống (chốt 08/11/2026): hai nhân vật chính cùng sống mà Leon đã chết thì đổ về ending 6.1 */
+var TRUE_ENDS = ['1.2', '1.1.2', '2.1.1', '2.2.2', '4.1.1', '4.1.3', '4.2.2', '5.1', '5.2'];
+function leonGate(G) {
+  var lp = leonP(G);
+  if (lp && !lp.alive && TRUE_ENDS.indexOf(G.endKey) >= 0) { G.endBase = G.endKey; G.endKey = '6.1'; }
 }
 /* chạy `minutes` phút; dừng nếu bị tấn công / chết / hết ván. Trả về số phút đã chạy */
 function advance(G, minutes) {
@@ -3618,6 +3638,75 @@ function advance(G, minutes) {
 }
 
 /* ===================== LEON ===================== */
+
+/* Leon gặp nạn (2026.11.08-30): quỷ vồ (hay vết thương do quỷ) làm Leon gục mà bạn không đứng đó thì Leon gục lại, ở khu nào cũng vậy;
+   bạn nghe tiếng xích và có 30 phút chạy tới. Tới kịp thì cứu được; không tới thì Leon chết. Không có trợ giúp ngầm. */
+var LEON_PERIL_T = 30;
+/* lời lúc tiếng xích thưa dần: ally = người đi cùng nói với bạn; self = nhân vật bạn đang chơi tự nói khi một mình */
+var LEON_FADE = {
+  Luke: {
+    allyMet: '"Tiếng xích yếu đi rồi. Leon không phải kiểu người chịu buông tay sớm, cậu ta mà buông là hết sức thật rồi. Mình phải quyết ngay: tới, hay không."',
+    allyNew: '"Tiếng xích thưa dần. Người đó sắp không trụ nổi nữa. Muốn tới thì phải đi ngay bây giờ."',
+    selfMet: '"Leon... cậu ta mà để xích rơi thì là hết sức thật rồi. Còn kịp không đây."',
+    selfNew: '"Tiếng xích yếu dần. Ai đó đang kiệt sức. Đi thì phải đi ngay."'
+  },
+  Clevia: {
+    allyMet: '"Anh Luke, tiếng xích nhỏ dần rồi. Anh Leon... anh ấy sẽ không sao đâu, đúng không? Mình tới đó đi anh."',
+    allyNew: '"Anh có nghe không? Tiếng xích nhỏ dần rồi. Người đó... chắc đang chỉ có một mình."',
+    selfMet: '"Tiếng xích nhỏ dần rồi... Anh Leon, cố thêm chút nữa thôi."',
+    selfNew: '"Tiếng xích yếu đi rồi. Người đó còn sống không... mình có nên tới không?"'
+  }
+};
+function leonPerilStart(G, lp, cause) {
+  var L = G.leon, H = G.players[0], lead = H.zone !== lp.zone ? 'Từ bên kia bức tường trong suốt, phía ' + LOCS[lp.loc].name + ', vọng lại' : 'Từ phía ' + LOCS[lp.loc].name + ' vọng lại';
+  L.peril = { loc: lp.loc, at: G.t, until: G.t + LEON_PERIL_T, warned: false, cause: cause }; L.perils = (L.perils || 0) + 1;
+  lp.hp = 1; lp.follow = false; lp.party = null;
+  lp.fx.bleeding = 0; lp.fx.burn = 0; lp.fx.poison = 0; lp.fx.paralysis = 0;
+  say(G, L.met
+    ? lead + ' tiếng xích quăng loảng xoảng, rồi một tiếng gầm. Tiếng xích ấy nghe khá quen thuộc, có lẽ ' + (allyHere(G) && !allyHere(G).human ? 'chúng ta' : 'bạn') + ' đã nghe đâu đó rồi chăng.'
+    : lead + ' tiếng kim loại quăng loảng xoảng như xích sắt, rồi một tiếng gầm. Dường như có ai đó đang chống cự.', 'bad');
+  var al = allyHere(G);
+  if (al && !al.human) {
+    if (al.name === 'Luke') say(G, L.met ? 'Luke: "Xích của Leon. Cậu ta đang gặp chuyện."' : 'Luke: "Có người đang chống cự ở phía đó. Một mình."', 'npc');
+    else say(G, L.met ? 'Clevia: "Tiếng đó... là anh Leon phải không?"' : 'Clevia: "Có ai đó... nghe như đang đánh nhau với thứ gì."', 'npc');
+  }
+  G.interrupt = true;
+}
+function leonPerilTick(G) {
+  var L = G.leon, lp = leonP(G), H = G.players[0];
+  if (!L || !L.peril || !lp) return;
+  var pr = L.peril;
+  if (!lp.alive || G.over) { L.peril = null; return; }
+  lp.hp = Math.max(lp.hp, 1);
+  if (H.alive && H.loc === pr.loc && lp.loc === pr.loc) { leonRescue(G); return; }
+  if (!pr.warned && G.t >= pr.at + 15 && H.alive) {
+    pr.warned = true;
+    say(G, 'Tiếng xích ở phía ' + LOCS[pr.loc].name + (H.zone !== lp.zone ? ', bên kia bức tường,' : '') + ' thưa dần, rồi chỉ còn tiếng kéo lê trên đất.', 'warn');
+    var al2 = allyHere(G), who = al2 && !al2.human ? al2.name : H.name, ln = LEON_FADE[who][(al2 && !al2.human ? 'ally' : 'self') + (L.met ? 'Met' : 'New')];
+    say(G, who + ': ' + ln, 'npc');
+    G.interrupt = true;
+  }
+  if (G.t >= pr.until) { L.peril = null; L.finalBlow = true; kill(G, lp, pr.cause, true); L.finalBlow = false; }
+}
+function leonRescue(G) {
+  var L = G.leon, lp = leonP(G), H = G.players[0], where = LOCS[H.loc].name, first = !L.met;
+  L.peril = null; L.rescued = (L.rescued || 0) + 1;
+  var boss = G.bossOn && G.bosses.filter(function (b) { return b.alive && b.loc === H.loc; })[0];
+  var foe = !!boss || ghostPossible(G, H.loc);
+  say(G, 'Bạn lao tới ' + where + '. ' + (first ? 'Một thanh niên gầy, tóc cắt ngắn' : 'Leon') + ' đang quỳ một gối giữa vũng máu, sợi xích trên cổ tay đứt mất một đoạn. ' +
+    (foe ? 'Con quỷ vừa vồ ' + (first ? 'anh ta' : 'Leon') + ' quay phắt sang bạn.' : 'Con quỷ đã bỏ đi, chỉ còn những vệt cào trên đất.'), 'event');
+  if (first) leonArrive(G); else leonSeen(G, lp, 40);
+  lp.hp = Math.max(lp.hp, 12);
+  if (boss && !G.offer && !(H.ghostUntil > G.t) && !(H.shieldUntil > G.t)) {
+    G.offer = { type: 'boss', id: H.id, boss: G.bosses.indexOf(boss), until: G.t + 30, loc: H.loc, first: !(PROF.bossLog && PROF.bossLog[boss.zone]) }; bossMark(G, boss.zone, 1);
+    say(G, 'Quỷ đầu đàn! Phản công hay bỏ chạy?', 'bad');
+  } else if (foe && !boss) ghostFight(G, fightGroup(G, H), null);
+  if (G.over || !H.alive) return;
+  if (first) scene(G, 'leonSave', leonVar(G));
+  else say(G, 'Leon: "Tôi không nhờ cậu tới." Anh ta gượng đứng dậy, quấn lại sợi xích. "Nhưng tôi ghi nhớ."', 'npc');
+  leonPts(G, first ? 3 : 4);
+  G.interrupt = true;
+}
 function leonP(G) { return G.leon ? playerById(G, G.leon.id) : null; }
 function leonVar(G) {   /* biến thể lời thoại: L = bạn là Luke, CL = bạn là Clevia có Luke đứng cạnh, C = Clevia một mình */
   var H = G.players[0];
@@ -3805,7 +3894,7 @@ function leonShareCheck(G, got) {
 /* mỗi tick */
 function leonTick(G) {
   var L = G.leon, lp = leonP(G), H = G.players[0];
-  if (!L || !lp || !lp.alive || !H.alive || G.over) return;
+  if (!L || !lp || !lp.alive || !H.alive || G.over || L.peril) return;
   if (H.ghostUntil > G.t && !lp.follow) return;
   if (!L.met) {
     if (lp.zone !== H.zone && G.R() < 0.05) lp.zone = H.zone;   /* lần theo khu của bạn */
@@ -4393,6 +4482,9 @@ function completeQuest(G, p, id) {
   if (p.explored[id]) return;
   p.explored[id] = true;
   say(G, 'Khám phá hoàn tất: ' + LOCS[id].name + ' (' + exploredCount(p) + '/13 địa điểm).', 'good');
+  /* 2026.11.08-28: đồng đội đang đi cùng, đứng cạnh lúc bạn làm xong việc thì cũng được tính đã khám phá nơi này */
+  var P = p.human ? partner(G) : null;
+  if (P && withMe(G, P) && !P.explored[id]) { P.explored[id] = true; say(G, P.name + ' làm cùng bạn nên cũng xong ' + LOCS[id].name + ' (' + exploredCount(P) + '/13).', 'good'); }
   if (allExplored(p)) scene(G, 'exitOpen');
   if (false) story(G, 'exitOpen', '"Cửa ra mở rồi. Đi ngay thì an toàn. Nhưng em nhìn quanh xem, còn ai mình bỏ lại không."', '"Cửa mở rồi... Mình đi luôn hả anh?"');
 }
@@ -4682,6 +4774,7 @@ function peopleDoCore(G, k, parts, wasArm) {
       } else if (arg === 'protect' && !G.storyDone.scene_giveProtect) scene(G, 'giveProtect', o3.name);
       else banter(G, arg === 'food' || arg === 'banhngo' ? 'giveFood' : arg === 'herb' ? 'giveHerb' : arg === 'money' ? 'giveMoney' : 'giveGear');
     }
+    else if (o3.special === 'leon' && arg === 'shard') { say(G, 'Leon nhìn mảnh bùa trong tay rất lâu. "Thứ này cứu được một mạng người. Cậu chắc chứ?" Anh ta không trả lại, chỉ cất nó vào túi áo trong.', 'good'); leonPts(G, 4); }
     else if (o3.special === 'leon') { say(G, 'Leon: ' + pick(G.R, ['"Tôi ghi nhớ."', '"Được. Tôi nợ cậu."', '"Không cần, nhưng tôi nhận."']), 'good'); leonPts(G, arg === 'money' ? 1 : (['food', 'herb', 'ore'].indexOf(arg) >= 0 ? 2 : 3)); }
     else say(G, pick(G.R, [o3.name + ' gật đầu, ánh mắt dịu đi.', o3.name + ' nhận lấy mà không nói gì.', o3.name + ': "Tôi sẽ nhớ chuyện này."']), 'good');   /* dòng "Bạn đưa…" đã có ở trên */
     if (arg === 'food' && (o3.hp < 100 || injured(o3))) { o3.items.food--; o3.hp = Math.min(100, o3.hp + 8); say(G, o3.name + ' đang bị thương nên ăn ngay: hồi sức thấy rõ.', 'good'); }
@@ -6205,7 +6298,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.08-27';
+var GAME_VERSION = '2026.11.08-32';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6713,7 +6806,7 @@ function tileSheet(a) {
   return '<div class="tsheet-bg" data-tsclose="1"></div><div class="bagsheet" role="dialog" aria-label="' + esc(a.label) + '"><div class="bs-top"><span class="bs-ic">' + ico(t.ic) + '</span><div><h3>' + esc(a.label) + '</h3><span class="bs-n">' + (a.min ? a.min + ' phút' : 'Không tốn thời gian') + '</span></div></div>' +
     '<p>' + esc(a.desc || '') + (a.off ? '<br><em>Đang khoá: ' + esc(a.off) + '</em>' : '') + '</p><div class="bs-btns">' + (a.off ? '' : '<button class="btn primary" data-act="' + esc(a.id) + '">' + esc(t.verb) + (a.min ? ' · ' + a.min + '′' : '') + '</button>') + '<button class="btn" data-ui="tinfo:">Đóng</button></div></div>';
 }
-var SCENE_MOOD = { betrayal: 'tense', leonWave: 'tense', leonDown: 'hurt', leonMeet: 'tense', leonFind: 'tense', houseAmbush1: 'tense', witnessDeath: 'tense', firstFight: 'tense', bossKill: 'tense', bossAppear: 'tense', lastHour: 'tense' };
+var SCENE_MOOD = { betrayal: 'tense', leonWave: 'tense', leonDown: 'hurt', leonSave: 'hurt', leonMeet: 'tense', leonFind: 'tense', houseAmbush1: 'tense', witnessDeath: 'tense', firstFight: 'tense', bossKill: 'tense', bossAppear: 'tense', lastHour: 'tense' };
 
 /* ---------- "Việc nên làm tiếp": một dòng gợi ý mục tiêu, kèm nút đi tới ---------- */
 function nextGoal(G, p, idx) {
@@ -6721,6 +6814,11 @@ function nextGoal(G, p, idx) {
   function act(id) { var a = idx[id]; return a && !a.off ? id : null; }
   if (p.hp < 35 && (p.items.herb > 0 || p.items.food > 0)) return { t: 'Bạn đang yếu. Dùng thảo dược hoặc ăn chút gì đi.', ic: 'heart', act: act('herb') || act('eat') };
   if (G.offer) return null;
+  var PE = partner(G);
+  if (allExplored(p) && PE && PE.alive && G.metPartner && !allExplored(PE)) {   /* 2026.11.08-28: nhắc đồng đội còn thiếu nơi nào */
+    var pl = LOC_IDS.filter(function (id) { return !PE.explored[id]; });
+    return { t: 'Bạn đã đủ 13 nơi, nhưng ' + PE.name + ' mới xong ' + (13 - pl.length) + '/13 (còn thiếu: ' + pl.map(function (id) { return LOCS[id].name; }).join(', ') + '). Đưa ' + PE.name + ' quay lại những nơi đó cùng bạn một lúc, hoặc rời ải trước.', ic: 'people', act: act('leave:go') };
+  }
   if (allExplored(p)) return { t: 'Bạn đã khám phá đủ 13 nơi. Có thể rời ải bất cứ lúc nào.', ic: 'door', act: act('leave:go') };
   if (!p.explored[p.loc]) return { t: 'Làm việc ở chỗ sáng màu trong tranh để khám phá ' + l.name + '.', ic: 'flag' };
   var P0 = partner(G);
@@ -6805,7 +6903,7 @@ var GPOP = {
   danger: ['ghost', 'Nguy hiểm', '<ul class="gl"><li>Ngôi làng không an toàn, và nó không báo trước.</li><li>Đi một mình, hoặc đang chảy máu, thì dễ bị nhắm tới.</li><li>Sức mạnh càng cao, chạm trán càng ít đau.</li><li>Người chơi khác có thể giúp, trao đổi, hoặc tấn công bạn.</li></ul>'],
   feat: ['compass', 'Tính năng quan trọng', '<dl class="gd"><dt>Quan sát</dt><dd>Thấy ai đang ở cùng chỗ và những dấu hiệu lạ.</dd><dt>Bảng thông báo</dt><dd>Số người còn sống và tiến độ khám phá của bạn.</dd><dt>Tìm rương</dt><dd>Mỗi nơi có thể có vài rương. Lục nhiều lần.</dd><dt>Nhà dân</dt><dd>Chỗ trú an toàn tạm thời. Mỗi căn chỉ vào được một lần.</dd><dt>Bản đồ + Teleport</dt><dd>Sang khu khác. Bàn Teleport ở Nhà họp làng cho mỗi người một lượt.</dd><dt>Trạm xá</dt><dd>Chữa lành hoàn toàn, cần ít nhất ba người.</dd><dt>Săn quỷ</dt><dd>Khi khu bạn đang có quỷ, bạn có thể chủ động ra tay. Hạ được thì mạnh hơn.</dd><dt>Thẻ vũ khí</dt><dd>Tăng sức mạnh vĩnh viễn.</dd><dt>Năng lực</dt><dd>Kỹ năng riêng của Luke và Clevia, nút có viền xanh băng.</dd><dt>Tương tác</dt><dd>Chạm Người ở đây trong tranh: nói chuyện, trao đổi, rủ đi cùng hoặc giao đấu.</dd></dl>'],
   ui: ['menu', 'Giao diện & cài đặt', '<dl class="gd"><dt>Tranh</dt><dd>Mọi thứ chơi trên tranh nơi bạn đang đứng. Túi đồ, Bản đồ và Người ở đây là các điểm chạm trong tranh, mở ra thành bảng. Nút Tất cả việc dưới tranh liệt kê mọi việc bằng chữ. Chạm vào đồ vật hay người trong tranh để làm việc; nhân vật sẽ bước tới rồi mới làm. Chỗ sáng màu là việc cần làm để khám phá nơi đó.</dd><dt>Bạn</dt><dd>Chạm vào nhân vật của mình để ăn, băng bó, dùng năng lực hoặc chờ. Khi yếu, trái tim trên đầu nhấp nháy.</dd><dt>Sự kiện</dt><dd>Lời đề nghị, giao kèo, ẩu đả, quỷ đầu đàn… tự bật lên kèm tranh. Chọn ngay trong khung đó.</dd><dt>Nhật ký</dt><dd>Nút cạnh tên nơi. Xem lại mọi chuyện đã xảy ra theo từng giờ, và xuất nhật ký ra chữ để lưu lại. Trong khung Diễn biến, bấm &quot;Nhật ký đầy đủ&quot; cũng tới đây.</dd><dt>Việc bị khoá</dt><dd>Icon xám trong tranh là việc chưa làm được; chạm vào để xem vì sao.</dd><dt>Cài đặt</dt><dd>Tab cuối cùng. Chỉnh nhạc nền, hiệu ứng, âm nút bấm. Bật "Hiện danh sách nút" nếu bạn muốn bấm nút thay cho tranh. Mở lại Hướng dẫn, Chỉ dẫn từng bước, Thành tựu, hoặc chơi lại từ đầu.</dd></dl>'],
-  end: ['tree', 'Ending & thành tựu', '<p>Game có 21 ending, tuỳ vào việc bạn sống hay chết, bằng cách nào, và số phận của người đồng đội.</p><p>Mỗi ván mở thêm một nhánh trên cây ending. Thành tựu cộng dồn qua các ván, lưu trên trình duyệt này.</p>']
+  end: ['tree', 'Ending & thành tựu', '<p>Game có 22 ending, tuỳ vào việc bạn sống hay chết, bằng cách nào, và số phận của người đồng đội và Leon.</p><p>Mỗi ván mở thêm một nhánh trên cây ending. Thành tựu cộng dồn qua các ván, lưu trên trình duyệt này.</p>']
 };
 function renderGuide() {
   var h = '<div class="cardhead"><div class="eyebrow">Hướng dẫn</div><button class="link" data-gskip="1">Đóng</button></div>';
@@ -8339,14 +8437,15 @@ var ACH = [
   { id: 'picky', name: 'Kén cá chọn canh', desc: 'Cho người vào đội rồi đuổi đi tổng cộng 5 lần', goal: 5, cur: function (P) { return T(P, 'kicks'); } },
   { id: 'oneGame', name: 'Một ván nhớ đời', desc: 'Mở khoá 8 thành tựu mới trong cùng một ván', goal: 8, cur: function (P) { return Bv(P, 'newAch'); } },
   { id: 'endings4', name: 'Bốn ngả', desc: 'Mở khoá 4 ending', goal: 4, cur: endCount },
-  { id: 'endingsAll', name: 'Trọn vẹn', desc: 'Mở khoá cả 21 ending', goal: 21, cur: endCount }
+  { id: 'endingsAll', name: 'Trọn vẹn', desc: 'Mở khoá cả 22 ending', goal: 22, cur: endCount }
 ];
 var TREE = [
   { code: '1', name: 'Rời ải sớm', hint: 'Khám phá đủ 13 nơi rồi bước qua cửa ra', leaves: [['1.2', 'Người đồng đội cũng đi hết làng và đứng cạnh bạn'], ['1.1.1', 'Người đồng đội không trở ra'], ['1.1.2', 'Người đồng đội trở ra sau']] },
   { code: '2', name: 'Tiếng chuông', secret: true, hint: 'Một cách thắng mà làng không nói ra', leaves: [['2.1.1', 'Đồng đội đứng cạnh lúc chuông ngân và sống tới cuối'], ['2.1.2', 'Đồng đội đứng cạnh lúc chuông ngân nhưng không qua được bốn giờ cuối'], ['2.2.1', 'Đồng đội không đứng cạnh, và không qua khỏi'], ['2.2.2', 'Đồng đội không đứng cạnh nhưng vẫn sống sót']] },
   { code: '3', name: 'Kết cục xấu', hint: 'Chết trong làng, hoặc bị hệ thống xoá sổ', leaves: [['3.1.1', 'Chết sau người đồng đội'], ['3.1.2', 'Chết khi người đồng đội còn sống'], ['3.2.1', 'Bị xoá sổ, người đồng đội đã mất từ trước'], ['3.2.2', 'Bị xoá sổ, người đồng đội sống sót'], ['3.2.3', 'Bị xoá sổ cùng người đồng đội']] },
   { code: '4', name: 'Mảnh bùa', secret: true, hint: 'Sống sót mà không cần đi hết ngôi làng', leaves: [['4.1.1', 'Đồng đội đi cùng tới cuối và cũng có mảnh bùa'], ['4.1.3', 'Đồng đội đi cùng tới cuối, sống nhờ con đường khác'], ['4.1.2', 'Đồng đội đi cùng tới cuối nhưng không qua khỏi'], ['4.2.1', 'Đồng đội không đi cùng, bị xoá sổ lúc hết giờ'], ['4.2.3', 'Đồng đội không đi cùng, đã mất từ trước'], ['4.2.2', 'Cả hai cùng sống sót dù không đi cùng']] },
-  { code: '5', name: 'Phá giải', secret: true, hint: 'Một cách thắng dành cho người dám đánh trả', leaves: [['5.1', 'Đồng đội đứng cạnh lúc con đầu đàn cuối cùng gục'], ['5.2', 'Đồng đội còn sống nhưng ở chỗ khác'], ['5.3', 'Đồng đội đã mất từ trước']] }
+  { code: '5', name: 'Phá giải', secret: true, hint: 'Một cách thắng dành cho người dám đánh trả', leaves: [['5.1', 'Đồng đội đứng cạnh lúc con đầu đàn cuối cùng gục'], ['5.2', 'Đồng đội còn sống nhưng ở chỗ khác'], ['5.3', 'Đồng đội đã mất từ trước']] },
+  { code: '6', name: 'Người cầm xích', hint: 'Hai người cùng sống, nhưng một cái tên khác thì không', leaves: [['6.1', 'Bạn và đồng đội sống sót, nhưng Leon đã ngã xuống']] }
 ];
 function recordGame(G) {
   var p = G.players[0], A = G.ach || {}, P = PROF;
@@ -8587,8 +8686,10 @@ var ENDINGS = {
   '5.1': ['Phá giải', 'Con quỷ đầu đàn cuối cùng gục xuống. Cả ngôi làng bỗng im bặt, như vừa có ai rút mất hơi thở của nó. Đồng hồ của hệ thống dừng lại. {P} đứng ngay cạnh bạn, thở dốc, và hai người là những người đầu tiên thấy cửa ra mở trước hạn.'],
   '5.2': ['Phá giải, mỗi người một phía', 'Con quỷ đầu đàn cuối cùng gục xuống. Ngôi làng im bặt, đồng hồ của hệ thống dừng lại, cửa ra mở cho những người đã cầm vũ khí tới cùng. {P} ở một nơi khác trong làng khi chuyện đó xảy ra. Bạn bước qua cửa, không biết hệ thống sẽ tính người ấy vào đâu.'],
   '5.3': ['Phá giải muộn màng', 'Con quỷ đầu đàn cuối cùng gục xuống. Ngôi làng im bặt, đồng hồ của hệ thống dừng lại, cửa ra mở trước hạn. Bạn đã phá giải được ảo cảnh. Chỉ là {P} không còn ở đây để thấy điều đó.'],
-  '4.2.2': ['Mỗi người một đường sống', 'Khi hệ thống bắt đầu xử tử những người chưa hoàn thành, mảnh bùa trong túi bạn nóng lên rồi nứt đôi. Cái chết lướt qua bạn. Mãi sau, khi gặp lại, bạn mới biết {P} cũng sống sót, nhờ {WHY}.']
+  '4.2.2': ['Mỗi người một đường sống', 'Khi hệ thống bắt đầu xử tử những người chưa hoàn thành, mảnh bùa trong túi bạn nóng lên rồi nứt đôi. Cái chết lướt qua bạn. Mãi sau, khi gặp lại, bạn mới biết {P} cũng sống sót, nhờ {WHY}.'],
+  '6.1': ['Người cầm xích không về', 'Bạn sống sót, và {P} cũng vậy. Khi hệ thống đọc tên những người được rời đi, bạn còn chờ thêm một cái tên. Nó không vang lên. Leon đã ở lại ngôi làng ấy, cùng sợi xích của anh ta.']
 };
+var LEON_UNMET_61 = 'Bạn sống sót, và {P} cũng vậy. Khi hệ thống đọc tên những người được rời đi, có một cái tên lẽ ra phải vang lên mà không vang lên: Leon. Bạn chưa từng gặp người ấy, cũng không biết người ấy ngã xuống ở đâu. Chỉ biết ngôi làng đã giữ lại thêm một người.';   /* ending 6.1 khi chưa từng chạm mặt Leon */
 var LEON_CODA = {
   out: ['Cùng ra cửa', 'Leon bước ra sau cùng, cuộn xích lại quanh tay như chưa có gì xảy ra. "Giao kèo xong." Một lúc sau anh ta nói thêm: "Lần sau gặp thì tính tiếp."'],
   apart: ['Sống, tách đường', 'Bạn không thấy Leon ở cửa ra. Trên bảng thông báo, cái tên ấy vẫn còn sáng. Anh ta đã tự tìm đường của mình, như lúc chưa quen ai.'],
@@ -8601,6 +8702,7 @@ function endingText(G) {
   var why = allExplored(P) ? 'đã tự mình đi hết ngôi làng' : (k === '4.1.3' ? 'đã tìm được một lối thoát khác' : (shielded(P) ? 'một mảnh bùa của riêng mình' : 'một lối thoát mà bạn không biết'));
   var stayed = k.charAt(0) === '1' && G.outcome !== 'left';
   var txt = e[1];
+  if (k === '6.1' && !(G.leon && G.leon.met)) txt = LEON_UNMET_61;
   if (stayed && k === '1.2') txt = 'Bạn ở lại tới phút cuối. Khi cửa ra mở, {P} bước qua ngay sau bạn, vai còn dính bụi của ngôi làng.';
   else if (stayed) txt = txt.replace(/^Bạn bước qua cửa ra trước[^.]*\.( Trò chơi[^.]*\.)?|^Cánh cửa mở ra cho hai người\./, function (m) { return m.indexOf('Cánh cửa') === 0 ? 'Bạn ở lại tới phút cuối, và khi cửa ra mở, nó mở cho hai người.' : 'Bạn đã khám phá đủ từ sớm nhưng vẫn ở lại tới phút cuối.'; });
   return { code: k, title: e[0], text: txt.replace(/\{P\}/g, '<span class="nm-mc">' + esc(P.name) + '</span>').replace('{WHY}', why) };
@@ -8618,7 +8720,7 @@ function showEnd() {
   var p = G.players[0], E = endingText(G);
   var miss = LOC_IDS.filter(function (i) { return !p.explored[i]; }).map(function (i) { return LOCS[i].name; });
   var body = E ? '<p class="desc" style="display:block;-webkit-line-clamp:unset;overflow:visible">' + E.text + '</p>' : '';
-  var LC = (p.alive && G.outcome !== 'dead' && G.leonCoda) ? LEON_CODA[G.leonCoda] : null;
+  var LC = (p.alive && G.outcome !== 'dead' && G.leonCoda && G.endKey !== '6.1') ? LEON_CODA[G.leonCoda] : null;
   if (LC) body += '<div class="pbox"><p><b>Leon · ' + LC[0] + '</b></p><p>' + LC[1] + '</p>' + (G.trioOut ? '<p class="note">Huy hiệu: Liên minh ba người</p>' : '') + '</div>';
   if (G.outcome === 'dead' && !p.sysKilled) body += '<p class="msg">' + p.cause + ' Lúc ' + fmtT(p.diedAt) + '.</p>';
   if (p.sysKilled) body += '<p class="msg">Còn thiếu: ' + miss.join(', ') + '.</p>';
@@ -9965,6 +10067,7 @@ const EB = { // màu nhánh
   '3': { name: 'Kết cục xấu', c: BLOOD, sky: ['#160a0c', '#3a1418', '#8a2a24'] },
   '4': { name: 'Mảnh bùa', c: ['#e4dcf6', '#ab9ddb', '#6e5ea8', '#2e2650'], sky: ['#16122a', '#2e2650', '#6e5ea8'] },
   '5': { name: 'Phá giải', c: ['#fff2e0', '#e8a060', '#a85a2a', '#4a2412'], sky: ['#1c100a', '#4a2412', '#c4602a'] },
+  '6': { name: 'Người cầm xích', c: ['#e2e6ea', '#9aa3ab', '#5a626a', '#24282c'], sky: ['#101214', '#24282c', '#5a626a'] },
 };
 const EMB = {
   '1': (c, T) => { c.rect(9, 3, 14, 26, T[3]); c.rect(11, 5, 10, 24, '#0b0c0e'); c.dither(11, 5, 10, 24, '#0b0c0e', T[1], (i, j) => 1 - j / 26); c.rect(11, 5, 10, 2, T[0]); c.line(15, 18, 15, 28, T[0]); c.ell(15, 16, 1.6, 2, T[0]); c.rect(14, 18, 3, 6, T[0]); c.rect(6, 29, 20, 2, T[2]); },
@@ -9972,6 +10075,7 @@ const EMB = {
   '3': (c, T) => { c.ell(16, 13, 10, 10, '#d8d4cc'); c.rect(10, 20, 12, 6, '#d8d4cc'); c.ell(11.5, 13, 3, 3.4, '#0b0c0e'); c.ell(20.5, 13, 3, 3.4, '#0b0c0e'); c.px(12, 13, T[1]); c.px(21, 13, T[1]); c.poly([[16, 17], [17.5, 20], [14.5, 20]], '#0b0c0e'); for (let x = 11; x < 22; x += 2) c.line(x, 23, x, 26, '#6e6862'); c.line(23, 4, 18, 30, T[1]); c.px(19, 31, T[2]); },
   '4': (c, T) => { c.poly([[7, 4], [15, 6], [14, 16], [16, 28], [8, 26], [5, 14]], '#d8d0b8'); c.poly([[25, 4], [17, 6], [18, 16], [16, 28], [24, 26], [27, 14]], '#c4bca4'); c.map(8, 10, ['..#....#..', '.##....##.', '###....###', '.#......#.', '.##....##.', '..#....#..'], { '#': T[1] }); c.line(16, 5, 16, 29, T[0]); [[16, 2], [16, 30], [3, 16], [29, 16]].forEach(p => c.px(p[0], p[1], T[0])); },
   '5': (c, T) => { c.ell(16, 16, 12, 12, T[2]); c.ell(16, 16, 9, 9, T[3]); c.map(10, 10, ['.#..#.', '######', '.#..#.', '.#..#.', '######', '.#..#.'], { '#': T[1] }); c.line(6, 5, 26, 28, T[0]); c.line(7, 5, 27, 28, '#0b0c0e'); c.line(5, 5, 25, 28, T[0]); [[3, 6], [28, 25], [24, 3], [6, 27]].forEach(p => { c.px(p[0], p[1], T[0]); c.px(p[0] + 1, p[1], T[1]); }); },
+  '6': (c, T) => { c.ell(16, 16, 5, 8.5, T[2]); c.ell(16, 16, 2.6, 5.6, '#0b0c0e'); c.rect(18, 10, 4, 4, '#0b0c0e'); c.ell(9, 8, 7.5, 5, T[1]); c.ell(9, 8, 4.6, 2.4, '#0b0c0e'); c.ell(23, 24, 7.5, 5, T[1]); c.ell(23, 24, 4.6, 2.4, '#0b0c0e'); c.px(13, 12, T[0]); c.px(13, 13, T[1]); c.line(5, 8, 8, 6, T[0]); c.line(19, 22, 22, 20, T[0]); c.px(14, 13, T[0]); c.px(17, 21, BLOOD[1]); c.px(17, 22, BLOOD[2]); c.px(21, 28, BLOOD[1]); c.px(22, 28, BLOOD[2]); c.px(12, 26, BLOOD[1]); },
 };
 function emblem(k) { const c = Canvas(32, 32); EMB[k](c, EB[k].c); c.outline(OUT); return c; }
 function banner(k) {
@@ -10458,7 +10562,7 @@ var CSS = '.a2face{width:44px;height:44px;flex:none;border-radius:50%;background
   '.introart{display:block;width:100%;aspect-ratio:16/9;border-radius:14px;image-rendering:pixelated}' +
   '@media (max-width:640px){.endbanner{width:calc(100% + 40px);margin:-20px -20px 0}}';
 var st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
-var BR_COL = { '1': '#9fc1e6', '2': '#e2b85a', '3': '#d06a5c', '4': '#ab9ddb', '5': '#e8a060' };
+var BR_COL = { '1': '#9fc1e6', '2': '#e2b85a', '3': '#d06a5c', '4': '#ab9ddb', '5': '#e8a060', '6': '#9aa3ab' };
 
 /* tranh cho khung Diễn biến */
 var _eventURL = eventURL;
