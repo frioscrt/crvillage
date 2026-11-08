@@ -6205,7 +6205,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.08-24';
+var GAME_VERSION = '2026.11.08-26';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7596,8 +7596,8 @@ var PROLOGUE = (function () {
     }
   };
 })();
-/* khung diễn biến: tuỳ chọn chỉ bật khi có chuyện đáng chú ý (lưu trên trình duyệt) */
-function popQuiet() { try { return localStorage.getItem('artos_popquiet') === '1'; } catch (e) { return false; } }
+/* khung diễn biến luôn bật sau mỗi lượt (bỏ tuỳ chọn "chỉ bật khi có chuyện đáng chú ý" từ 2026.11.08-25) */
+function popQuiet() { return false; }
 function notable(items) { items = items.filter(function (e) { return e.tone !== 'me'; }); return items.length > 1 || items.some(function (e) { return e.tone !== 'info' && e.tone !== 'sys'; }); }
 /* dòng có người nói: "Tên … "lời"" (người chơi khác, không phải bạn) */
 /* dân làng có thoại: lời mở đầu → chân dung (tên trong bảng NPC); thẻ tên bỏ chữ "Một" ở đầu */
@@ -7668,7 +7668,7 @@ function renderPop() {
       '<div class="vnstage"><img class="pix vnface" alt=""></div>' +
       '<div class="vnbox"><span class="vnname"></span><div class="vntext"></div><i class="vnmore">▼</i></div>' +
       '<div class="vnnav"><button class="btn" id="pvnBack">‹ Lùi</button><span class="vnnum"></span><button class="btn primary" id="pvnNext">Tiếp ›</button></div>' +
-      '<div class="pvnfoot"><button class="link" data-ui="fulllog">Nhật ký đầy đủ</button><label><input type="checkbox" id="popQuietBox"' + (popQuiet() ? ' checked' : '') + '> Chỉ bật khung này khi có chuyện đáng chú ý</label></div></div>';
+      '<div class="pvnfoot"><button class="link" data-ui="fulllog">Nhật ký đầy đủ</button></div></div>';
     pvnDraw(); el.hidden = false;
     try { card.querySelector('#pvnNext, #popClose').focus({ preventScroll: true }); } catch (e) { }
     return;
@@ -7677,7 +7677,7 @@ function renderPop() {
   $('popCard').innerHTML = (L.art ? '<img class="pix evart' + (L.big ? ' big' : L.small ? ' small' : '') + '" src="' + eventURL(L.art) + '" alt="">' : '') + '<div class="eyebrow">Diễn biến · ' + fmtT(L.t0) + (L.t1 > L.t0 ? ' → ' + fmtT(L.t1) : '') + '</div>' +
     '<div class="popbody">' + L.items.map(function (e) { return '<div class="pl ' + e.tone + '"><time>' + fmtT(e.t) + '</time><p>' + paint(esc(e.text)) + '</p></div>'; }).join('') + '</div>' +
     '<div class="popfoot"><button class="btn primary" id="popClose"><b>Đóng</b></button><button class="link" data-ui="fulllog">Nhật ký đầy đủ</button>' +
-    '<label><input type="checkbox" id="popQuietBox"' + (popQuiet() ? ' checked' : '') + '> Chỉ bật khung này khi có chuyện đáng chú ý</label></div>';
+    '</div>';
   el.hidden = false;
   try { $('popClose').focus({ preventScroll: true }); } catch (e) { }
 }
@@ -8946,7 +8946,8 @@ var A2HS = (function () {
   }
   function show() { os = IOS ? 'ios' : AND ? 'and' : null; done = false; copied = false; render(); $('a2hs').hidden = false; }
   function close() { mark(); $('a2hs').hidden = true; }
-  function auto() { if (avail() && !seen() && mm('(orientation: portrait)')) show(); }
+  function tablet() { var w = Math.min(screen.width || 0, screen.height || 0); return /iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) || w >= 600; }
+  function auto() { if (avail() && !seen() && (mm('(orientation: portrait)') || tablet())) show(); }   /* iPad, máy tính bảng: cầm ngang cũng hiện */
   window.addEventListener('beforeinstallprompt', function (e) { bip = e; if (isOpen()) render(); });
   window.addEventListener('appinstalled', function () { bip = null; done = true; mark(); if (isOpen()) render(); });
   document.addEventListener('click', function (e) {
