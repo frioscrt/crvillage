@@ -728,6 +728,13 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 #introSelect{display:grid;gap:12px}
 #introSelect[hidden]{display:none}
 #introHome[hidden]{display:none}
+/* phím tắt: số nhỏ ở góc lựa chọn, chỉ trên máy có chuột và bàn phím */
+body.kbd [data-k]:not(.hot){position:relative}
+body.kbd [data-k]::after{content:attr(data-k);position:absolute;top:-7px;left:-7px;min-width:17px;height:17px;padding:0 3px;box-sizing:border-box;background:#07080a;color:#cfe0f3;box-shadow:0 0 0 1px #3e5878;font:400 12px/17px var(--mono);text-align:center;z-index:4;pointer-events:none;letter-spacing:0;text-transform:none}
+body.kbd .hot[data-k]::after{top:-4px;left:50%;margin-left:-22px}
+body.kbd [data-kl]::before{content:attr(data-kl);position:absolute;top:-7px;right:-7px;min-width:17px;height:17px;padding:0 3px;box-sizing:border-box;background:#07080a;color:#e2b85a;box-shadow:0 0 0 1px #6a5a30;font:400 12px/17px var(--mono);text-align:center;z-index:4;pointer-events:none}
+body.kbd .hot[data-kl]::before{top:-4px;right:auto;left:50%;margin-left:8px}
+body.kbd :focus-visible{outline:2px solid #9fc1e6;outline-offset:2px}
 /* tranh mở đầu tràn mép: ngang = tranh phủ cả màn, nút đè dưới; điện thoại dọc = tranh hết bề ngang ở trên, mờ dần vào nền tối */
 #intro{overflow-x:hidden}
 #intro .homeart{box-shadow:none;max-width:none}
@@ -6198,7 +6205,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.08-20';
+var GAME_VERSION = '2026.11.08-24';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7620,7 +7627,7 @@ function speakerOf(e) {
 }
 function popPages(items) {
   var pg = [], nar = null;
-  items.forEach(function (e) { var w = speakerOf(e); if (w) { nar = null; pg.push({ who: w, items: [e] }); } else { if (!nar) { nar = { who: null, items: [] }; pg.push(nar); } nar.items.push(e); } });
+  items.forEach(function (e) { var w = speakerOf(e); if (w) { nar = null; pg.push({ who: w, items: [e] }); } else { if (!nar || nar.items.length >= 3) { nar = { who: null, items: [] }; pg.push(nar); } nar.items.push(e); } });   /* trang kể tối đa 3 dòng */
   return pg;
 }
 function vnFace(who, mood, ent) { if (VN_FACE[who] && window.ART2 && ART2.faceURL) { try { var fn = VN_FACE[who]; return EYE_SUS[fn] && vnSus(ent) ? ART2.faceEyeURL(fn, EYE_SUS[fn]) : ART2.faceURL(fn); } catch (e) { } } if (!/^(Luke|Clevia|Leon)$/.test(who) && window.ART2 && ART2.faceURL) { try { return ART2.faceURL(who); } catch (e) { } } return faceURL(who, mood); }   /* ba nhân vật chính có chân dung theo cảm xúc; người khác dùng chân dung chung */
@@ -7651,7 +7658,7 @@ function renderPop() {
   var el = $('pop');
   if (!(UI.popOpen && UI.last && G && !G.isBackdrop)) { el.hidden = true; return; }
   var L = UI.last, card = $('popCard'), PG = popPages(L.items), key = L.t0 + ':' + L.items.length;
-  if (PG.some(function (x) { return x.who; })) {   /* có người nói: kiểu visual novel */
+  if (PG.length) {   /* mọi khung Diễn biến: kiểu visual novel */
     if (!el.hidden && card.dataset.k === key && UI.pvn) return;
     if (L.art) { if (!PG[0].who) PG[0].art = true; else PG.unshift({ who: null, items: [], art: true }); }   /* trang tranh mở đầu */
     UI.pvn = { pg: PG, i: 0 }; card.dataset.k = key;
@@ -8782,6 +8789,78 @@ document.addEventListener('click', function (e) { if (e.target.closest && e.targ
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && UI.sceneOpen) SF.close(); });
 $('mpop').addEventListener('click', function (e) { if (e.target === this) { UI.mpop = null; this.hidden = true; setTimeout(coachUpdate, 30); } });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('pop').hidden) closePop(); });
+/* ---------- phím tắt máy tính: Esc đóng khung trên cùng, 1–9 chọn, mũi tên lên/xuống đi qua lựa chọn, Enter chọn; T túi, B bản đồ, N người ở đây, Q quan sát ---------- */
+var KBD = (function () {
+  var on = false; try { on = window.matchMedia('(hover: hover) and (pointer: fine)').matches; } catch (e) { }
+  var CLOSE = '[data-close],[data-ui="setclose"],[data-ui="tab:here"],[data-bubx],.hbx,#introBack,[data-pl="skip"],#popSkip,#coachSkip';
+  var LBL = { bag: 'T', exit: 'B', ppl: 'N', look: 'Q', chest: 'R' }, ROW = 'ASDFGHJKL';
+  /* chữ cho từng điểm trên tranh: điểm chung chữ cố định, điểm riêng theo thứ tự trái → phải */
+  function hotMap() {
+    var m = {}, rest = [];
+    [].slice.call(document.querySelectorAll('#sfHot > .hot')).filter(vis).forEach(function (h) { var k = h.getAttribute('data-hot'); if (LBL[k]) m[LBL[k]] = h; else rest.push(h); });
+    rest.sort(function (a, b) { return a.getBoundingClientRect().left - b.getBoundingClientRect().left; }).slice(0, ROW.length).forEach(function (h, i) { m[ROW[i]] = h; });
+    return m;
+  }
+  function vis(el) { return !!(el && !el.hidden && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden'); }
+  /* khung đang ở trên cùng */
+  function top() {
+    var ids = ['prologue', 'coach', 'a2hs', 'end', 'pop', 'scene', 'mpop', 'gpop', 'prof', 'guide', 'logView', 'setpop'];
+    for (var i = 0; i < ids.length; i++) { var el = document.getElementById(ids[i]); if (vis(el)) return el; }
+    var ov = document.querySelector('section.ovl'); if (vis(ov)) return ov;
+    var bb = document.querySelector('#sfHot .hbub'); if (vis(bb)) return bb;
+    var it = $('intro'); if (vis(it)) return it;
+    var sf = $('sceneFrame'); if (vis(sf)) return sf;
+    var st = $('sfStage'); if (vis(st)) return st;
+    return null;
+  }
+  /* số chỉ cho lựa chọn mang tính quyết định (việc trong bong bóng, túi đồ, rương, sự kiện…); tranh chính dùng phím chữ; cảnh mở đầu, chỉ dẫn, bản đồ không có số */
+  function choices(L) {
+    if (!L || L.id === 'sceneFrame' || L.id === 'sfStage' || L.id === 'prologue' || L.id === 'coach' || L.classList.contains('ovl-go')) return [];
+    var q = L.classList.contains('hbub') ? '.list > button' : (L.id === 'intro' && $('introHome').hidden) ? '.prot' : 'button:not([disabled]), summary';
+    return [].slice.call(L.querySelectorAll(q)).filter(function (b) { return vis(b) && !b.matches(CLOSE) && !b.matches('[data-mapgo],[data-start],.tab') && !b.closest('[hidden],[data-mapgo]'); });
+  }
+  function mark() {
+    if (!on) return;
+    [].slice.call(document.querySelectorAll('[data-k],[data-kl]')).forEach(function (b) { b.removeAttribute('data-k'); b.removeAttribute('data-kl'); });
+    var L = top(); if (!L || L.id === 'pop') return;
+    choices(L).slice(0, 9).forEach(function (b, i) { b.setAttribute('data-k', i + 1); });
+    if (L.id === 'sceneFrame' || L.id === 'sfStage') { var hm = hotMap(); Object.keys(hm).forEach(function (c) { hm[c].setAttribute('data-kl', c); }); }
+  }
+  var pend = false;
+  function later() { if (pend || !on) return; pend = true; requestAnimationFrame(function () { pend = false; mark(); }); }
+  if (on) {
+    document.body.classList.add('kbd');
+    try { new MutationObserver(function (m) { if (m.some(function (r) { return !(r.type === 'attributes' && /^data-k/.test(r.attributeName)); })) later(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'class', 'style'] }); } catch (e) { }
+    later();
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var tg = e.target; if (tg && (tg.tagName === 'INPUT' || tg.tagName === 'TEXTAREA' || tg.tagName === 'SELECT' || tg.isContentEditable)) return;
+    var L = top(); if (!L) return;
+    var k = e.key, low = k.length === 1 ? k.toLowerCase() : k;
+    if (L.id === 'pop' || (L.id === 'scene' && /^(Enter| |ArrowLeft|ArrowRight|Escape)$/.test(k))) return;   /* khung visual novel tự lo phím */
+    if (k === 'Escape') {
+      if (['pop', 'scene', 'mpop'].indexOf(L.id) >= 0) return;   /* đã có sẵn */
+      var c = [].slice.call(L.querySelectorAll(CLOSE)).filter(vis)[0];
+
+      if (c) { e.preventDefault(); c.click(); }
+      return;
+    }
+    if (L.id === 'coach' && (k === 'Enter' || k === ' ' || k === 'ArrowRight')) { var cb = [].slice.call(L.querySelectorAll('button')).filter(function (x) { return vis(x) && !x.matches(CLOSE); }).pop(); if (cb) { e.preventDefault(); cb.click(); } return; }
+    if (L.id === 'prologue' && (k === 'Enter' || k === ' ' || k === 'ArrowRight')) { var nx = L.querySelector('[data-pl="next"]'); if (nx) { e.preventDefault(); nx.click(); } return; }
+    if (/^[1-9]$/.test(k)) { var b = choices(L)[+k - 1]; if (b) { e.preventDefault(); b.click(); if (b.tagName === 'SUMMARY') b.focus(); } return; }
+    if (k === 'ArrowDown' || k === 'ArrowUp') {
+      var cs = choices(L); if (!cs.length) return; e.preventDefault();
+      var i = cs.indexOf(document.activeElement), n = i < 0 ? (k === 'ArrowDown' ? 0 : cs.length - 1) : (i + (k === 'ArrowDown' ? 1 : -1) + cs.length) % cs.length;
+      try { cs[n].focus({ preventScroll: false }); } catch (er) { }
+      return;
+    }
+    if (k === 'Enter' && L.id === 'intro' && !$('introHome').hidden && document.activeElement === document.body) { e.preventDefault(); $('startBtn').click(); return; }
+    if (k === 'Enter' && L.id === 'intro' && $('introHome').hidden) { var vs = document.querySelector('#introSelect [data-start]'); if (vs && vis(vs)) { e.preventDefault(); vs.click(); } return; }
+    if (k.length === 1 && (L.id === 'sceneFrame' || L.id === 'sfStage') && window.SF) { var h = hotMap()[k.toUpperCase()]; if (h) { e.preventDefault(); h.click(); } }
+  });
+  return { mark: mark, top: top, choices: choices, on: function () { return on; } };
+})();
 document.addEventListener('change', function (e) { if (e.target && e.target.id === 'uiSnd') { SND.setUi(e.target.checked); if (e.target.checked) SND.play('tick'); } if (e.target && e.target.id === 'popQuietBox') { try { localStorage.setItem('artos_popquiet', e.target.checked ? '1' : '0'); } catch (x) { } } });
 document.addEventListener('keydown', function (e) { var mg = e.target.closest && e.target.closest('[data-mapgo]'); if (mg && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); UI.mpop = { kind: 'map', id: mg.getAttribute('data-mapgo') }; render(); }
   if (e.key === 'Escape' && !$('mpop').hidden) { UI.mpop = null; $('mpop').hidden = true; } });
