@@ -835,6 +835,33 @@ body.kbd :focus-visible{outline:2px solid #9fc1e6;outline-offset:2px}
 .evvn{cursor:default}
 .evvn .evbody{padding:0;max-height:58vh;overflow:auto}
 .evvn .evbody .offer b{font:500 clamp(17px,2.2vw,22px)/1.5 var(--serif);color:#f2efe9;margin-bottom:14px}
+/* 2026.11.08-35: màn thấp (điện thoại xoay ngang) */
+.pa-only .vnart img{max-width:min(1100px,calc((100vh - 150px) * 1.78));max-width:min(1100px,calc((100dvh - 150px) * 1.78))}
+@media (max-height:520px){
+  .pa-side .vnwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:1fr auto auto;column-gap:16px;align-items:center;padding-top:50px}
+  .pa-side .vnart{grid-column:1;grid-row:1;padding:0;align-self:center}
+  .pa-side .vnart img{max-width:min(100%,calc((100dvh - 150px) * 1.78))}
+  .pa-side .vnbox{grid-column:2;grid-row:1;align-self:center;max-height:calc(100dvh - 150px);overflow:auto}
+  .pa-side .vnnav,.pa-side .pvnfoot{grid-column:1 / 3}
+  .vnart{padding:46px 0 8px}
+  .vnnav{margin-top:8px}.pvnfoot{margin-top:4px}
+  .evcard.hasimg{display:grid;grid-template-columns:minmax(0,46%) minmax(0,1fr);width:min(900px,100%);max-height:calc(100dvh - 24px);overflow:hidden}
+  .evcard.hasimg .evimg{align-self:center}
+  .evcard.hasimg .evbody{max-height:calc(100dvh - 24px);overflow:auto}
+  .evvn .vnwrap{flex-direction:row;align-items:flex-end;gap:10px;padding-top:12px}
+  .evvn .vnstage{padding:0;flex:none}
+  .evvn .vnstage.r{order:2}
+  .evvn .vnface{width:min(120px,28vh)}
+  .evvn .vnbox{flex:1 1 auto;min-width:0;max-height:calc(100dvh - 40px);display:flex;flex-direction:column;padding:22px 16px 12px;min-height:0}
+  .evvn .evbody{max-height:none;flex:1 1 auto;min-height:0;overflow:auto}
+  .evvn .evbody .offer b{font-size:16px;margin-bottom:10px}
+  .evvn .evbody .list{position:sticky;bottom:0;background:rgba(10,12,16,.97);padding-top:6px}
+  /* túi đồ: tranh mở túi bên trái, các ngăn đồ cuộn bên phải */
+  .ovl-bag:has(.ovl-art){display:grid;grid-template-columns:minmax(0,40%) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);width:min(980px,calc(100vw - 24px));max-height:calc(100dvh - 20px)}
+  .ovl-bag:has(.ovl-art) .ovl-h{grid-column:1 / 3;padding:8px 14px}
+  .ovl-bag:has(.ovl-art) .ovl-art{grid-column:1;grid-row:2;align-self:center;max-height:none}
+  .ovl-bag:has(.ovl-art) .ovl-b{grid-column:2;grid-row:2;min-height:0}
+}
 
 /* thanh gợi ý */
 .goal{display:flex;align-items:center;gap:10px;margin-top:8px;padding:8px 10px;border-radius:12px;background:linear-gradient(90deg,rgba(var(--acc-rgb),.16),rgba(var(--acc-rgb),.04));border:1px solid rgba(var(--acc-rgb),.35)}
@@ -2497,7 +2524,7 @@ function scene(G, key, variant) {
   G.storyDone['scene_' + key] = true;
   G.sceneQueue = G.sceneQueue || [];
   G.sceneQueue.push(S.variants ? key + ':' + variant : key);
-  sceneLines(key, variant).forEach(function (ln) { say(G, ln[0] + ': ' + ln[1], 'story'); });
+  sceneLines(key, variant).forEach(function (ln) { say(G, ln[0] + ': ' + ln[1], 'story'); G.log[G.log.length - 1].sc = 1; });   /* sc: đã chiếu ở khung cảnh cốt truyện, Diễn biến bỏ qua (2026.11.08-35) */
 }
 /* kiểm tra điều kiện cảnh sau mỗi bước; điều kiện nào đã qua mà hai người không ở cạnh thì bỏ lỡ */
 var MEET_MIN = 120;
@@ -6298,7 +6325,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.08-33';
+var GAME_VERSION = '2026.11.08-36';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6542,7 +6569,7 @@ var SF = (function () {
     clinic: { home: [64, 61], hot: [{ k: 'door', x: 63, y: 42, fy: 53, ic: 'cross', name: 'Cửa trạm xá', ids: /^(nurse|patient)$/ }, { k: 'stove', x: 14, y: 48, fy: 60, ic: 'pot', name: 'Bếp thuốc', ids: /^brew$/ }, ppl(86, 50, 60), look(96, 14), chest(116, 40, 60)] },
     farm: { home: [46, 66], hot: [{ k: 'field', x: 58, y: 56, fy: 64, ic: 'wheat', name: 'Ruộng', ids: /^harvest$/ }, ppl(110, 58, 66), look(56, 12), chest(95, 38, 46, 'Kho thóc')] },
     pier: { home: [62, 47], hot: [{ k: 'river', x: 28, y: 58, fx: 46, fy: 47, ic: 'fish', name: 'Mặt sông', ids: /^(startpier|fish)$/ }, ppl(57, 36, 47), look(96, 14), chest(89, 39, 47, 'Chòi câu')] },
-    mine: { home: [64, 66], hot: [{ k: 'gate', x: 100, y: 50, fx: 92, fy: 62, ic: 'gate', name: 'Người gác cổng', ids: /^(gate|unlockgate|talk)$/, ui: [['tab:person', 'people', 'Xem những người ở đây']] }, { k: 'dig', x: 72, y: 33, fx: 70, fy: 54, ic: 'pick', name: 'Lòng hầm', ids: /^dig$/ }, { k: 'cart', x: 52, y: 48, fx: 54, fy: 56, ic: 'cart', name: 'Xe goòng', ids: /^sellore$/ }, look(22, 12), chest(32, 44, 58)] },
+    mine: { home: [64, 66], hot: [{ k: 'gate', x: 100, y: 50, fx: 92, fy: 62, ic: 'gate', name: 'Người gác cổng', ids: /^(gate|unlockgate|talk)$/ }, { k: 'dig', x: 72, y: 33, fx: 70, fy: 54, ic: 'pick', name: 'Lòng hầm', ids: /^dig$/ }, { k: 'cart', x: 52, y: 48, fx: 54, fy: 56, ic: 'cart', name: 'Xe goòng', ids: /^sellore$/ }, ppl(116, 34, 62), look(22, 12), chest(32, 44, 58)] },
     forge: { home: [56, 59], hot: [{ k: 'anvil', x: 82, y: 38, fx: 80, fy: 54, ic: 'anvil', name: 'Đe rèn', ids: /^forge$/ }, ppl(64, 46, 54), look(24, 12), chest(112, 52, 58)] }
   };
   function cfg(loc) {
@@ -6725,7 +6752,19 @@ var SF = (function () {
         if (h.k === 'ppl') { var lw2 = ((lblOf(h).length + 5) * chw + 10) * uu, sd = (ihp + 3) * uu; bx.push([h.x - lw2 / 2, y - (gp + 15) * uu, h.x + lw2 / 2, y - (gp - 2) * uu], [h.x + sd, y - 8 * uu, h.x + sd + lw2, y + 8 * uu], [h.x - sd - lw2, y - 8 * uu, h.x - sd, y + 8 * uu]); }
         return bx;
       }
-      var taken = []; cur.hots.forEach(function (h) { taken = taken.concat(boxesOf(h, h.k === 'me')); });
+      /* góc dưới bên phải tranh là chỗ của nút Diễn biến (2026.11.08-34): nút trong tranh và người đứng né góc này, như né trái tim */
+      var fabB = (function () { var z = fabZone(); if (!z) return null; return [z[0] * uu, z[1] * uu, 128, 72]; })();
+      function hitFab(bs) { return !!fabB && bs.some(function (b) { return b[0] < fabB[2] && fabB[0] < b[2] && b[1] < fabB[3] && fabB[1] < b[3]; }); }
+      if (fabB) cur.hots.forEach(function (h) {
+        if (h.k === 'me' || !hitFab(boxesOf(h))) return;
+        var rest = []; cur.hots.forEach(function (o) { if (o !== h && o.k !== 'me') rest = rest.concat(boxesOf(o)); });
+        var x0 = h.x, y0 = h.y;
+        for (var rr = 3; rr <= 60; rr += 3) { var ok = [[-1, 0], [0, -1], [-.7, -.7], [-1, .4]].some(function (v) {
+          var nh = Object.assign({}, h, { x: x0 + v[0] * rr, y: y0 + v[1] * rr * .7 }); if (nh.x < 6 || nh.y < 6) return false;
+          var bs = boxesOf(nh); if (hitFab(bs) || bs.some(function (b) { return rest.some(function (o) { return b[0] < o[2] && o[0] < b[2] && b[1] < o[3] && o[1] < b[3]; }); })) return false;
+          h.x = nh.x; h.y = nh.y; return true; }); if (ok) break; }
+      });
+      var taken = fabB ? [fabB] : []; cur.hots.forEach(function (h) { taken = taken.concat(boxesOf(h, h.k === 'me')); });
       function clash(bs) { return bs.some(function (b) { return taken.some(function (o) { return b[0] < o[2] && o[0] < b[2] && b[1] < o[3] && o[1] < b[3]; }); }); }
       var pyF = anc.fy != null ? anc.fy : 62, pyH = Math.max(6, pyF - 15), xs = [];
       for (var dx = 0; dx <= 120; dx += 1) { if (anc.x + dx <= 121) xs.push(anc.x + dx); if (dx && anc.x - dx >= 7) xs.push(anc.x - dx); }
@@ -6745,7 +6784,7 @@ var SF = (function () {
       /* trái tim trên đầu nhân vật luôn nằm trên cùng để dễ chạm, nên không được che nút khác: đè thì nhích sang chỗ trống gần nhất */
       (function () {
         var meH = cur.hots.filter(function (h) { return h.k === 'me'; })[0]; if (!meH) return;
-        var others = []; cur.hots.forEach(function (h) { if (h.k !== 'me') others = others.concat(boxesOf(h)); });
+        var others = fabB ? [fabB] : []; cur.hots.forEach(function (h) { if (h.k !== 'me') others = others.concat(boxesOf(h)); });
         function hitAt(x, y) { y = Math.max(y, minYp); var hr = (sm ? 9 : 10) * uu, b = [x - hr, y - hr, x + hr, y + hr]; return others.some(function (o) { return b[0] < o[2] && o[0] < b[2] && b[1] < o[3] && o[1] < b[3]; }); }
         if (!hitAt(meH.x, meH.y)) return;
         var x0 = meH.x, y0 = meH.y, best = null;
@@ -7169,7 +7208,7 @@ var EVP = (function () {
         } else {
           e.classList.remove('vnmode');
           var img = UI.evKind ? '<img class="pix evimg" alt="" src="' + eventURL(UI.evKind) + '">' : '';
-          e.innerHTML = '<div class="evcard">' + img + '<div class="evbody">' + UI.evHtml + '</div></div>';
+          e.innerHTML = '<div class="evcard' + (img ? ' hasimg' : '') + '">' + img + '<div class="evbody">' + UI.evHtml + '</div></div>';
         }
         e.dataset.k = key;
       }
@@ -7736,6 +7775,7 @@ function pvnDraw() {
   var box = card.querySelector('.vnbox'), st = card.querySelector('.vnstage'), f = card.querySelector('.vnface'), nm = card.querySelector('.vnname'), tx = card.querySelector('.vntext');
   box.classList.toggle('c', right); box.classList.toggle('r', right); st.classList.toggle('r', right); st.classList.toggle('hide', !who);
   var va = card.querySelector('.vnart'); if (va) va.hidden = !pg.art;
+  card.classList.toggle('pa-only', !!pg.art && !pg.items.length); card.classList.toggle('pa-side', !!pg.art && !!pg.items.length);
   st.style.display = pg.art ? 'none' : ''; box.hidden = !!pg.art && !pg.items.length;
   if (who) { f.src = vnFace(who, 'normal', pg.items[0]); f.alt = who; }
   nm.hidden = !who; nm.textContent = who ? vnTag(who) : '';
@@ -7845,11 +7885,27 @@ document.addEventListener('keydown', function (e) {
   else if (e.key === 'ArrowLeft') { e.preventDefault(); vnStep(-1); }
 });
 function closePop() { UI.popOpen = false; $('pop').hidden = true; try { EVP.render(); } catch (e) { } logFab(); setTimeout(coachUpdate, 30); setTimeout(function () { try { SF.tryPending(); } catch (e) { } }, 40); }
+/* nút Diễn biến nằm trong tranh, góc dưới bên phải (2026.11.08-34). fabZone trả góc trên trái của vùng giữ chỗ, tính theo điểm ảnh trong tranh */
+var FAB_R = 10, FAB_B = 52;
+function fabSize() { var s = window.innerWidth <= 640; return [s ? 42 : 118, s ? 42 : 36]; }
+function fabZone() {
+  var st = $('sfStage'); if (!st || !document.body.classList.contains('playhud')) return null;
+  var W = st.clientWidth, H = st.clientHeight; if (!W || !H) return null;
+  var sz = fabSize(); return [W - FAB_R - sz[0] - 8, H - FAB_B - sz[1] - 8];
+}
+function fabPlace(f) {
+  var st = $('sfStage'); if (!st || !document.body.classList.contains('playhud')) { f.style.right = ''; f.style.bottom = ''; return; }
+  var r = st.getBoundingClientRect(); if (!r.width) return;
+  f.style.right = Math.max(0, window.innerWidth - r.right + FAB_R) + 'px';
+  f.style.bottom = Math.max(0, window.innerHeight - r.bottom + FAB_B) + 'px';
+}
+window.addEventListener('resize', function () { var f = $('logFab'); if (f && !f.hidden) fabPlace(f); });
 function logFab() {
   var f = $('logFab'); if (!f) return;
   if (UI.last && !$('pop').hidden) UI.fabSeen = UI.last.t0 + ':' + UI.last.items.length;
   var show = !!(G && !G.over && !G.isBackdrop && UI.last && $('pop').hidden) && !(window.innerWidth <= 640 && $('usLog'));
   f.hidden = !show;
+  if (show) fabPlace(f);
   if (show) { var k = UI.last.t0 + ':' + UI.last.items.length; f.classList.toggle('fresh', UI.fabSeen !== k); }
 }
 function act(id) {
@@ -7930,7 +7986,8 @@ function act(id) {
   UI.hit = G.players[0].hp < hp0;
   if (G.players[0].loc !== loc0) { UI.tab = 'here'; UI.sub = null; }
   UI.resOpen = false;
-  UI.last = G.log.length > n0 ? { t0: t0, t1: G.t, items: G.log.slice(n0) } : null;
+  var newL = G.log.slice(n0).filter(function (e) { return !e.sc; });
+  UI.last = newL.length ? { t0: t0, t1: G.t, items: newL } : null;
   if (UI.last) {
     var tx = UI.last.items.map(function (e) { return e.text; }).join(' ');
     UI.last.art = G.cleared ? 'cleared' : /Xích Trói|sợi xích|vòng xích/.test(tx) ? 'chain' : /Tiếng chuông ngân/.test(tx) ? 'bell' : /quỷ đầu đàn|Quỷ đầu đàn/.test(tx) ? 'boss' : /mắt đỏ lao vào|cào móng|vồ trúng/.test(tx) ? 'ambush' : /lao vào nhau|lao vào cùng|bất ngờ lao vào|Bạn và .* lao vào|trở mặt, lao vào|đánh trả/.test(tx) ? 'brawl' : /mở chiếc rương và nhận|chiếc rương mở ra/i.test(tx) ? 'chest' : /Hai bên trao đổi xong|Bạn trả \d+ tiền cho|đưa ngay cho bạn|miễn cưỡng đưa cho bạn|^Bạn đưa |Bạn đưa .* cho /.test(tx) ? 'trade' : null;
