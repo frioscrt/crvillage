@@ -1,0 +1,18 @@
+{
+  "id": "./",
+  "name": "Ngôi Làng Ăn Thịt",
+  "short_name": "Làng Ăn Thịt",
+  "description": "Project Artos 07 · Ảo cảnh cấp C/R. 20 người chơi, 24 tiếng, một ngôi làng không nói thật.",
+  "lang": "vi",
+  "start_url": "../",
+  "scope": "../",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#050608",
+  "theme_color": "#050608",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

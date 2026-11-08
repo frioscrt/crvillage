@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}/* chơi trên một màn hình: bảng bật lên, dòng nhiệm vụ dưới tranh, nhiệm vụ viền vàng */
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="pwa/manifest.webmanifest"><link rel="apple-touch-icon" href="pwa/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Làng Ăn Thịt"><meta name="theme-color" content="#050608"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}/* chơi trên một màn hình: bảng bật lên, dòng nhiệm vụ dưới tranh, nhiệm vụ viền vàng */
 .ovl-bg{position:fixed;inset:0;z-index:24;background:rgba(5,6,9,.6)}
 .ovl{position:fixed;z-index:25;left:50%;top:50%;transform:translate(-50%,-50%);width:min(640px,calc(100vw - 32px));max-height:min(86vh,820px);display:flex;flex-direction:column;background:var(--surface,#1d2026);box-shadow:0 -2px 0 0 #07080a,0 2px 0 0 #07080a,-2px 0 0 0 #07080a,2px 0 0 0 #07080a,0 6px 0 0 rgba(0,0,0,.55)}
 .ovl-h{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
@@ -1277,6 +1277,26 @@ body.playhud .ovl-go .note{margin:0;flex:none}
   body.playhud .ovl-go .note{font-size:11.5px}
 }
 /* điện thoại cầm dọc: nhắc xoay ngang */
+/* hướng dẫn thêm game vào màn hình chính (2026.11.08-17) */
+#a2hs{z-index:60}
+#a2hs .card{max-width:440px;margin-top:24px;margin-bottom:24px;gap:12px;border:0;border-radius:0;background:#101319;box-shadow:0 -3px 0 0 #9fc1e6,0 3px 0 0 #9fc1e6,-3px 0 0 0 #9fc1e6,3px 0 0 0 #9fc1e6,0 -5px 0 0 #07080a,0 5px 0 0 #07080a,-5px 0 0 0 #07080a,5px 0 0 0 #07080a,0 10px 0 0 rgba(0,0,0,.55)}
+#a2hs .btn.primary{background:#1f2c40;color:#fff;--pxb:#9fc1e6;--pxd:rgba(0,0,0,.5);--pxh:rgba(255,255,255,.08)}
+#a2hs .btn.primary:hover{background:#26364d}
+#a2hs .btn.primary small{color:#cfe0f3}
+#a2hs h2{margin:0}
+.a2-top{display:flex;align-items:center;gap:14px}
+.a2-ico{flex:none;width:56px;height:56px;image-rendering:pixelated;box-shadow:0 0 0 2px #07080a,0 0 0 4px #9fc1e6}
+.a2-os{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.a2-os .btn,.a2-big{justify-items:center;text-align:center;padding:14px 8px}
+.a2-steps{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:a2}
+.a2-steps li{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;counter-increment:a2;font-size:14px;line-height:1.5}
+.a2-steps li::before{content:counter(a2);display:grid;place-items:center;width:26px;height:26px;background:#1f2c40;color:#cfe0f3;font:400 20px/1 var(--mono);box-shadow:0 0 0 2px #07080a}
+.a2-k{display:inline-flex;align-items:center;gap:5px;padding:0 6px;background:#1b2230;box-shadow:0 0 0 1px #2d3a50;white-space:nowrap;font-weight:600;color:#e8eef6}
+.a2-k svg{width:14px;height:14px;flex:none}
+.a2-warn{padding:8px 10px;background:rgba(209,168,90,.1);box-shadow:inset 3px 0 0 #d1a85a;font-size:13px;line-height:1.5}
+.a2-alt{justify-self:start;padding:0;background:none;border:0;color:#9fc1e6;text-decoration:underline;font-size:13px;cursor:pointer}
+.a2-foot{display:flex;gap:8px;flex-wrap:wrap}
+.a2-foot .btn{flex:1 1 0;text-align:center;justify-items:center}
 #rotate{display:none}
 @media (orientation:portrait) and (max-width:640px) and (hover:none){
   body.playhud #rotate{position:fixed;inset:0;z-index:200;display:grid;place-items:center;align-content:center;gap:18px;padding:24px;text-align:center;background:#050608;color:#e8eef6}
@@ -1383,6 +1403,7 @@ body.playhud .ovl-go .note{margin:0;flex:none}
 </div></div>
 <div id="toast" hidden></div>
 <div id="rotate" role="alert"><div class="rt-ph" aria-hidden="true"></div><b>Xoay ngang điện thoại</b><p>Ngôi Làng Ăn Thịt chơi ở màn hình ngang. Ván vẫn đứng yên chờ bạn.</p></div>
+<div class="veil" id="a2hs" hidden><div class="card" id="a2hsCard" role="dialog" aria-label="Thêm game vào màn hình chính"></div></div>
 <button id="logFab" class="logfab" hidden aria-label="Xem lại diễn biến vừa rồi"><svg class="i"><use href="#i-scroll"/></svg><span>Diễn biến</span></button>
 <div class="veil" id="pop" hidden><div class="card popcard" id="popCard"></div></div>
 <div class="veil" id="end" hidden><div class="card" id="endCard"></div></div>
@@ -6177,7 +6198,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.08-16';
+var GAME_VERSION = '2026.11.08-17';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -8372,7 +8393,7 @@ function moreBody() {
       var seg = function (cur, opts, key) { return '<div class="segrow">' + opts.map(function (o) { return '<button class="btn sm' + (cur === o[0] ? ' primary' : '') + '" data-ui="' + key + ':' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>'; };
       b += '<div><h3 class="gh">Hiển thị</h3><p class="note">Hiện danh sách nút thay cho tranh (cho ai khó bấm vào tranh hoặc dùng trình đọc màn hình)</p>' + seg(av, [['scene', 'Tắt'], ['list', 'Bật']], 'setview') + '</div>';
     })();
-    b += '<div class="setlist">' + (FS.can() ? '<button class="act" data-ui="fullscreen"><span class="l"><span class="ico">' + ico('eye') + '</span>' + (FS.on() ? 'Thoát toàn màn hình' : 'Chơi toàn màn hình') + '</span></button>' : '') + '<button class="act" data-open="guide"><span class="l"><span class="ico">' + ico('scroll') + '</span>Hướng dẫn</span></button><button class="act" data-ui="coach"><span class="l"><span class="ico">' + ico('compass') + '</span>Chỉ dẫn từng bước</span></button><button class="act" data-open="prof"><span class="l"><span class="ico">' + ico('star') + '</span>Thành tựu &amp; cây ending</span></button>' +
+    b += '<div class="setlist">' + (FS.can() ? '<button class="act" data-ui="fullscreen"><span class="l"><span class="ico">' + ico('eye') + '</span>' + (FS.on() ? 'Thoát toàn màn hình' : 'Chơi toàn màn hình') + '</span></button>' : '') + (A2HS.avail() ? '<button class="act" data-a2="open"><span class="l"><span class="ico">' + ico('pin') + '</span>Thêm game vào màn hình chính</span></button>' : '') + '<button class="act" data-open="guide"><span class="l"><span class="ico">' + ico('scroll') + '</span>Hướng dẫn</span></button><button class="act" data-ui="coach"><span class="l"><span class="ico">' + ico('compass') + '</span>Chỉ dẫn từng bước</span></button><button class="act" data-open="prof"><span class="l"><span class="ico">' + ico('star') + '</span>Thành tựu &amp; cây ending</span></button>' +
       (UI.confirmRestart ? '<div class="offer care"><b>Chơi lại sẽ bỏ ván đang chơi. Chắc chưa?</b><div class="list"><button class="act danger" data-restart="1"><span class="l">Chơi lại từ đầu</span></button><button class="act" data-ui="restartno"><span class="l">Thôi, chơi tiếp</span></button></div></div>' : '<button class="act danger" data-ui="restartask"><span class="l"><span class="ico">' + ico('door') + '</span>Chơi lại từ đầu</span></button>') + '</div>';
     b += '<div><h3 class="gh">Năng lực của bạn</h3><div class="abil2">' + ABIL_HTML + '</div></div>';
     b += '<p class="note">' + (G && !G.isBackdrop ? 'Mã ván ' + esc(gameCode(G)) + ' · ' : '') + 'Phiên bản ' + GAME_VERSION + '</p>';
@@ -8760,7 +8781,7 @@ document.addEventListener('scroll', function () { if (UI.coach != null) coachUpd
 var FS = (function () {
   var d = document.documentElement;
   function on() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
-  function can() { return !!(d.requestFullscreen || d.webkitRequestFullscreen) && !(window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
+  function can() { return !!(d.requestFullscreen || d.webkitRequestFullscreen) && !(window.matchMedia && (matchMedia('(display-mode: standalone)').matches || (matchMedia('(display-mode: fullscreen)').matches && !on()))); }
   function lock() { try { if (screen.orientation && screen.orientation.lock && matchMedia('(hover:none)').matches) { var pl = screen.orientation.lock('landscape'); if (pl && pl.catch) pl.catch(function () { }); } } catch (e) { } }
   function go() {
     if (!can() || on()) return;
@@ -8770,12 +8791,87 @@ var FS = (function () {
   ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (ev) { document.addEventListener(ev, function () { try { if (UI.setPop) renderSetPop(); } catch (e) { } }); });
   return { on: on, can: can, go: go, toggle: function () { if (on()) exit(); else go(); } };
 })();
+/* thêm game vào màn hình chính: lần đầu mở link trên máy cảm ứng đang cầm dọc thì hiện hướng dẫn theo loại máy (tự nhận iPhone/Android, chưa rõ thì hỏi).
+   Không hỏi khi: đang mở từ biểu tượng ngoài màn hình chính, máy đang ngang, hoặc đã đóng một lần (Bỏ qua/Xong). Mở lại ở Cài đặt.
+   Mở trong Messenger/Zalo/Facebook…: hướng dẫn mở bằng trình duyệt trước. Android Chrome có hộp cài thì cho nút Cài game một chạm. */
+var A2HS = (function () {
+  var KEY = 'artos_a2hs_v1', ua = navigator.userAgent || '', bip = null, os = null, done = false, copied = false;
+  var IOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1), AND = /Android/i.test(ua);
+  var INAPP = /Zalo/i.test(ua) ? 'Zalo' : /Messenger|Orca-Android/i.test(ua) ? 'Messenger' : /Instagram/i.test(ua) ? 'Instagram' : /FBAN|FBAV|FB_IAB|FBIOS/.test(ua) ? 'Facebook' : /TikTok|musical_ly|Bytedance/i.test(ua) ? 'TikTok' : /\bLine\//.test(ua) ? 'LINE' : '';
+  var SV = {
+    share: '<svg viewBox="0 0 14 14" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><path d="M6 1h2v1h1v1h1v1H8v5H6V4H4V3h1V2h1zM2 6h3v1H3v5h8V7H9V6h3v7H2z"/></svg>',
+    plus: '<svg viewBox="0 0 14 14" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M1 1h12v12H1zM2 2v10h10V2zM6 4h2v2h2v2H8v2H6V8H4V6h2z"/></svg>',
+    dotv: '<svg viewBox="0 0 14 14" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><path d="M6 1h2v2H6zM6 6h2v2H6zM6 11h2v2H6z"/></svg>',
+    doth: '<svg viewBox="0 0 14 14" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"><path d="M1 6h2v2H1zM6 6h2v2H6zM11 6h2v2h-2z"/></svg>'
+  };
+  function k(icon, txt) { return '<span class="a2-k">' + (icon ? SV[icon] : '') + (txt || '') + '</span>'; }
+  function mm(q) { try { return matchMedia(q).matches; } catch (e) { return false; } }
+  function standalone() { return navigator.standalone === true || mm('(display-mode: standalone)') || (mm('(display-mode: fullscreen)') && !FS.on()); }
+  function avail() { return mm('(pointer:coarse)') && mm('(hover:none)') && !standalone() && window.top === window; }
+  function seen() { try { return localStorage.getItem(KEY) === '1'; } catch (e) { return false; } }
+  function mark() { try { localStorage.setItem(KEY, '1'); } catch (e) { } }
+  function hasSave() { try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; } }
+  function isOpen() { var el = $('a2hs'); return !!(el && !el.hidden); }
+  var WHY = '<p class="note">Chơi từ biểu tượng ngoài màn hình chính thì game phủ kín màn hình như ứng dụng, không vướng thanh địa chỉ.</p>';
+  function render() {
+    var h = '<div class="a2-top"><img class="a2-ico" src="pwa/icon-192.png" alt="" onerror="this.remove()"><div><div class="eyebrow">' + (done ? 'Xong' : 'Trước khi vào làng') + '</div><h2>' + (done ? 'Đã thêm vào màn hình chính' : 'Thêm game vào màn hình chính') + '</h2></div></div>';
+    var foot = '<button class="btn" data-a2="skip"><b>Bỏ qua</b></button>';
+    if (done) {
+      h += '<p class="note">Thoát trình duyệt rồi mở <b>Làng Ăn Thịt</b> bằng biểu tượng mới ngoài màn hình chính. Game sẽ phủ kín màn hình' + (os === 'and' ? ' và tự xoay ngang' : '') + '.</p>';
+      foot = '<button class="btn primary" data-a2="skip"><b>Đóng</b></button>';
+    } else if (INAPP) {
+      h += '<p class="note">Bạn đang mở link trong ' + INAPP + '. Trình duyệt bên trong ứng dụng này không thêm game vào màn hình chính được.</p>';
+      h += '<ol class="a2-steps"><li><span>Bấm nút ' + k('doth') + ' hoặc ' + k('dotv') + ' ở góc màn hình.</span></li><li><span>Chọn ' + k('', 'Mở bằng trình duyệt') + ' (hoặc <b>Mở trong ' + (IOS ? 'Safari' : 'Chrome') + '</b>).</span></li><li><span>Trình duyệt mở ra sẽ hiện tiếp cách thêm game vào màn hình chính.</span></li></ol>';
+      h += '<p class="note">Không thấy nút đó? Chép link rồi dán vào ' + (IOS ? 'Safari' : 'Chrome') + '.</p>';
+      h += '<div class="a2-foot">' + (AND ? '<button class="btn primary" data-a2="chrome"><b>Mở bằng Chrome</b></button>' : '') + '<button class="btn' + (AND ? '' : ' primary') + '" data-a2="copy"><b>' + (copied ? 'Đã chép link' : 'Chép link') + '</b></button></div>';
+    } else if (!os) {
+      h += WHY + '<p class="note">Bạn đang dùng máy nào?</p><div class="a2-os"><button class="btn a2-big" data-a2="os:ios"><b>iPhone / iPad</b><small>iOS</small></button><button class="btn a2-big" data-a2="os:and"><b>Android</b><small>Samsung, Xiaomi, Oppo…</small></button></div>';
+    } else if (os === 'ios') {
+      h += WHY + '<ol class="a2-steps">' +
+        '<li><span>Bấm nút ' + k('share', 'Chia sẻ') + '. Safari: ở thanh dưới cùng (iOS mới thì bấm ' + k('doth') + ' trước). Chrome: góc trên bên phải.</span></li>' +
+        '<li><span>Kéo xuống, chọn ' + k('plus', 'Thêm vào MH chính') + '.</span></li>' +
+        '<li><span>Bật <b>Mở dưới dạng ứng dụng web</b> nếu thấy, rồi bấm <b>Thêm</b>.</span></li>' +
+        '<li><span>Mở game bằng biểu tượng mới ngoài màn hình chính.</span></li></ol>';
+      h += '<div class="a2-warn">Ván chơi và thành tựu ở trình duyệt không mang sang biểu tượng mới: hai bên lưu riêng.' + (hasSave() ? ' Bạn đang có ván dở ở đây, mở bằng biểu tượng sẽ là ván mới.' : '') + '</div>';
+      h += '<button class="a2-alt" data-a2="os:and">Không phải iPhone? Xem cách cho Android</button>';
+    } else {
+      h += WHY;
+      if (bip) h += '<button class="btn primary a2-big" data-a2="install"><b>Cài game</b><small>Một chạm, không cần cửa hàng ứng dụng</small></button><p class="note">Không thấy hộp cài hiện lên thì làm tay:</p>';
+      h += '<ol class="a2-steps">' +
+        '<li><span>Bấm nút ' + k('dotv') + ' ở góc trên bên phải Chrome.</span></li>' +
+        '<li><span>Chọn ' + k('plus', 'Thêm vào màn hình chính') + ' (hoặc <b>Cài đặt ứng dụng</b>).</span></li>' +
+        '<li><span>Bấm <b>Cài đặt</b> hoặc <b>Thêm</b>.</span></li>' +
+        '<li><span>Mở game bằng biểu tượng mới: game tự xoay ngang, phủ kín màn hình.</span></li></ol>';
+      h += '<p class="note">Trình duyệt Samsung: bấm nút ≡ ở dưới → <b>Thêm trang vào</b> → <b>Màn hình chính</b>.</p>';
+      h += '<button class="a2-alt" data-a2="os:ios">Không phải Android? Xem cách cho iPhone</button>';
+    }
+    h += '<div class="a2-foot">' + foot + '</div>';
+    $('a2hsCard').innerHTML = h;
+  }
+  function show() { os = IOS ? 'ios' : AND ? 'and' : null; done = false; copied = false; render(); $('a2hs').hidden = false; }
+  function close() { mark(); $('a2hs').hidden = true; }
+  function auto() { if (avail() && !seen() && mm('(orientation: portrait)')) show(); }
+  window.addEventListener('beforeinstallprompt', function (e) { bip = e; if (isOpen()) render(); });
+  window.addEventListener('appinstalled', function () { bip = null; done = true; mark(); if (isOpen()) render(); });
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('[data-a2]'); if (!t) return;
+    var a = t.getAttribute('data-a2');
+    if (a === 'open') show();
+    else if (a === 'skip') close();
+    else if (a.indexOf('os:') === 0) { os = a.slice(3); render(); $('a2hsCard').scrollIntoView && $('a2hs').scrollTo(0, 0); }
+    else if (a === 'install' && bip) { var ev = bip; ev.prompt(); (ev.userChoice || Promise.resolve({})).then(function (c) { if (c && c.outcome === 'accepted') { done = true; mark(); } bip = null; render(); }, function () { }); }
+    else if (a === 'chrome') location.href = 'intent://' + location.host + location.pathname + location.search + '#Intent;scheme=https;package=com.android.chrome;end';
+    else if (a === 'copy') { var u = location.href.split('#')[0]; var ok = function () { copied = true; render(); }; try { navigator.clipboard.writeText(u).then(ok, function () { window.prompt('Chép link này:', u); }); } catch (x) { window.prompt('Chép link này:', u); } }
+  });
+  return { auto: auto, avail: avail, show: show };
+})();
 (function () { function fit() { try { document.documentElement.style.setProperty('--vh', window.innerHeight + 'px'); } catch (e) { } } fit(); window.addEventListener('resize', fit); window.addEventListener('orientationchange', function () { setTimeout(fit, 300); }); if (window.visualViewport) visualViewport.addEventListener('resize', fit); })();
 sndLabel();
 // khung nền phía sau màn mở đầu
 G = createGame('center', selProt); G.isBackdrop = true;
 render();
 renderIntro();
+A2HS.auto();
 </script>
 
 <script>
