@@ -728,6 +728,29 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 #introSelect{display:grid;gap:12px}
 #introSelect[hidden]{display:none}
 #introHome[hidden]{display:none}
+/* tranh mở đầu tràn mép: ngang = tranh phủ cả màn, nút đè dưới; điện thoại dọc = tranh hết bề ngang ở trên, mờ dần vào nền tối */
+#intro{overflow-x:hidden}
+#intro .homeart{box-shadow:none;max-width:none}
+@media (orientation:landscape){
+  #intro .ihome{position:relative;z-index:1;min-height:calc(100dvh - 48px);align-content:end}
+  #intro .homeart{position:fixed;inset:0;width:100%;height:100%;aspect-ratio:auto;object-fit:cover;object-position:50% 40%;z-index:-2}
+  #intro .ihome::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(to bottom,rgba(3,4,6,0) 30%,rgba(3,4,6,.72) 62%,rgba(3,4,6,.94) 100%)}
+  #intro .ihome .ititle,#intro .ihome .note,#intro .ihome .eyebrow{text-shadow:0 2px 0 #000}
+}
+@media (orientation:landscape) and (max-height:560px){
+  #intro .ihome{gap:8px}
+  #intro .ihome>.choices{display:flex;flex-wrap:wrap;gap:8px}
+  #intro .ihome>.choices>.btn,#intro .ihome>.choices>#continueBox{flex:1 1 180px}
+  #intro .ihome>.choices>#continueBox:empty{display:none}
+  #intro .ihome .note{display:none}
+}
+@media (orientation:portrait){
+  #intro{padding-top:0}
+  #intro .introcard{margin-top:0;padding-top:0}
+  #introSelect{padding-top:max(24px,env(safe-area-inset-top,0px))}
+  #intro .homeart{width:100vw;height:auto;aspect-ratio:auto;margin-left:calc(50% - 50vw);margin-bottom:-10vw;-webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 100%);mask-image:linear-gradient(to bottom,#000 55%,transparent 100%)}
+  #intro .ihome .eyebrow{position:relative}
+}
 .prot{border-radius:14px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(160deg,#30343c,#1e2026);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 3px 0 rgba(0,0,0,.35)}
 .prot.sel{border-color:rgba(var(--acc-rgb),.8);background:linear-gradient(160deg,#2c3a4f,#1b212b);box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 3px 0 rgba(0,0,0,.35),0 0 18px rgba(var(--acc-rgb),.2)}
 .prot .av{border-radius:50%;border:0;background:linear-gradient(135deg,var(--p1),var(--p2));color:var(--on-p);font-weight:700}
@@ -4829,7 +4852,7 @@ function listActions(G) {
     ['harvest', 'Ngăn thực phẩm +1 ô', 0, null], ['mystery', 'Hồi đầy HP, miễn hiệu ứng xấu 1 giờ', 0, null],
     ['irondoor', 'Nhà dân đang ở thêm 60 phút an toàn', 0, inHouseOk ? null : 'Chỉ dùng được trong nhà dân còn an toàn.'],
     ['bandage', 'Chữa mọi hiệu ứng xấu, miễn nhiễm 30 phút', 5, null], ['compass', 'Cho biết nơi nào trong khu còn rương, còn bao nhiêu', 5, null],
-    ['census', '2 tiếng: tới đâu cũng thấy ngay ai ở đó', 0, null], ['swift', '3 lần di chuyển trong khu không tốn phút', 0, null],
+    ['census', '2 tiếng: tới đâu cũng thấy ngay ai ở đó', 0, null], ['swift', '3 lần di chuyển cả nhóm trong khu không tốn phút', 0, null],
     ['knuckle', '+2 sức mạnh trong 1 tiếng, cả khi đánh quỷ', 0, p.knuckle ? 'Đang có hiệu lực.' : null], ['pouch', 'Ngăn thẻ +1, thực phẩm +2', 0, null]].forEach(function (c) {
     if (p.cards[c[0]] > 0) add('card', 'card:' + c[0], 'Dùng <' + CARDN[c[0]] + '> ×' + p.cards[c[0]], c[2], c[1], c[3]);
   });
@@ -5002,7 +5025,7 @@ function doActionCore(G, id) {
       say(G, G.locs[to].expired ? 'Căn nhà im lặng đến lạnh người, mùi tanh nồng nặc.' : 'Bạn vào nhà lúc ' + fmtT(G.t + STEP) + '. Lửa bếp ấm áp.', G.locs[to].expired ? 'warn' : 'info');
     }
     var leftHouse = l.type === 'house';
-    if (fast) { var rr = advance(G, 0); } else run(5);
+    if (fast) { G.players.forEach(function (b) { if (!b.human) followHuman(G, b); }); var rr = advance(G, 0); } else run(5);   /* Swift Step: cả nhóm theo sang ngay */
     if (G.over) return;
     if (leftHouse) story(G, 'houseExit', '"Không vào lại được nữa. Vậy là mỗi nhà chỉ trú được một lần. Lần sau trước khi vào đâu, mình bàn với nhau đã."',
       '"Cửa không mở lại nữa... Vậy mỗi nhà chỉ trốn được một lần thôi hả anh?"');
@@ -5451,7 +5474,8 @@ function doActionCore(G, id) {
       say(G, 'Bạn câu được ' + fi + (fitF ? '' : ', nhưng ngăn thực phẩm đã đầy nên thả lại xuống sông') + '. Bảng sưu tập: ' + p.fishBoard.length + '/6.', 'good');
       if (p.fishBoard.length === FISH.length && !p.fishDone) {
         p.fishDone = true; p.cards.mystery++; p.cards.enigma++; completeQuest(G, p, 'pier');
-        say(G, 'Bảng cá hoàn tất! Ông câu cá đưa bạn thẻ <Riverheart> kèm một tấm thẻ không hình vẽ, chỉ ghi <Mystery>, rồi nói chậm rãi: "Ngày xưa làng có một lá bùa, giờ vỡ thành nhiều mảnh tản mát khắp nơi. Hai mảnh ghép lại là thành bùa. Mang bùa đến cái chuông cũ ở nhà họp làng mà rung lên, điều kì diệu sẽ xảy ra. Nhớ giữ kỹ tấm thẻ kia."', 'good');
+        say(G, 'Bảng cá hoàn tất! Ông câu cá đưa bạn thẻ <Riverheart> kèm một tấm thẻ không hình vẽ, chỉ ghi <Mystery>.', 'good');
+        say(G, 'Ông câu cá nói chậm rãi: "Ngày xưa làng có một lá bùa, giờ vỡ thành nhiều mảnh tản mát khắp nơi. Hai mảnh ghép lại là thành bùa. Mang bùa đến cái chuông cũ ở nhà họp làng mà rung lên, điều kì diệu sẽ xảy ra. Nhớ giữ kỹ tấm thẻ kia."', 'good');
       }
     }
     return;
@@ -6153,7 +6177,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.08-13';
+var GAME_VERSION = '2026.11.08-16';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7548,9 +7572,11 @@ var PROLOGUE = (function () {
 function popQuiet() { try { return localStorage.getItem('artos_popquiet') === '1'; } catch (e) { return false; } }
 function notable(items) { items = items.filter(function (e) { return e.tone !== 'me'; }); return items.length > 1 || items.some(function (e) { return e.tone !== 'info' && e.tone !== 'sys'; }); }
 /* dòng có người nói: "Tên … "lời"" (người chơi khác, không phải bạn) */
+var VN_NPC = ['Ông câu cá'];   /* dân làng đã có chân dung riêng */
 function speakerOf(e) {
   if (!G || !e || e.tone === 'me') return null;
-  var m = /^([A-Z][A-Za-z]+)[^"]{0,70}"/.exec(String(e.text || ''));
+  var t0 = String(e.text || ''); for (var vi = 0; vi < VN_NPC.length; vi++) if (t0.indexOf(VN_NPC[vi]) === 0 && /^[^"]{0,70}"/.test(t0)) return VN_NPC[vi];
+  var m = /^([A-Z][A-Za-z]+)[^"]{0,70}"/.exec(t0);
   if (!m) return null;
   return G.players.some(function (q) { return q.name === m[1] && !q.human; }) ? m[1] : null;
 }
@@ -7863,7 +7889,7 @@ var CARD_DESC = {
   hunter: 'Radar 4 tiếng: báo khu sẽ bị nhiễm kế tiếp và cảnh báo khi quỷ sắp tới.', harvest: 'Ngăn thực phẩm +1 ô, kèm 1–3 thực phẩm và 1–2 thảo dược.', mystery: 'Hồi đầy máu, miễn hiệu ứng xấu 1 giờ.',
   enigma: 'Một tấm thẻ trống, chỉ ghi chữ Mystery. Đồ đặc biệt: không bán, cho hay đổi được.', irondoor: 'Nhà dân đang ở được yên thêm 60 phút.', smoke: 'Thoát khỏi một trận ẩu đả, hoặc thoát khi bị đồng đội cướp đồ mà vẫn giữ được đồ.',
   bandage: 'Chữa mọi hiệu ứng xấu, tẩy mùi máu, miễn nhiễm hiệu ứng xấu 30 phút.', compass: 'Báo nơi nào trong khu còn rương, còn bao nhiêu.', census: '2 tiếng: tới đâu cũng thấy ngay ai ở đó.',
-  swift: '3 lần đi lại trong khu không tốn phút.', knuckle: '+2 sức mạnh trong 1 tiếng, cả khi đánh quỷ.', pouch: 'Ngăn thẻ +1 ô, ngăn thực phẩm +2 ô.', material: 'Đổi lấy 80 tiền ở Chợ.'
+  swift: '3 lần đi lại trong khu không tốn phút, cả nhóm đi cùng bạn.', knuckle: '+2 sức mạnh trong 1 tiếng, cả khi đánh quỷ.', pouch: 'Ngăn thẻ +1 ô, ngăn thực phẩm +2 ô.', material: 'Đổi lấy 80 tiền ở Chợ.'
 };
 function reEsc(n) { return n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 /* tô màu tên: bạn, nhân vật chính còn lại, người chơi khác */
@@ -8266,6 +8292,7 @@ var ACH = [
   { id: 'traitor', name: 'Kẻ phản bội', desc: 'Ra tay với người đang đi cùng mình 3 lần', goal: 3, cur: function (P) { return T(P, 'betrayOther'); } },
   { id: 'beggar', name: 'Kẻ xin xỏ', desc: 'Xin đồ từ 6 người khác nhau trong một ván', goal: 6, cur: function (P) { return Bv(P, 'askPeople'); } },
   { id: 'picky', name: 'Kén cá chọn canh', desc: 'Cho người vào đội rồi đuổi đi tổng cộng 5 lần', goal: 5, cur: function (P) { return T(P, 'kicks'); } },
+  { id: 'oneGame', name: 'Một ván nhớ đời', desc: 'Mở khoá 8 thành tựu mới trong cùng một ván', goal: 8, cur: function (P) { return Bv(P, 'newAch'); } },
   { id: 'endings4', name: 'Bốn ngả', desc: 'Mở khoá 4 ending', goal: 4, cur: endCount },
   { id: 'endingsAll', name: 'Trọn vẹn', desc: 'Mở khoá cả 21 ending', goal: 21, cur: endCount }
 ];
@@ -8298,6 +8325,8 @@ function recordGame(G) {
   if (G.endKey && ENDINGS[G.endKey]) { var had = P.endings[G.endKey]; P.endings[G.endKey] = { n: (had ? had.n : 0) + 1, as: had ? had.as : p.name, leon: (had && had.leon) || (survived0 && G.leonCoda === 'out') }; if (!had) newE = G.endKey; }
   var newA = [];
   ACH.forEach(function (a) { if (!P.ach[a.id] && a.cur(P) >= a.goal) { P.ach[a.id] = 1; newA.push(a); } });
+  best('newAch', newA.length);   /* kỷ lục số thành tựu mới trong một ván */
+  ACH.forEach(function (a) { if (a.id === 'oneGame' && !P.ach[a.id] && a.cur(P) >= a.goal) { P.ach[a.id] = 1; newA.push(a); } });
   saveProf();
   G.newUnlocks = { ending: newE, ach: newA };
 }
@@ -9183,6 +9212,8 @@ const NPCS = [
     cloth: { c: C('#4a6a8a', '#34506a', '#5e82a6'), t: 'tee', apron: ['#c9a24a', '#a8842e'] } }],
   ['Thợ rèn làng', 'Lửa lò không bao giờ tắt, kể cả lúc nửa đêm', { sex: 'm', skin: 'brown', hair: 'bald', hairColor: 'black', facial: 'goatee', thickBrow: true, brow: 'angry', jaw: 'square', mouth: 'flat', soot: true,
     cloth: { c: C('#3a2a22', '#241a14', '#4e3a2e'), t: 'tank', apron: ['#5a3a20', '#3e2614'] } }],
+  ['Ông câu cá', 'Ngồi câu ở chòi gỗ bên sông, ít khi ngẩng lên nhìn người lạ', { sex: 'm', skin: 'tan', hair: 'short', hairColor: 'gray', hat: 'straw', eye: 'tired', facial: 'beard', beardColor: 'gray', mouth: 'flat', wrinkles: true, thickBrow: true, browColor: '#bdb6aa',
+    cloth: { c: C('#3e4a52', '#2a343a', '#56646e'), t: 'collar' } }],
   ['Dân làng', 'Ai cũng chào bạn bằng cùng một nụ cười', { sex: 'f', skin: 'light', hair: 'bun', hairColor: 'dkbrown', eye: 'blank', mouth: 'wide', noLash: true,
     cloth: { c: C('#7a6a52', '#5a4e3c', '#94826a'), t: 'crew' } }],
   ['Quỷ', 'Dân làng đã Nhiễm quỷ: da xám, mắt đỏ, răng nhọn', { sex: 'm', skin: 'ash', hair: 'messy', hairColor: 'black', eye: 'demon', mouth: 'fangs', brow: 'angry', veins: '#4a3a5a', blood: true, outline: '#1a0b0e',
@@ -9665,6 +9696,7 @@ const G = {
   run: (g) => { g.poly([[2, 4], [5, 4], [6, 8], [10, 8], [10, 10], [2, 10]], W); [[0, 2], [0, 5], [0, 8]].forEach(([x, y]) => g.line(x, y, x + 1, y, '#9fc1e6')); g.poly([[6, 5], [11, 1], [9, 5]], '#9fc1e6'); },
   drop: (g) => { g.poly([[6, 0], [10, 7], [2, 7]], '#7ac04e'); g.ell(6, 8, 4, 3.4, '#7ac04e'); g.px(4, 7, '#c4f090'); g.rect(5, 7, 2, 2, '#2a3a1e'); },
   fist: (g) => { g.rect(2, 3, 8, 6, W); [3, 5, 7].forEach(x => g.px(x + 1, 4, W2)); g.rect(1, 5, 2, 3, W); g.rect(3, 9, 6, 2, W2); },
+  crown: (g) => { g.poly([[1, 3], [3.5, 7], [6, 2], [8.5, 7], [11, 3], [10, 10], [2, 10]], '#e2b85a'); g.rect(2, 9, 8, 2, '#a8843e'); g.px(1, 2, W); g.px(6, 1, W); g.px(11, 2, W); g.px(6, 7, '#d06a5c'); },
   target: (g) => { g.ell(6, 6, 5.5, 5.5, '#d06a5c'); g.ell(6, 6, 3.8, 3.8, '#14161b'); g.ell(6, 6, 2.2, 2.2, '#d06a5c'); g.px(6, 6, W); },
   hand: (g) => { g.rect(3, 5, 6, 6, W); [3, 5, 7].forEach(x => g.rect(x, 1, 1, 4, W)); g.rect(9, 4, 1, 4, W); g.rect(3, 7, 6, 4, '#d06a5c'); g.px(5, 11, '#8a2a24'); },
   chest: (g) => { g.rect(1, 5, 10, 6, '#7a5232'); g.poly([[1, 5], [2, 2], [10, 2], [11, 5]], '#a8784a'); g.rect(5, 4, 2, 3, GOLD[1]); g.rect(1, 7, 10, 1, '#3a2614'); },
@@ -9708,7 +9740,7 @@ const ACH = [
   ['Bốn ngả', 'paths', 'ice'], ['Trọn vẹn', 'star', 'blood'],
   ['Ba người giữ nổi một con', 'chainlink', 'blood'], ['Sòng phẳng', 'scales', 'ice'], ['Liên minh ba người', 'trio', 'ice'], ['Kẻ bội ước', 'torn', 'blood'],
   ['Kẻ bán đứng', 'brokenchain', 'blood'], ['Người ngây thơ', 'palm', 'bronze'], ['Đòi lại', 'pullback', 'ice'], ['Nhìn người', 'eye', 'ice'],
-  ['Kẻ phản bội', 'dagger', 'blood'], ['Kẻ xin xỏ', 'bowlcoin', 'bronze'], ['Kén cá chọn canh', 'doorout', 'bronze'],
+  ['Kẻ phản bội', 'dagger', 'blood'], ['Kẻ xin xỏ', 'bowlcoin', 'bronze'], ['Kén cá chọn canh', 'doorout', 'bronze'], ['Một ván nhớ đời', 'crown', 'blood'],
 ];
 
 /* ================= ENDING ================= */
@@ -10085,7 +10117,7 @@ function faceURL(name) { return url('f:' + name, function () { return POR.portra
 function faceImg(name, cls) { return '<img class="pix a2face ' + (cls || '') + '" src="' + faceURL(name) + '" alt="">'; }
 function iconURL(k) { return AR.I[k] ? url('i:' + k, AR.I[k]) : ''; }
 function statusURL(k) { return AR.S[k] ? url('st:' + k, AR.S[k]) : ''; }
-var ACH_BADGE = ['first', 'survive', 'survive5', 'explorer', 'hunt1', 'hunt10', 'boss', 'bitten', 'escape', 'poison', 'brawler', 'target', 'blood', 'chest', 'shard', 'amulet', 'clear', 'bell', 'farm', 'fish', 'armed', 'party', 'trader', 'traveler', 'shelter', 'nurse', 'cards', 'wall', 'endings4', 'endingsAll', 'leonChain', 'leonFair', 'leonTrio', 'leonOathbreak', 'leonBetray', 'naive', 'payback', 'readpeople', 'traitor', 'beggar', 'picky'];
+var ACH_BADGE = ['first', 'survive', 'survive5', 'explorer', 'hunt1', 'hunt10', 'boss', 'bitten', 'escape', 'poison', 'brawler', 'target', 'blood', 'chest', 'shard', 'amulet', 'clear', 'bell', 'farm', 'fish', 'armed', 'party', 'trader', 'traveler', 'shelter', 'nurse', 'cards', 'wall', 'endings4', 'endingsAll', 'leonChain', 'leonFair', 'leonTrio', 'leonOathbreak', 'leonBetray', 'naive', 'payback', 'readpeople', 'traitor', 'beggar', 'picky', 'oneGame'];
 function achBadgeURL(id) { var i = ACH_BADGE.indexOf(id); return i < 0 ? '' : badgeURL(i); }
 function badgeURL(i) { var a = AR.ACH[i]; return a ? url('b:' + i, function () { return AR.badge(AR.G[a[1]], a[2]); }) : ''; }
 function emblemURL(k) { return url('em:' + k, function () { return AR.emblem(k); }); }
