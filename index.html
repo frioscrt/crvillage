@@ -6198,7 +6198,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.08-17';
+var GAME_VERSION = '2026.11.08-20';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7593,10 +7593,27 @@ var PROLOGUE = (function () {
 function popQuiet() { try { return localStorage.getItem('artos_popquiet') === '1'; } catch (e) { return false; } }
 function notable(items) { items = items.filter(function (e) { return e.tone !== 'me'; }); return items.length > 1 || items.some(function (e) { return e.tone !== 'info' && e.tone !== 'sys'; }); }
 /* dòng có người nói: "Tên … "lời"" (người chơi khác, không phải bạn) */
-var VN_NPC = ['Ông câu cá'];   /* dân làng đã có chân dung riêng */
+/* dân làng có thoại: lời mở đầu → chân dung (tên trong bảng NPC); thẻ tên bỏ chữ "Một" ở đầu */
+var VN_FACE = { 'Ông câu cá': 'Ông câu cá', 'Trưởng làng': 'Trưởng làng', 'Người canh gác': 'Người canh cổng', 'Thương nhân': 'Người bán chợ', 'Thợ rèn': 'Thợ rèn làng', 'Y tá': 'Thầy thuốc', 'Người trông trạm': 'Thầy thuốc',
+  'Dân làng': 'Dân làng', 'Một dân làng': 'Dân làng', 'Bà cụ': 'Bà cụ', 'Một bà lão': 'Một bà lão', 'Bác nông dân': 'Bác nông dân', 'Một nông dân khác': 'Một nông dân khác', 'Bác sĩ': 'Bác sĩ',
+  'Ông từ giữ đình': 'Ông từ giữ đình', 'Ông chủ nhà': 'Ông chủ nhà', 'Một ông lão': 'Một ông lão', 'Đứa trẻ trong nhà': 'Đứa trẻ trong nhà', 'Thợ mỏ': 'Thợ mỏ', 'Người nhà trưởng làng': 'Người nhà trưởng làng' };
+var VN_NPC = Object.keys(VN_FACE).sort(function (a, b) { return b.length - a.length; });
+/* mắt gian: mỗi dân làng một kiểu; khu đang nhiễm hiện 60% số lời, khu yên 10% (Trưởng làng, Dân làng vốn luôn mắt trắng) */
+var EYE_SUS = { 'Người canh cổng': 'narrow', 'Thầy thuốc': 'calm', 'Người bán chợ': 'closed', 'Ông câu cá': 'tired', 'Thợ rèn làng': 'narrow', 'Bà cụ': 'tired', 'Một bà lão': 'closed', 'Bác nông dân': 'calm',
+  'Một nông dân khác': 'narrow', 'Bác sĩ': 'narrow', 'Ông từ giữ đình': 'calm', 'Ông chủ nhà': 'narrow', 'Một ông lão': 'blank', 'Đứa trẻ trong nhà': 'narrow', 'Thợ mỏ': 'tired', 'Người nhà trưởng làng': 'blank' };
+function vnSus(e) {
+  if (!e || !G) return false; UI.sus = UI.sus || {};
+  var k = e.t + '|' + e.text; if (UI.sus[k] == null) {
+    var inf = !!(G.infected && G.players[0] && G.players[0].zone === G.infected), h = 0, t = k + G.seed;
+    for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) >>> 0;
+    UI.sus[k] = (h % 100) < (inf ? 60 : 10);
+  }
+  return UI.sus[k];
+}
+function vnTag(who) { if (!VN_FACE[who]) return who; var t = who.replace(/^Một /, ''); return t.charAt(0).toUpperCase() + t.slice(1); }
 function speakerOf(e) {
   if (!G || !e || e.tone === 'me') return null;
-  var t0 = String(e.text || ''); for (var vi = 0; vi < VN_NPC.length; vi++) if (t0.indexOf(VN_NPC[vi]) === 0 && /^[^"]{0,70}"/.test(t0)) return VN_NPC[vi];
+  var t0 = String(e.text || ''); for (var vi = 0; vi < VN_NPC.length; vi++) if (t0.indexOf(VN_NPC[vi]) === 0 && /^[ :,]/.test(t0.charAt(VN_NPC[vi].length)) && /^[^"]{0,70}"/.test(t0)) return VN_NPC[vi];
   var m = /^([A-Z][A-Za-z]+)[^"]{0,70}"/.exec(t0);
   if (!m) return null;
   return G.players.some(function (q) { return q.name === m[1] && !q.human; }) ? m[1] : null;
@@ -7606,7 +7623,7 @@ function popPages(items) {
   items.forEach(function (e) { var w = speakerOf(e); if (w) { nar = null; pg.push({ who: w, items: [e] }); } else { if (!nar) { nar = { who: null, items: [] }; pg.push(nar); } nar.items.push(e); } });
   return pg;
 }
-function vnFace(who, mood) { if (!/^(Luke|Clevia|Leon)$/.test(who) && window.ART2 && ART2.faceURL) { try { return ART2.faceURL(who); } catch (e) { } } return faceURL(who, mood); }   /* ba nhân vật chính có chân dung theo cảm xúc; người khác dùng chân dung chung */
+function vnFace(who, mood, ent) { if (VN_FACE[who] && window.ART2 && ART2.faceURL) { try { var fn = VN_FACE[who]; return EYE_SUS[fn] && vnSus(ent) ? ART2.faceEyeURL(fn, EYE_SUS[fn]) : ART2.faceURL(fn); } catch (e) { } } if (!/^(Luke|Clevia|Leon)$/.test(who) && window.ART2 && ART2.faceURL) { try { return ART2.faceURL(who); } catch (e) { } } return faceURL(who, mood); }   /* ba nhân vật chính có chân dung theo cảm xúc; người khác dùng chân dung chung */
 function vnBgImg() { var bg = ''; try { bg = sceneURL(G.players[0].loc, ART.skyOf(phaseOf(Math.min(G.t, DAY))[0])); } catch (e) { bg = ''; } return '<div class="vnbg">' + (bg ? '<img class="pix" src="' + bg + '" alt="">' : '') + '</div>'; }
 function pvnDraw() {
   var V = UI.pvn, card = $('popCard'); if (!V || !card.querySelector('.vnbox')) return;
@@ -7615,8 +7632,8 @@ function pvnDraw() {
   box.classList.toggle('c', right); box.classList.toggle('r', right); st.classList.toggle('r', right); st.classList.toggle('hide', !who);
   var va = card.querySelector('.vnart'); if (va) va.hidden = !pg.art;
   st.style.display = pg.art ? 'none' : ''; box.hidden = !!pg.art && !pg.items.length;
-  if (who) { f.src = vnFace(who, 'normal'); f.alt = who; }
-  nm.hidden = !who; nm.textContent = who || '';
+  if (who) { f.src = vnFace(who, 'normal', pg.items[0]); f.alt = who; }
+  nm.hidden = !who; nm.textContent = who ? vnTag(who) : '';
   tx.className = 'vntext' + (who ? '' : ' nar');
   tx.innerHTML = who ? '<p>' + paint(esc(pg.items[0].text)) + '</p>' : pg.items.map(function (e) { return '<p class="' + e.tone + '"><time>' + fmtT(e.t) + '</time>' + paint(esc(e.text)) + '</p>'; }).join('');
   tx.classList.remove('in'); void tx.offsetWidth; tx.classList.add('in');
@@ -9299,17 +9316,39 @@ const CHARS = [
 const NPCS = [
   ['Trưởng làng', 'Ông lão giữ sổ giao thương, nụ cười không chạm tới mắt', { sex: 'm', skin: 'light', hair: 'receding', hairColor: 'white', facial: 'fullbeard', beardColor: 'white', eye: 'blank', mouth: 'smile', wrinkles: true, thickBrow: true, browColor: '#c4c4c0',
     cloth: { c: C('#5a3e2e', '#3e2a1e', '#74523e'), t: 'v', inner: '#a8926a', necklace: '#c9a24a' } }],
-  ['Người canh cổng', 'Đứng ở cổng Hầm mỏ, đòi đồ mới cho qua', { sex: 'm', skin: 'olive', hair: 'short', hairColor: 'black', hat: 'hood', hatC: C('#3a3430', '#56504a', '#241f1c'), eye: 'narrow', facial: 'stubble', mouth: 'flat', scar: [29, 23], glint: '#d1a85a',
+  ['Người canh cổng', 'Đứng ở cổng Hầm mỏ, đòi đồ mới cho qua', { sex: 'm', skin: 'olive', hair: 'short', hairColor: 'black', hat: 'hood', hatC: C('#3a3430', '#56504a', '#241f1c'), facial: 'stubble', mouth: 'flat', scar: [29, 23], glint: '#d1a85a',
     cloth: { c: C('#3a3430', '#241f1c', '#56504a'), t: 'crew', strap: '#6a4a2a' } }],
-  ['Thầy thuốc', 'Người trông Trạm xá, tạp dề lúc nào cũng loang vết', { sex: 'f', skin: 'light', hair: 'bun', hairColor: 'gray', hat: 'headscarf', hatC: C('#6a7a6a', '#8a9a88', '#4a5a4a'), eye: 'calm', mouth: 'small', wrinkles: true,
+  ['Thầy thuốc', 'Người trông Trạm xá, tạp dề lúc nào cũng loang vết', { sex: 'f', skin: 'light', hair: 'bun', hairColor: 'gray', hat: 'headscarf', hatC: C('#6a7a6a', '#8a9a88', '#4a5a4a'), mouth: 'small', wrinkles: true,
     cloth: { c: C('#8a8270', '#6a6252', '#a49c88'), t: 'v', inner: '#d8d0c0', apron: ['#d8d0c0', '#a8a090'], extra: null },
     extra: (c) => { c.px(20, 44, '#8a2a24'); c.px(21, 45, '#8a2a24'); c.px(28, 42, '#6a2a24'); } }],
-  ['Người bán chợ', 'Biết giá của mọi thứ, kể cả tin tức', { sex: 'm', skin: 'tan', hair: 'short', hairColor: 'dkbrown', jaw: 'round', eye: 'closed', mouth: 'grin', blush: '#c98a6a', thickBrow: true,
+  ['Người bán chợ', 'Biết giá của mọi thứ, kể cả tin tức', { sex: 'm', skin: 'tan', hair: 'short', hairColor: 'dkbrown', jaw: 'round', mouth: 'grin', blush: '#c98a6a', thickBrow: true,
     cloth: { c: C('#4a6a8a', '#34506a', '#5e82a6'), t: 'tee', apron: ['#c9a24a', '#a8842e'] } }],
   ['Thợ rèn làng', 'Lửa lò không bao giờ tắt, kể cả lúc nửa đêm', { sex: 'm', skin: 'brown', hair: 'bald', hairColor: 'black', facial: 'goatee', thickBrow: true, brow: 'angry', jaw: 'square', mouth: 'flat', soot: true,
     cloth: { c: C('#3a2a22', '#241a14', '#4e3a2e'), t: 'tank', apron: ['#5a3a20', '#3e2614'] } }],
-  ['Ông câu cá', 'Ngồi câu ở chòi gỗ bên sông, ít khi ngẩng lên nhìn người lạ', { sex: 'm', skin: 'tan', hair: 'short', hairColor: 'gray', hat: 'straw', eye: 'tired', facial: 'beard', beardColor: 'gray', mouth: 'flat', wrinkles: true, thickBrow: true, browColor: '#bdb6aa',
+  ['Ông câu cá', 'Ngồi câu ở chòi gỗ bên sông, ít khi ngẩng lên nhìn người lạ', { sex: 'm', skin: 'tan', hair: 'short', hairColor: 'gray', hat: 'straw', facial: 'beard', beardColor: 'gray', mouth: 'flat', wrinkles: true, thickBrow: true, browColor: '#bdb6aa',
     cloth: { c: C('#3e4a52', '#2a343a', '#56646e'), t: 'collar' } }],
+  ['Bà cụ', 'Bà cụ trong căn nhà gỗ, nói gì cũng thì thầm', { sex: 'f', skin: 'light', hair: 'bun', hairColor: 'white', hat: 'headscarf', hatC: C('#5a4636', '#76604c', '#3e3024'), mouth: 'small', wrinkles: true,
+    cloth: { c: C('#4e3a2e', '#36281e', '#6a5040'), t: 'v', inner: '#a89a84' } }],
+  ['Một bà lão', 'Bà lão hay lẩm bẩm một mình ở nhà họp làng', { sex: 'f', skin: 'tan', hair: 'bun', hairColor: 'gray', mouth: 'flat', wrinkles: true, noLash: true,
+    cloth: { c: C('#4a4e56', '#33363c', '#5e6370'), t: 'crew' } }],
+  ['Bác nông dân', 'Người coi ruộng, lúc nào cũng nói chuyện mùa màng', { sex: 'm', skin: 'brown', hair: 'buzz', hairColor: 'black', facial: 'stubble', mouth: 'smile', wrinkles: true,
+    cloth: { c: C('#5a6a3e', '#40502a', '#748a52'), t: 'tee', strap: '#6a4a2a' } }],
+  ['Một nông dân khác', 'Nông dân làm cùng ruộng, ít nói hơn', { sex: 'm', skin: 'olive', hair: 'messy', hairColor: 'dkbrown', hat: 'bandana', hatC: C('#8a7a52', '#a8966a', '#6a5c3c'), mouth: 'flat',
+    cloth: { c: C('#6b4a32', '#4e321e', '#8a6444'), t: 'crew' } }],
+  ['Bác sĩ', 'Người chữa bệnh ở Trạm xá, lúc nào cũng vội', { sex: 'm', skin: 'light', hair: 'side', hairColor: 'salt', mustache: true, beardColor: 'gray', brow: 'angry', mouth: 'flat', wrinkles: true,
+    cloth: { c: C('#d8d6d0', '#b0aea8', '#f0eee8'), t: 'collar', inner: '#5a7a8a' } }],
+  ['Ông từ giữ đình', 'Ông lão trông nhà họp làng, nói khẽ như sợ ai nghe', { sex: 'm', skin: 'light', hair: 'bald', hairColor: 'white', facial: 'fullbeard', beardColor: 'white', mouth: 'small', wrinkles: true, thickBrow: true, browColor: '#d8d8d4',
+    cloth: { c: C('#2a2a3a', '#1c1c28', '#3a3a4e'), t: 'v', inner: '#a8926a' } }],
+  ['Ông chủ nhà', 'Chủ một căn nhà trong làng, cửa lúc nào cũng cài then', { sex: 'm', skin: 'tan', hair: 'receding', hairColor: 'gray', facial: 'stubble', brow: 'angry', mouth: 'flat', wrinkles: true,
+    cloth: { c: C('#5a4a3a', '#3e3226', '#74624e'), t: 'crew' } }],
+  ['Một ông lão', 'Ông lão hay ngồi nhìn ra cửa', { sex: 'm', skin: 'pale', hair: 'receding', hairColor: 'white', mouth: 'smile', wrinkles: true, thickBrow: true, browColor: '#d8d8d4',
+    cloth: { c: C('#5a5f68', '#3e424a', '#737984'), t: 'v', inner: '#c8c0b0' } }],
+  ['Đứa trẻ trong nhà', 'Đứa nhỏ trong làng, biết nhiều chuyện hơn người lớn tưởng', { sex: 'm', skin: 'light', hair: 'messy', hairColor: 'black', mouth: 'small', blush: '#e2a08a', freckles: true,
+    cloth: { c: C('#7a3a3a', '#562626', '#964c4c'), t: 'tee' } }],
+  ['Thợ mỏ', 'Người đào quặng ở Hầm mỏ, mặt lấm bụi than', { sex: 'm', skin: 'deep', hair: 'short', hairColor: 'black', hat: 'hardhat', facial: 'stubble', mouth: 'flat', soot: true, thickBrow: true,
+    cloth: { c: C('#4a4238', '#2e2822', '#5e5446'), t: 'tank', strap: '#6a4a2a' } }],
+  ['Người nhà trưởng làng', 'Người giúp việc cho trưởng làng, giữ sổ đăng kí', { sex: 'f', skin: 'light', hair: 'long', hairColor: 'black', mouth: 'smile', noLash: true,
+    cloth: { c: C('#5a3e2e', '#3e2a1e', '#74523e'), t: 'v', inner: '#a8926a', necklace: '#c9a24a' } }],
   ['Dân làng', 'Ai cũng chào bạn bằng cùng một nụ cười', { sex: 'f', skin: 'light', hair: 'bun', hairColor: 'dkbrown', eye: 'blank', mouth: 'wide', noLash: true,
     cloth: { c: C('#7a6a52', '#5a4e3c', '#94826a'), t: 'crew' } }],
   ['Quỷ', 'Dân làng đã Nhiễm quỷ: da xám, mắt đỏ, răng nhọn', { sex: 'm', skin: 'ash', hair: 'messy', hairColor: 'black', eye: 'demon', mouth: 'fangs', brow: 'angry', veins: '#4a3a5a', blood: true, outline: '#1a0b0e',
@@ -10210,6 +10249,7 @@ function paramsFor(name) {
 CH.byName = paramsFor;   /* các cảnh dùng chung bộ tìm này */
 
 function faceURL(name) { return url('f:' + name, function () { return POR.portrait(paramsFor(name)); }); }
+function faceEyeURL(name, eye) { return url('f:' + name + ':' + eye, function () { return POR.portrait(Object.assign({}, paramsFor(name), { eye: eye })); }); }
 function faceImg(name, cls) { return '<img class="pix a2face ' + (cls || '') + '" src="' + faceURL(name) + '" alt="">'; }
 function iconURL(k) { return AR.I[k] ? url('i:' + k, AR.I[k]) : ''; }
 function statusURL(k) { return AR.S[k] ? url('st:' + k, AR.S[k]) : ''; }
@@ -10463,7 +10503,7 @@ renderIntro = function () {
   return r;
 };
 
-window.ART2 = { pickInto: pickInto, faceURL: faceURL, faceImg: faceImg, iconURL: iconURL, statusURL: statusURL, badgeURL: badgeURL, achBadgeURL: achBadgeURL, emblemURL: emblemURL, bannerURL: bannerURL, locURL: locURL, pick: pick, sceneURL: sceneURL2, cgURL: cgURL, cardScene: cardScene, params: paramsFor, prologueURL: function (k, loc, me) { return url('pl:' + k + ':' + loc + ':' + me, function () { return RT.SC[k]({ loc: loc, me: me }); }); } };
+window.ART2 = { pickInto: pickInto, faceURL: faceURL, faceEyeURL: faceEyeURL, faceImg: faceImg, iconURL: iconURL, statusURL: statusURL, badgeURL: badgeURL, achBadgeURL: achBadgeURL, emblemURL: emblemURL, bannerURL: bannerURL, locURL: locURL, pick: pick, sceneURL: sceneURL2, cgURL: cgURL, cardScene: cardScene, params: paramsFor, prologueURL: function (k, loc, me) { return url('pl:' + k + ':' + loc + ':' + me, function () { return RT.SC[k]({ loc: loc, me: me }); }); } };
 try { renderIntro(); if (G) render(); } catch (e) { }
 
 })();
