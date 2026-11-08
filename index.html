@@ -756,6 +756,35 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 .scl p{font:500 18px/1.5 var(--serif);color:#f2efe9}
 @keyframes sclIn{to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.scl{animation:none;opacity:1;transform:none}}
+/* cảnh cốt truyện kiểu visual novel */
+#scene.vnmode{align-items:stretch;padding:0;overflow:hidden}
+.scenecard.vn{max-width:none;width:100%;min-height:100%;height:100%;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:#0d0f13;display:block;position:relative;overflow:hidden;cursor:pointer}
+.vnbg{position:absolute;inset:0}
+.vnbg img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated;opacity:.38}
+.vnbg.cg img{opacity:.3;filter:blur(2px)}
+.vnbg::after{content:"";position:absolute;inset:0;background:radial-gradient(90% 70% at 50% 35%,rgba(13,15,19,.15),rgba(13,15,19,.85)),linear-gradient(to bottom,rgba(13,15,19,.4),rgba(13,15,19,0) 30%,rgba(13,15,19,.6) 70%,#0d0f13)}
+.vnwrap{position:relative;z-index:1;height:100%;max-width:1100px;margin:0 auto;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 16px max(16px,env(safe-area-inset-bottom))}
+.vnhead{position:absolute;top:max(14px,env(safe-area-inset-top));left:16px;right:16px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.vnhead .eyebrow{color:#9fc1e6;letter-spacing:.18em;margin:0}
+.vnstage{display:flex;justify-content:flex-start;padding:0 6%;pointer-events:none}
+.vnstage.r{justify-content:flex-end}
+.vnface{width:min(240px,32vh);height:auto;image-rendering:pixelated;image-rendering:crisp-edges;margin-bottom:-3px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.6))}
+.vnbox{position:relative;border:2px solid #9fc1e6;background:rgba(10,12,16,.94);padding:24px 26px 30px;min-height:128px;box-shadow:0 0 0 2px #0b0c0e,0 10px 30px rgba(0,0,0,.6)}
+.vnbox.c{border-color:#d06a5c}
+.vnname{position:absolute;top:-19px;left:24px;background:#9fc1e6;color:#0e1a2a;font:600 14px var(--mono);letter-spacing:.22em;text-transform:uppercase;padding:7px 16px;box-shadow:0 0 0 2px #0b0c0e}
+.vnbox.r .vnname{left:auto;right:24px}
+.vnbox.c .vnname{background:#d06a5c;color:#2a0c09}
+.vnname .youmark{font-size:11px;letter-spacing:.08em;background:rgba(11,12,14,.75);color:#f2efe9;padding:1px 5px;margin-left:4px;font-style:normal}
+.vntext{font:500 clamp(17px,2.3vw,24px)/1.55 var(--serif);color:#f2efe9;margin:0}
+.vntext.in{animation:vnIn .35s ease}
+@keyframes vnIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.vnmore{position:absolute;right:16px;bottom:10px;font-style:normal;font-size:12px;color:#d06a5c;animation:vnBob 1.2s ease-in-out infinite}
+.vnbox:not(.c) .vnmore{color:#9fc1e6}
+@keyframes vnBob{50%{transform:translateY(3px)}}
+.vnnav{display:flex;justify-content:center;align-items:center;gap:14px;margin-top:14px}
+.vnnav .vnnum{font:600 13px var(--mono);color:#9aa3b0;letter-spacing:.12em;min-width:52px;text-align:center}
+@media (max-width:640px){.vnface{width:min(150px,40vw)}.vnbox{padding:22px 16px 26px;min-height:120px}.vnname{font-size:12px;left:14px}.vnbox.r .vnname{right:14px}.vnstage{padding:0 2%}}
+@media (prefers-reduced-motion:reduce){.vntext.in,.vnmore{animation:none}}
 
 /* thanh gợi ý */
 .goal{display:flex;align-items:center;gap:10px;margin-top:8px;padding:8px 10px;border-radius:12px;background:linear-gradient(90deg,rgba(var(--acc-rgb),.16),rgba(var(--acc-rgb),.04));border:1px solid rgba(var(--acc-rgb),.35)}
@@ -1255,15 +1284,15 @@ var DEFAULT_ROSTER = [
 {
 "name": "Clevia",
 "gender": "Nữ",
-"age": 19,
-"job": "Sinh viên năm nhất, làm thêm",
+"age": 20,
+"job": "Sinh viên năm hai, làm thêm",
 "str": 4,
 "luck": 7,
 "ability": "Unlock: mở khoá, mở cửa, phá phong ấn cơ bản, có thể tác động lên hệ thống kiểm soát trong ảo cảnh. Trong game: mở rương khoá không cần giải mã, qua cổng Hầm mỏ không cần đưa đồ cho người canh cổng.",
 "limit": "Chỉ phá được khoá cơ học và phong ấn cơ bản. Có thể ép mở bức tường kính giữa các khu, nhưng cái giá là mất Unlock tới hết ván. Mỗi lần dùng, ngôi làng như khựng lại một nhịp và dân làng để ý đến cô hơn.",
 "persona": "Trầm lặng, hay quan sát, tin vào trực giác và cảm xúc; quen chịu đựng trong im lặng.",
 "faction": "Rookie",
-"fear": "Bị cô lập, bị bỏ rơi; khoảng trống ký ức ba năm và giấc mơ về Renie."
+"fear": "Bị cô lập, bị bỏ rơi; khoảng trống ký ức bốn năm và giấc mơ về Renie."
 },
 {
 "name": "Leon",
@@ -5831,7 +5860,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.08-1';
+var GAME_VERSION = '2026.11.08-3';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7235,14 +7264,50 @@ function renderScene() {
   if (!q || !q.length || G.isBackdrop) { el.hidden = true; return; }
   var kk = q[0].split(':'), S = SCENES[kk[0]];
   if (!S) { q.shift(); return renderScene(); }
-  var LN = sceneLines(kk[0], kk[1]);
-  var who = []; LN.forEach(function (ln) { if (who.indexOf(ln[0]) < 0) who.push(ln[0]); });
-  $('sceneCard').innerHTML = '<div class="eyebrow">Khoảnh khắc · ' + who.map(esc).join(' &amp; ') + '</div><h2>' + esc(S.title) + '</h2><div class="sclines">' +
-    LN.map(function (ln, i) { return '<div class="scl' + (ln[0] === 'Clevia' ? ' c' : '') + '" style="animation-delay:' + (i * 0.35) + 's">' + faceImg(ln[0], ((kk[0] === 'lowHp' || kk[0] === 'poison') && kk[1] === ln[0]) ? 'hurt' : kk[0] === 'leonDown' ? (ln[0] === 'Leon' ? 'hurt' : 'tense') : (SCENE_MOOD[kk[0]] || 'normal'), 'av' + (G && G.players[0] && ln[0] === G.players[0].name ? ' you' : '')) + '<div><b>' + ln[0] + (G && G.players[0] && ln[0] === G.players[0].name ? ' <i class="youmark">bạn</i>' : '') + '</b><p>' + esc(ln[1]) + '</p></div></div>'; }).join('') +
-    '</div><div class="choices"><button class="btn primary" id="sceneNext"><b>' + (q.length > 1 ? 'Tiếp' : 'Tiếp tục') + '</b></button></div>';
   if (!el.hidden && el.dataset.k === q[0]) return;
+  var LN = sceneLines(kk[0], kk[1]);
+  function moodOf(n) { return ((kk[0] === 'lowHp' || kk[0] === 'poison') && kk[1] === n) ? 'hurt' : kk[0] === 'leonDown' ? (n === 'Leon' ? 'hurt' : 'tense') : (SCENE_MOOD[kk[0]] || 'normal'); }
+  var H0 = G.players[0], sky = ART.skyOf(phaseOf(Math.min(G.t, DAY))[0]), bg = '';
+  try { bg = sceneURL(H0.loc, sky); } catch (e) { bg = ''; }
+  UI.vn = { k: q[0], i: 0, ln: LN, mood: moodOf, last: q.length > 1 ? 'Tiếp' : 'Tiếp tục' };
+  el.classList.add('vnmode');
+  $('sceneCard').className = 'card scenecard vn';
+  $('sceneCard').innerHTML = '<div class="vnbg">' + (bg ? '<img class="pix" src="' + bg + '" alt="">' : '') + '</div>' +
+    '<div class="vnwrap"><div class="vnhead"><span class="eyebrow">Cảnh cốt truyện · ' + esc(S.title) + '</span><button class="btn sm" id="vnSkip">Bỏ qua</button></div>' +
+    '<div class="vnstage"><img class="pix vnface" alt=""></div>' +
+    '<div class="vnbox"><span class="vnname"></span><p class="vntext"></p><i class="vnmore">▼</i></div>' +
+    '<div class="vnnav"><button class="btn" id="vnBack">‹ Lùi</button><span class="vnnum"></span><button class="btn primary" id="vnNext">Tiếp ›</button></div></div>';
+  vnDraw();
   el.dataset.k = q[0]; el.hidden = false; SND.play('chime');
 }
+function vnDraw() {
+  var V = UI.vn, card = $('sceneCard'); if (!V || !card.querySelector('.vnbox')) return;
+  var ln = V.ln[V.i] || ['', ''], n = ln[0], me0 = G && G.players[0] && n === G.players[0].name, right = n === 'Clevia';
+  var box = card.querySelector('.vnbox'), st = card.querySelector('.vnstage'), f = card.querySelector('.vnface');
+  box.classList.toggle('c', n === 'Clevia'); box.classList.toggle('r', right); st.classList.toggle('r', right);
+  f.src = faceURL(n, V.mood(n)); f.alt = n;
+  card.querySelector('.vnname').innerHTML = esc(n) + (me0 ? ' <i class="youmark">bạn</i>' : '');
+  var tx = card.querySelector('.vntext'); tx.textContent = ln[1]; tx.classList.remove('in'); void tx.offsetWidth; tx.classList.add('in');
+  card.querySelector('.vnnum').textContent = (V.i + 1) + ' / ' + V.ln.length;
+  card.querySelector('#vnBack').disabled = V.i === 0;
+  var nx = card.querySelector('#vnNext, #sceneNext'), end = V.i >= V.ln.length - 1;
+  nx.id = end ? 'sceneNext' : 'vnNext'; nx.innerHTML = end ? '<b>' + V.last + '</b>' : 'Tiếp ›';
+  card.querySelector('.vnmore').hidden = end;
+}
+function vnStep(d) {
+  var V = UI.vn; if (!V) return;
+  if (d > 0 && V.i >= V.ln.length - 1) { var b = $('sceneNext'); if (b) b.click(); return; }
+  V.i = Math.max(0, Math.min(V.ln.length - 1, V.i + d)); vnDraw(); SND.play('tick');
+}
+document.addEventListener('click', function (e) {   /* chạm chỗ trống trong cảnh cốt truyện = câu sau */
+  if ($('scene').hidden || !UI.vn || e.target.closest('button')) return;
+  if (e.target.closest('#scene')) vnStep(1);
+});
+document.addEventListener('keydown', function (e) {
+  if ($('scene').hidden || !UI.vn) return;
+  if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); vnStep(1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); vnStep(-1); }
+});
 function closePop() { UI.popOpen = false; $('pop').hidden = true; try { EVP.render(); } catch (e) { } logFab(); setTimeout(coachUpdate, 30); setTimeout(function () { try { SF.tryPending(); } catch (e) { } }, 40); }
 function logFab() {
   var f = $('logFab'); if (!f) return;
@@ -8192,6 +8257,9 @@ document.addEventListener('click', function (e) {
   if (t.id === 'sndBtn') { SND.setMuted(!SND.prefs.muted); sndLabel(); if (!SND.prefs.muted) SND.play('chime'); return; }
   if (t.id === 'coachSkip') { coachEnd(); return; }
   if (t.id === 'coachOk') { UI.coach++; coachUpdate(); return; }
+  if (t.id === 'vnNext') { vnStep(1); return; }
+  if (t.id === 'vnBack') { vnStep(-1); return; }
+  if (t.id === 'vnSkip') { var sk = $('sceneNext') || $('vnNext'); if (sk) { sk.id = 'sceneNext'; sk.click(); } return; }
   if (t.id === 'sceneNext') { if (G && G.sceneQueue) G.sceneQueue.shift(); $('scene').hidden = true; $('scene').dataset.k = ''; saveGame(); renderScene(); setTimeout(coachUpdate, 30); setTimeout(function () { try { SF.tryPending(); } catch (e) { } }, 40); return; }
   if (t.id === 'logFab') { UI.popOpen = true; UI.fabSeen = UI.last ? UI.last.t0 + ':' + UI.last.items.length : null; renderPop(); logFab(); return; }
   if (t.dataset.lnart) { var lp = t.parentNode, lc = lp ? lp.cloneNode(true) : null; if (lc) { var lb = lc.querySelector('.lnart'); if (lb) lb.remove(); } LOGART.open(t.dataset.lnart, lc ? lc.innerHTML : ''); return; }
@@ -9775,8 +9843,8 @@ renderScene = function () {
   var r = _renderScene.apply(this, arguments);
   var q = G && G.sceneQueue, card = $('sceneCard');
   if (q && q.length && card && !card.querySelector('.a2cg')) {
-    var kk = q[0].split(':'), u = cgURL(kk[0], kk[1]);
-    if (u) { card.insertAdjacentHTML('afterbegin', '<img class="pix evart a2cg" src="' + u + '" alt="">'); var le = G.log && G.log[G.log.length - 1]; if (le && !le.art && !le.cg) le.cg = q[0]; }
+    var kk = q[0].split(':'), u = cgURL(kk[0], kk[1]), vb = card.querySelector('.vnbg');
+    if (u) { if (vb) { vb.insertAdjacentHTML('beforeend', '<i class="a2cg" hidden></i>'); } else card.insertAdjacentHTML('afterbegin', '<img class="pix evart a2cg" src="' + u + '" alt="">'); var le = G.log && G.log[G.log.length - 1]; if (le && !le.art && !le.cg) le.cg = q[0]; }
   }
   return r;
 };
