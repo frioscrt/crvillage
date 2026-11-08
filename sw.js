@@ -1,4 +1,4 @@
-// Service worker tối giản cho Ngôi Làng Ăn Thịt: luôn lấy bản mới nhất từ mạng, chỉ dùng bản lưu khi mất mạng.
+// Service worker tối giản cho Bên Kia Bức Tường: luôn lấy bản mới nhất từ mạng, chỉ dùng bản lưu khi mất mạng.
 // Không đụng tới ván lưu (ván lưu nằm trong bộ nhớ trình duyệt, không qua đây).
 const CACHE = 'crv-v1';
 self.addEventListener('install', e => {

@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="pwa/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Làng Ăn Thịt"><meta name="theme-color" content="#050608"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}/* chơi trên một màn hình: bảng bật lên, dòng nhiệm vụ dưới tranh, nhiệm vụ viền vàng */
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="pwa/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="CR Village"><meta name="theme-color" content="#050608"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}/* chơi trên một màn hình: bảng bật lên, dòng nhiệm vụ dưới tranh, nhiệm vụ viền vàng */
 .ovl-bg{position:fixed;inset:0;z-index:24;background:rgba(5,6,9,.6)}
 .ovl{position:fixed;z-index:25;left:50%;top:50%;transform:translate(-50%,-50%);width:min(640px,calc(100vw - 32px));max-height:min(86vh,820px);display:flex;flex-direction:column;background:var(--surface,#1d2026);box-shadow:0 -2px 0 0 #07080a,0 2px 0 0 #07080a,-2px 0 0 0 #07080a,2px 0 0 0 #07080a,0 6px 0 0 rgba(0,0,0,.55)}
 .ovl-h{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
@@ -22,7 +22,7 @@
 .bagsheet-bg{z-index:30}.bagsheet{z-index:31}
 .hot .hic .hface{width:20px;height:20px;image-rendering:pixelated;display:block}
 </style></head><body>
-<title>Ngôi Làng Ăn Thịt</title>
+<title>Bên Kia Bức Tường</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Mono:wght@400;500&family=VT323&display=swap">
 <style>
@@ -1347,7 +1347,7 @@ body.playhud .ovl-go .note{margin:0;flex:none}
     <div class="top-row">
       <div>
         <div class="kicker">Project Artos 07 · Cấp C/R <span id="gcode" style="white-space:nowrap"></span></div>
-        <h1>Ngôi Làng Ăn Thịt</h1>
+        <h1>Bên Kia Bức Tường</h1>
         <div class="wincond" id="winCond"></div>
       </div>
       <div class="clockbox"><div class="faces" id="hudFaces"></div><div class="clock" id="clock">00:00</div><small id="clockSub">còn 24:00</small><small id="village"></small><button class="sndbtn" id="sndBtn" aria-label="Bật hoặc tắt âm thanh">♪</button></div>
@@ -1377,7 +1377,7 @@ body.playhud .ovl-go .note{margin:0;flex:none}
   <div id="introHome" class="ihome">
     <svg class="gill hero" viewBox="0 0 240 120" aria-hidden="true" id="heroIll"></svg>
     <div class="eyebrow">Project Artos 07 · Ảo cảnh cấp C/R</div>
-    <h2 class="ititle">Ngôi Làng Ăn Thịt</h2>
+    <h2 class="ititle">Bên Kia Bức Tường</h2>
     <p class="note">20 người chơi. 24 tiếng. Một ngôi làng không nói thật.</p>
     <div class="choices">
       <button class="btn primary" id="startBtn"><b>Bắt đầu</b></button>
@@ -1409,7 +1409,7 @@ body.playhud .ovl-go .note{margin:0;flex:none}
   </div>
 </div></div>
 <div id="toast" hidden></div>
-<div id="rotate" role="alert"><div class="rt-ph" aria-hidden="true"></div><b>Xoay ngang điện thoại</b><p>Ngôi Làng Ăn Thịt chơi ở màn hình ngang. Ván vẫn đứng yên chờ bạn.</p></div>
+<div id="rotate" role="alert"><div class="rt-ph" aria-hidden="true"></div><b>Xoay ngang điện thoại</b><p>Bên Kia Bức Tường chơi ở màn hình ngang. Ván vẫn đứng yên chờ bạn.</p></div>
 <div class="veil" id="a2hs" hidden><div class="card" id="a2hsCard" role="dialog" aria-label="Thêm game vào màn hình chính"></div></div>
 <button id="logFab" class="logfab" hidden aria-label="Xem lại diễn biến vừa rồi"><svg class="i"><use href="#i-scroll"/></svg><span>Diễn biến</span></button>
 <div class="veil" id="pop" hidden><div class="card popcard" id="popCard"></div></div>
@@ -5653,7 +5653,7 @@ var PX = (function () {
   }
   return { Canvas: Canvas };
 })();
-/* Minh hoạ pixel cho Ngôi Làng Ăn Thịt: chân dung Luke, Clevia, địa điểm và sự kiện */
+/* Minh hoạ pixel cho Bên Kia Bức Tường: chân dung Luke, Clevia, địa điểm và sự kiện */
 var ART = (function () {
   var OUT = '#0b0c0e';
   function rng(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
@@ -6234,7 +6234,7 @@ function loadSave() {
 /* ---------- xuất nhật ký ---------- */
 function logText(G) {
   var p = G.players[0], L = [];
-  L.push('PROJECT ARTOS 07 · NGÔI LÀNG ĂN THỊT · Cấp C/R');
+  L.push('PROJECT ARTOS 07 · BÊN KIA BỨC TƯỜNG · Cấp C/R');
   L.push('Nhân vật: ' + p.name + ' · Khu xuất phát: ' + ZONES[G.zoneChoice].name + ' · Mã ván: ' + gameCode(G));
   var EE = G.over ? endingText(G) : null;
   L.push('Kết cục: ' + (EE ? 'Ending ' + EE.code + ' · ' + EE.title : (G.over ? '' : 'Đang chơi dở (' + fmtT(G.t) + ')')));
@@ -6264,10 +6264,10 @@ function logPdf() {
     if (ak) { try { var u = /^a:/.test(ak) ? eventURL(ak.slice(2)) : (window.ART2 && ART2.cgURL ? ART2.cgURL(ak.slice(2).split(':')[0], ak.slice(2).split(':')[1]) : ''); if (u) img = '<img src="' + u + '" alt="">'; } catch (x) { } }
     return '<div class="e ' + e.tone + '"><time>' + fmtT(e.t) + ' · ' + fmtT(villageMin(e.t)) + ' trong làng</time>' + img + '<p>' + esc(e.text) + '</p></div>';
   }).join('');
-  var html = '<!doctype html><html><head><meta charset="utf-8"><title>Nhật ký Ngôi Làng Ăn Thịt · ' + esc(gameCode(G)) + '</title><style>' +
+  var html = '<!doctype html><html><head><meta charset="utf-8"><title>Nhật ký Bên Kia Bức Tường · ' + esc(gameCode(G)) + '</title><style>' +
     'body{font:13px/1.55 Georgia,serif;color:#111;margin:24px}h1{font-size:22px;margin:0 0 4px}.m{color:#555;margin:0 0 16px}.e{break-inside:avoid;border-top:1px solid #ddd;padding:6px 0}' +
     'time{display:block;font:11px monospace;color:#666}p{margin:2px 0}img{display:block;width:256px;height:144px;image-rendering:pixelated;margin:4px 0}.story p,.npc p{font-style:italic}.bad p{color:#8a1c1e}' +
-    '</style></head><body><h1>Ngôi Làng Ăn Thịt</h1><p class="m">Nhân vật: ' + esc(p.name) + ' · Mã ván: ' + esc(gameCode(G)) + (EE ? ' · Ending ' + esc(EE.code) + ': ' + esc(EE.title) : '') + '</p>' + rows + '</body></html>';
+    '</style></head><body><h1>Bên Kia Bức Tường</h1><p class="m">Nhân vật: ' + esc(p.name) + ' · Mã ván: ' + esc(gameCode(G)) + (EE ? ' · Ending ' + esc(EE.code) + ': ' + esc(EE.title) : '') + '</p>' + rows + '</body></html>';
   var fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
   document.body.appendChild(fr);
   var d = fr.contentWindow.document; d.open(); d.write(html); d.close();
@@ -6298,7 +6298,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.08-32';
+var GAME_VERSION = '2026.11.08-33';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7643,7 +7643,7 @@ var PROLOGUE = (function () {
     var A = [
       'Không có gì báo trước. Một nhịp thở trước, mọi thứ vẫn bình thường. Nhịp thở sau, dưới chân ' + H.name + ' đã là ' + (GROUND[H.loc] || 'đất nện') + ', ẩm và lạnh.',
       (LOC_LINE[H.loc] || '').replace(/\{o\}/g, o),
-      { sys: ['ẢO CẢNH: NGÔI LÀNG ĂN THỊT. CẤP C/R', 'Người chơi: 20. Thời gian: 24 tiếng.', 'Điều kiện vượt ải: Khám phá toàn bộ các khu vực.', 'Hết thời gian mà chưa đạt điều kiện: bị xoá sổ.', 'Danh sách người chơi chỉ hiển thị một lần.'], lead: 'Chữ hiện ra giữa không trung, không có giọng đọc, không có ai đứng sau.' }
+      { sys: ['ẢO CẢNH: BÊN KIA BỨC TƯỜNG. CẤP C/R', 'Người chơi: 20. Thời gian: 24 tiếng.', 'Điều kiện vượt ải: Khám phá toàn bộ các khu vực.', 'Hết thời gian mà chưa đạt điều kiện: bị xoá sổ.', 'Danh sách người chơi chỉ hiển thị một lần.'], lead: 'Chữ hiện ra giữa không trung, không có giọng đọc, không có ai đứng sau.' }
     ];
     if (luke) A.push(
       'Hai mươi cái tên trượt qua, nhanh như ai đó đang lật sổ. Luke đọc theo thói quen: đếm, nhớ mặt chữ, xếp vào đầu. ' + names + ' Phần lớn chẳng để lại gì.',
@@ -9015,7 +9015,7 @@ var A2HS = (function () {
     var h = '<div class="a2-top"><img class="a2-ico" src="pwa/icon-192.png" alt="" onerror="this.remove()"><div><div class="eyebrow">' + (done ? 'Xong' : 'Trước khi vào làng') + '</div><h2>' + (done ? 'Đã thêm vào màn hình chính' : 'Thêm game vào màn hình chính') + '</h2></div></div>';
     var foot = '<button class="btn" data-a2="skip"><b>Bỏ qua</b></button>';
     if (done) {
-      h += '<p class="note">Thoát trình duyệt rồi mở <b>Làng Ăn Thịt</b> bằng biểu tượng mới ngoài màn hình chính. Game sẽ phủ kín màn hình' + (os === 'and' ? ' và tự xoay ngang' : '') + '.</p>';
+      h += '<p class="note">Thoát trình duyệt rồi mở <b>CR Village</b> bằng biểu tượng mới ngoài màn hình chính. Game sẽ phủ kín màn hình' + (os === 'and' ? ' và tự xoay ngang' : '') + '.</p>';
       foot = '<button class="btn primary" data-a2="skip"><b>Đóng</b></button>';
     } else if (INAPP) {
       h += '<p class="note">Bạn đang mở link trong ' + INAPP + '. Trình duyệt bên trong ứng dụng này không thêm game vào màn hình chính được.</p>';
