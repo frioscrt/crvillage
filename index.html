@@ -2319,11 +2319,18 @@ var REFUSE_TALK = {
   gut: [['Luke', '"Không có lý do gì rõ ràng cả. Anh chỉ làm theo trực giác thôi."'], ['Clevia', '"Em hiểu. Có khi trực giác đúng hơn mọi lý lẽ."']]
 };
 var SCENES = {
-  houseAmbush1: { title: 'Lần đầu sai lệch', lines: [
-    ['Clevia', '"Anh! Sao trong này lại có quỷ? Lúc nãy anh bảo khu an toàn mà."'],
-    ['Luke', '"Kì lạ thật... Anomaly Sense của anh chưa bao giờ sai."'],
-    ['Clevia', '"Giờ không phải lúc nghĩ chuyện đó. Chạy thôi anh ơi, đừng ở lại nữa!"'],
-    ['Luke', '"Đi. Bám sát anh."']] },
+  /* sensed: Luke vừa đọc khu là yên; blind: chưa đọc, hoặc đã báo khu đang/sắp nhiễm (sửa 2026.11.09) */
+  houseAmbush1: { title: 'Lần đầu sai lệch', variants: {
+    sensed: [
+      ['Clevia', '"Anh! Sao trong này lại có quỷ? Lúc nãy anh bảo khu an toàn mà."'],
+      ['Luke', '"Kì lạ thật... Anomaly Sense của anh chưa bao giờ sai."'],
+      ['Clevia', '"Giờ không phải lúc nghĩ chuyện đó. Chạy thôi anh ơi, đừng ở lại nữa!"'],
+      ['Luke', '"Đi. Bám sát anh."']],
+    blind: [
+      ['Clevia', '"Anh! Sao trong này lại có quỷ? Mình vừa mới bước vào thôi mà."'],
+      ['Luke', '"Kì lạ thật... Căn nhà này có gì đó không giống bên ngoài."'],
+      ['Clevia', '"Giờ không phải lúc nghĩ chuyện đó. Chạy thôi anh ơi, đừng ở lại nữa!"'],
+      ['Luke', '"Đi. Bám sát anh."']] } },
   houseAmbush2: { title: 'Chiếc đồng hồ', lines: [
     ['Luke', '"Lại nữa. Lần trước cũng vậy, cả khu đâu có bất thường."'],
     ['Clevia', '"Anh còn nhớ cái đồng hồ hiện lên lúc mình bước vào không? Ba tiếng."'],
@@ -2771,7 +2778,7 @@ function ghostFight(G, grp, boss) {
   if (seen) say(G, (boss ? 'Một bóng người cao lớn hơn hẳn mọi con quỷ khác lao ra' : 'Một dân làng mắt đỏ lao vào ' + (solo ? 'bạn' : 'cả nhóm')) + ' tại ' + where + '.', 'bad');
   if (seen && !boss && isHouse(LOCS[tgt.loc]) && G.locs[tgt.loc].expired) {
     H.ambushHouses = H.ambushHouses || [];
-    if (H.ambushHouses.indexOf(tgt.loc) < 0 && allyHere(G)) { H.ambushHouses.push(tgt.loc); scene(G, H.ambushHouses.length === 1 ? 'houseAmbush1' : 'houseAmbush2'); }
+    if (H.ambushHouses.indexOf(tgt.loc) < 0 && allyHere(G)) { H.ambushHouses.push(tgt.loc); if (H.ambushHouses.length === 1) { var sl = G.senseLast; scene(G, 'houseAmbush1', sl && sl.zone === LOCS[tgt.loc].zone && sl.k === 'calm' && G.t - sl.t <= SENSE_RANGE ? 'sensed' : 'blind'); } else scene(G, 'houseAmbush2'); }
   }
   var r = G.R();
   if (r < hunt) {
@@ -3043,7 +3050,7 @@ function duelCore(G, A, B) {
   ach(G, hs === A ? 'duelStart' : 'ambushed');
   var inv = A.concat(B);
   ops.forEach(function (q) { q.trust = 0; q.follow = false; relSync(q); });
-  if (G.leon && hs === A) { var lp0 = leonP(G); if (ops.indexOf(lp0) >= 0) leonTurn(G, 'attacked'); else if (lp0 && lp0.alive && lp0.loc === H.loc && G.leon.met) leonPts(G, -2, 'Leon nhìn bạn ra tay mà không nói gì. Ánh mắt anh ta lạnh đi.'); }
+  if (G.leon && hs === A) { var lp0 = leonP(G); if (ops.indexOf(lp0) >= 0) leonTurn(G, 'attacked'); else if (lp0 && lp0.alive && lp0.loc === H.loc && G.leon.met && presentOthers(G).indexOf(lp0) >= 0) leonPts(G, -2, 'Leon nhìn bạn ra tay mà không nói gì. Ánh mắt anh ta lạnh đi.'); }
   var third = G.players.filter(function (q) { return q.alive && !q.human && inv.indexOf(q) < 0 && !q.follow && q.loc === H.loc; });
   inv.forEach(function (q) { H.noticed[q.id] = true; });
   if (B.length === 1 && has(B[0], 'Smoke Bomb') && B[0].smokeWave !== G.waves && B[0].items.food > 0) {
@@ -3964,7 +3971,7 @@ function leonTick(G) {
 function leonCodaSet(G, early) {
   var L = G.leon, lp = leonP(G), H = G.players[0];
   if (!L || !L.met || !lp || G.leonCoda) return;
-  if (!lp.alive) G.leonCoda = 'dead';
+  if (!lp.alive) G.leonCoda = L.everPact ? 'dead' : 'deadSolo';   /* chưa từng giao kèo thì không nói "chỗ Leon từng đứng" (sửa 2026.11.09) */
   else if (L.left || L.hostile) G.leonCoda = 'left';
   else if (L.pact && lp.follow && lp.loc === H.loc) G.leonCoda = 'out';
   else G.leonCoda = 'apart';
@@ -4502,6 +4509,7 @@ function senseMsg(G, zz, who, loc) {
   else if (G.upcoming === zz && G.nextWave - G.t <= SENSE_RANGE) { k = 'soon'; x = r5(G.nextWave - G.t); }
   /* xa hơn 2 tiếng thì khu sắp nhiễm và khu yên nghe như nhau: không lộ khu kế tiếp quá sớm */
   else { k = 'calm'; x = SENSE_RANGE; }
+  G.senseLast = { zone: zz, k: k, t: G.t };   /* cảnh houseAmbush1 chỉ nhắc "anh bảo khu an toàn" khi lần đọc gần nhất thật sự báo yên */
   return pick(G.R, SENSE_LINES[who || 'self'][k]).replace('{X}', fmt(x));
 }
 
@@ -6325,7 +6333,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.08-36';
+var GAME_VERSION = '2026.11.09-1';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -8751,6 +8759,7 @@ var LEON_CODA = {
   out: ['Cùng ra cửa', 'Leon bước ra sau cùng, cuộn xích lại quanh tay như chưa có gì xảy ra. "Giao kèo xong." Một lúc sau anh ta nói thêm: "Lần sau gặp thì tính tiếp."'],
   apart: ['Sống, tách đường', 'Bạn không thấy Leon ở cửa ra. Trên bảng thông báo, cái tên ấy vẫn còn sáng. Anh ta đã tự tìm đường của mình, như lúc chưa quen ai.'],
   dead: ['Đã ngã xuống', 'Ở chỗ Leon từng đứng chỉ còn đoạn xích nằm trên đất, các mắt xích vẫn còn ấm. Không ai nhắc lại giao kèo nữa.'],
+  deadSolo: ['Đã ngã xuống', 'Trên bảng thông báo, cái tên Leon đã tắt từ lúc nào bạn không hay. Hai người chưa từng đi chung một đoạn đường, cũng chưa kịp có giao kèo nào. Bạn chỉ nhớ sợi xích quấn trên cổ tay anh ta.'],
   left: ['Rời liên minh', 'Leon không quay đầu khi đi. Bạn biết vì sao, và anh ta biết bạn biết.']
 };
 function endingText(G) {
