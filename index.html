@@ -2073,7 +2073,7 @@ var CARDN = {
 };
 var CARD_KEYS = Object.keys(CARDN);
 /* bảng rút của rương ngẫu nhiên (tổng 100) */
-var CHEST_TABLE = [['weapon', 15], ['swift', 15], ['material', 14], ['irondoor', 12], ['compass', 12], ['knuckle', 12], ['protect', 10], ['bandage', 10], ['rumor', 8], ['fake', 3], ['dontpress', 4], ['gacha', 4]];
+var CHEST_TABLE = [['bandage', 56], ['protect', 44], ['weapon', 44], ['knuckle', 31], ['swift', 31], ['compass', 25], ['rumor', 25], ['irondoor', 19], ['material', 19], ['fake', 15], ['gacha', 9], ['dontpress', 9]];   /* 2026.11.09-13: tỉ lệ = số thẻ trung bình mỗi ván ×10 (33 rương thẻ thường) */
 /* NPC tặng khi nói chuyện (12% mỗi lần, mỗi nơi tối đa 1 lần/người) */
 /* quà NPC đã bỏ từ 2026.11.09-4: dân làng nhờ việc rồi trả công */
 var NSHARDS = 16, SHARDS_IN_CHESTS = 12;
@@ -2099,7 +2099,7 @@ var QUEST_HINT = {
 };
 /* người chơi khác khám phá bằng cách giúp dân làng (2026.11.09-5): phút ở lại nơi đó, việc ở nơi xa nguồn đồ thì lâu hơn */
 var BOT_NEED = { hall: 30, chief: 30, market: 40, clinic: 40, farm: 50, pier: 50, mine: 50, forge: 50, house: 30 };
-var SEARCH_MAX = 8, SEARCH_BASE = 0.5, CHEST_RANDOM = 25, HARVEST_IN_CHESTS = 17, CHEST_PER_LOC = 5;   /* 2026.11.09-7: mỗi rương đúng 1 thẻ + 1 đồ lặt vặt; nhiều rương hơn, mỗi nơi tối đa 5 */
+var SEARCH_MAX = 8, SEARCH_BASE = 0.5, CHEST_RANDOM = 33, HARVEST_IN_CHESTS = 10, CHEST_PER_LOC = 5;   /* 2026.11.09-7: mỗi rương đúng 1 thẻ + 1 đồ lặt vặt; nhiều rương hơn, mỗi nơi tối đa 5 */
 var SEARCH_P = [0.40, 0.60, 1.0];   /* xác suất tìm thấy rương (nếu có) ở lần lục thứ 1, 2, 3+ tại cùng một chỗ */
 
 /* RNG có trạng thái lưu được (để lưu ván và chơi lại theo mã ván) */
@@ -4544,7 +4544,7 @@ function healGiveOf(id) {
 /* túi hai ngăn: ngăn thẻ 4 ô (mỗi loại thẻ một ô, thẻ vũ khí cũng tính, thẻ vật liệu không chiếm ô);
    ngăn thực phẩm 5 ô (mỗi loại nông sản/cá một ô, thảo dược một ô, cháo một ô). Quặng, Mảnh bùa, Bùa, Bản đồ không chiếm ô.
    Harvest: +1 ô thực phẩm. Spare Pouch: +1 ô thẻ, +2 ô thực phẩm. */
-var CARD_SLOTS = 4, FOOD_SLOTS = 5, FREE_KEYS = ['ore', 'shard', 'amulet', 'map'];
+var CARD_SLOTS = 5, FOOD_SLOTS = 5, FREE_KEYS = ['ore', 'shard', 'amulet', 'map'];
 function rnd01() { try { if (typeof G !== 'undefined' && G && G.R) return G.R(); } catch (e) { } return Math.random(); }
 /* giữ p.foods khớp tổng p.items.food (các chỗ cũ chỉ cộng/trừ tổng): thiếu thì thêm loại nông sản, dư thì bớt món nhiều nhất */
 function foodsOf(p) {
@@ -6556,7 +6556,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.09-12';
+var GAME_VERSION = '2026.11.09-13';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
