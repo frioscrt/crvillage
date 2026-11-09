@@ -6333,7 +6333,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.09-1';
+var GAME_VERSION = '2026.11.09-2';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -8506,7 +8506,7 @@ var ACH = [
 ];
 var TREE = [
   { code: '1', name: 'Rời ải sớm', hint: 'Khám phá đủ 13 nơi rồi bước qua cửa ra', leaves: [['1.2', 'Người đồng đội cũng đi hết làng và đứng cạnh bạn'], ['1.1.1', 'Người đồng đội không trở ra'], ['1.1.2', 'Người đồng đội trở ra sau']] },
-  { code: '2', name: 'Tiếng chuông', secret: true, hint: 'Một cách thắng mà làng không nói ra', leaves: [['2.1.1', 'Đồng đội đứng cạnh lúc chuông ngân và sống tới cuối'], ['2.1.2', 'Đồng đội đứng cạnh lúc chuông ngân nhưng không qua được bốn giờ cuối'], ['2.2.1', 'Đồng đội không đứng cạnh, và không qua khỏi'], ['2.2.2', 'Đồng đội không đứng cạnh nhưng vẫn sống sót']] },
+  { code: '2', name: 'Tiếng chuông', secret: true, hint: 'Một cách thắng mà làng không nói ra', leaves: [['2.1.1', 'Đồng đội đứng cạnh lúc chuông ngân và sống tới cuối'], ['2.1.2', 'Đồng đội đứng cạnh lúc chuông ngân nhưng không sống được tới cuối'], ['2.2.1', 'Đồng đội không đứng cạnh, và không qua khỏi'], ['2.2.2', 'Đồng đội không đứng cạnh nhưng vẫn sống sót']] },
   { code: '3', name: 'Kết cục xấu', hint: 'Chết trong làng, hoặc bị hệ thống xoá sổ', leaves: [['3.1.1', 'Chết sau người đồng đội'], ['3.1.2', 'Chết khi người đồng đội còn sống'], ['3.2.1', 'Bị xoá sổ, người đồng đội đã mất từ trước'], ['3.2.2', 'Bị xoá sổ, người đồng đội sống sót'], ['3.2.3', 'Bị xoá sổ cùng người đồng đội']] },
   { code: '4', name: 'Mảnh bùa', secret: true, hint: 'Sống sót mà không cần đi hết ngôi làng', leaves: [['4.1.1', 'Đồng đội đi cùng tới cuối và cũng có mảnh bùa'], ['4.1.3', 'Đồng đội đi cùng tới cuối, sống nhờ con đường khác'], ['4.1.2', 'Đồng đội đi cùng tới cuối nhưng không qua khỏi'], ['4.2.1', 'Đồng đội không đi cùng, bị xoá sổ lúc hết giờ'], ['4.2.3', 'Đồng đội không đi cùng, đã mất từ trước'], ['4.2.2', 'Cả hai cùng sống sót dù không đi cùng']] },
   { code: '5', name: 'Phá giải', secret: true, hint: 'Một cách thắng dành cho người dám đánh trả', leaves: [['5.1', 'Đồng đội đứng cạnh lúc con đầu đàn cuối cùng gục'], ['5.2', 'Đồng đội còn sống nhưng ở chỗ khác'], ['5.3', 'Đồng đội đã mất từ trước']] },
@@ -8735,7 +8735,7 @@ var ENDINGS = {
   '1.1.1': ['Chỗ trống bên cạnh', 'Bạn bước qua cửa ra trước. Trò chơi không dừng lại vì một người rời đi; nó chỉ bớt đi một cái tên. Bạn đợi ở phía bên kia rất lâu. {P} không trở ra. Không có tin báo, không có thi thể, chỉ có một chỗ trống bên cạnh mà bạn không biết lấp bằng gì.'],
   '1.1.2': ['Người trở ra sau', 'Bạn bước qua cửa ra trước, để lại {P} giữa ngôi làng đang ăn dần những người còn sót. Bạn đợi ở phía bên kia rất lâu. Rồi {P} bước ra, áo rách, mắt đỏ vì thiếu ngủ, nhưng còn thở. {P} không hỏi vì sao bạn đi trước. Bạn cũng không giải thích.'],
   '2.1.1': ['Hai cái tên', '{P} vẫn đứng cạnh bạn, như lúc tiếng chuông còn ngân. Khi hệ thống đọc tên những người được rời đi, hai cái tên vang lên liền nhau. Cả hai bước ra khỏi ảo cảnh mà không ngoảnh lại.'],
-  '2.1.2': ['Một cái tên', 'Lúc rung chuông, {P} đứng ngay cạnh bạn. Bốn giờ cuối dài hơn mọi thứ đã qua. Khi hệ thống đọc tên những người được rời đi, chỉ còn một cái tên vang lên. Bạn bước ra, mang theo một chỗ đứng đã trống.'],
+  '2.1.2': ['Một cái tên', 'Lúc rung chuông, {P} đứng ngay cạnh bạn. Những giờ sau đó dài hơn mọi thứ đã qua. Khi hệ thống đọc tên những người được rời đi, chỉ còn một cái tên vang lên. Bạn bước ra, mang theo một chỗ đứng đã trống.'],
   '2.2.1': ['Ngôi làng không trả lời', 'Bạn sống tới phút cuối và được rời đi. Bạn quay lại tìm, hỏi những người còn sót. {P} không còn ở đó nữa, và ngôi làng không trả lời ai.'],
   '2.2.2': ['Gặp lại', 'Bạn rời ảo cảnh một mình, tưởng sẽ phải quen dần với điều đó. Rồi ở phía bên kia, {P} đã đứng chờ sẵn, gầy rộc đi nhưng còn sống. Hai người gặp lại nhau mà không ai nói được câu nào trọn vẹn.'],
   '3.1.1': ['Đi theo', '{P} đã ngã xuống trước. Bạn cố đi tiếp thêm một đoạn, rồi cũng gục trên cùng mảnh đất ấy. Bạn đã chết theo người đồng đội quý giá của mình.'],
