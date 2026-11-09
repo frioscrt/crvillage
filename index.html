@@ -325,6 +325,10 @@ body.lowhp::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:non
 .quest{display:grid;gap:2px;margin-top:12px;padding:9px 12px;border:1px solid rgba(var(--acc-rgb),.55);border-left:3px solid var(--amber);border-radius:4px;background:rgba(var(--acc-rgb),.08);color:var(--fg)}
 .quest .qk{font:500 calc(10.5px * var(--mk))/1.4 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--amber)}
 .quest .qt{font-size:14px;font-weight:500;line-height:1.4}
+.quest.npcq{border-left-color:#9fc1e6;border-color:rgba(159,193,230,.45);background:rgba(159,193,230,.07)}
+.quest.npcq .qk{color:#9fc1e6}
+.quest.npcq .qt small{color:var(--dim);font-size:.85em}
+.underscene .quest.npcq .qt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
 .quest.done{padding:6px 12px;border-color:var(--line);border-left-color:var(--ok);background:transparent}
 .quest.done .qk{color:var(--ok)}
 .act.questact{border-color:rgba(var(--acc-rgb),.7);background:rgba(var(--acc-rgb),.07)}
@@ -1282,6 +1286,9 @@ body.playhud .underscene{position:absolute;left:0;right:0;bottom:0;z-index:4;mar
 body.playhud .underscene:not(:has(.quest:not(.done))):not(:has(.goal.open)){display:none}
 body.playhud .underscene .quest{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
 body.playhud .underscene .quest.done{display:none}
+body.playhud .underscene:has(.quest:not(.done):not(.npcq)) .quest.npcq{display:none}   /* đang có việc khám phá thì nhiệm vụ chỉ hiện số trên mép trên tranh, khỏi chồng hai dòng */
+body.playhud .underscene .quest.npcq .qt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.hud-q{color:#9fc1e6}
 body.playhud .underscene .quest .qk{font-size:calc(10px * var(--mk,1));text-shadow:0 1px 0 #000}
 body.playhud .underscene .quest .qt{font-size:14px;line-height:1.3;color:#f2f5f9;text-shadow:0 1px 0 #000,0 0 8px rgba(0,0,0,.8)}
 body.playhud .usrow .hintbtn,body.playhud .usrow .allacts,body.playhud .uslog{display:none!important}
@@ -1950,7 +1957,7 @@ var DEFAULT_ROSTER = [
 ];
 'use strict';
 /* ===== ENGINE: dữ liệu + mô phỏng thời gian (mỗi tick = 5 phút) ===== */
-var BASE_ATK = 0.036, STEP = 5, DAY = 1440, WAVE = 180, FIRST = 60, SENSE_RANGE = 120, HOUSE_SAFE = 180, NPLAYERS = 20;
+var BASE_ATK = 0.054, STEP = 5, DAY = 1440, WAVE = 150, FIRST = 60, SENSE_RANGE = 120, HOUSE_SAFE = 180, NPLAYERS = 20;   /* 2026.11.09-6: quỷ vồ +50% (3,6% → 5,4%), đổi khu mỗi 2,5 tiếng (10 đợt) */
 
 var ZONES = {
   farm:   { id: 'farm',   name: 'Khu Nông nghiệp' },
@@ -2059,23 +2066,23 @@ function foodHeal(k) { return FISH_KEYS.indexOf(k) >= 0 ? 12 : 8; }
 var FXN = { bleeding: 'Bleeding', poison: 'Poisoning', burn: 'Burn', paralysis: 'Paralysis' };
 var CARDN = {
   harvest: 'Harvest', hunter: "Hunter's Device", teleport: 'Teleport', protect: 'Protect', ghost: 'Null Presence', mystery: 'Riverheart', enigma: 'Mystery',
-  irondoor: 'Iron Door', smoke: 'Smoke Veil', bandage: 'Bandage', compass: 'Echo Compass', census: 'Census Sheet',
+  irondoor: 'Iron Door', smoke: 'Smoke Veil', bandage: 'Bandage', compass: 'Echo Compass', census: 'Heartbeat Map', lastbreath: 'Last Breath',
   swift: 'Swift Step', knuckle: 'Iron Knuckle', pouch: 'Spare Pouch', material: 'Thẻ vật liệu'
 };
 var CARD_KEYS = Object.keys(CARDN);
 /* bảng rút của rương ngẫu nhiên (tổng 100) */
 var CHEST_TABLE = [['weapon', 15], ['swift', 15], ['material', 14], ['irondoor', 12], ['compass', 12], ['knuckle', 12], ['protect', 10], ['bandage', 10]];
 /* NPC tặng khi nói chuyện (12% mỗi lần, mỗi nơi tối đa 1 lần/người) */
-var NPC_GIFT = [['bandage', 28], ['swift', 14], ['census', 14], ['food', 18], ['herb', 18], ['map', 10]];
+/* quà NPC đã bỏ từ 2026.11.09-4: dân làng nhờ việc rồi trả công */
 var NSHARDS = 16, SHARDS_IN_CHESTS = 12;
 var BOT_NAMES = ['Linh', 'Quân', 'Hà', 'Bảo', 'Minh', 'Trang', 'Khoa', 'Vy', 'Phúc', 'Nam',
   'Thảo', 'An', 'Long', 'Mai', 'Đức', 'Hạnh', 'Tuấn', 'Lan', 'Sơn'];
 var PRICES = { map: 50, teleport: 90, harvest: 60, protect: 120, ghost: 100, hunter: 120, weapon: 180, herb: 40, info: 20,
-  bandage: 60, census: 40, pouch: 45, smoke: 70, swift: 50, irondoor: 110, compass: 90, knuckle: 90, material: 80, mystery: 150 };
+  bandage: 60, census: 150, lastbreath: 200, pouch: 45, smoke: 70, swift: 50, irondoor: 110, compass: 90, knuckle: 90, material: 80, mystery: 150 };
 /* tier vật phẩm (quy ước chung mọi game: tác dụng 1–3 + độ hiếm 1–3 → 2–3 Thường, 4 Tốt, 5 Quý, 6 Hiếm).
    Đồ đặc biệt: STORY_LOCK không bán, không cho, không đổi, không bị cướp. Mảnh bùa cho và bị cướp được, chỉ không bán. */
 var TIER_N = ['Đặc biệt', 'Thường', 'Tốt', 'Quý', 'Hiếm'];
-var TIER = { food: 1, ore: 1, census: 1, pouch: 1, herb: 2, porridge: 2, bandage: 2, swift: 2, harvest: 2, compass: 2, smoke: 2, material: 2,
+var TIER = { food: 1, ore: 1, census: 4, lastbreath: 4, pouch: 1, herb: 2, porridge: 2, bandage: 2, swift: 2, harvest: 2, compass: 2, smoke: 2, material: 2,
   map: 3, teleport: 3, protect: 3, ghost: 3, hunter: 3, irondoor: 3, knuckle: 3, shard: 3, weapon: 4, mystery: 4, amulet: 4, enigma: 0 };
 DISH_KEYS.forEach(function (k) { TIER[k] = 2; });
 var TIER_SELL = [0, 10, 25, 50, 90];
@@ -2088,7 +2095,8 @@ var QUEST_HINT = {
   clinic: 'Tham gia một lượt chữa trị.', farm: 'Hoàn thành bảng sưu tập lương thực.', pier: 'Hoàn thành bảng sưu tập cá.',
   mine: 'Vượt cổng rồi khai thác quặng.', forge: 'Rèn một món vũ khí.', house: 'Lục soát căn nhà.'
 };
-var BOT_NEED = { hall: 5, chief: 5, market: 10, clinic: 20, farm: 120, pier: 140, mine: 45, forge: 50, house: 10 };
+/* người chơi khác khám phá bằng cách giúp dân làng (2026.11.09-5): phút ở lại nơi đó, việc ở nơi xa nguồn đồ thì lâu hơn */
+var BOT_NEED = { hall: 30, chief: 30, market: 40, clinic: 40, farm: 50, pier: 50, mine: 50, forge: 50, house: 30 };
 var SEARCH_MAX = 8, SEARCH_BASE = 0.5, CHEST_RANDOM = 22, HARVEST_IN_CHESTS = 17;
 var SEARCH_P = [0.40, 0.60, 1.0];   /* xác suất tìm thấy rương (nếu có) ở lần lục thứ 1, 2, 3+ tại cùng một chỗ */
 
@@ -2228,7 +2236,7 @@ function createGame(zoneChoice, protagonist, seed) {
     seed: seed, zoneChoice: zoneChoice, storyDone: {},
     R: R, t: 0, players: [], locs: {}, infected: null, upcoming: pick(R, ZONE_IDS), lastInfected: null,
     nextWave: FIRST, waves: 0, chiefAlive: true, mapGiven: false, heals: 3, solved: false, starved: false,
-    market: { map: 3, teleport: 3, harvest: 8, bandage: 5, census: 2, pouch: 2, smoke: 2, ghost: 1, protect: 1, hunter: 1 }, nextEvent: 30, offer: null,
+    market: { map: 3, teleport: 3, harvest: 8, bandage: 5, census: 1, lastbreath: 1, pouch: 2, smoke: 2, ghost: 1, protect: 1, hunter: 1 }, nextEvent: 30, offer: null,
     log: [], over: false, outcome: null, deaths: 0, interrupt: false, warned: {}, protagonist: protagonist
   };
   LOC_IDS.forEach(function (id) { G.locs[id] = { visited: false, chests: [], since: null, expired: false, warned: false }; });
@@ -2694,6 +2702,11 @@ function kill(G, p, cause, quiet) {
     if (G.leon.peril) { p.hp = Math.max(p.hp, 1); return; }
     if (/quỷ|hiệu ứng|mất máu/.test(cause || '') && H9.alive && H9.loc !== p.loc) { leonPerilStart(G, p, cause); return; }
   }
+  if (p.human && (p.cards.lastbreath || 0) > 0 && !G.over) {   /* Last Breath (2026.11.09-3): mọi kiểu gục ngã */
+    p.cards.lastbreath--; p.hp = 30; p.fx = { bleeding: 0, poison: 0, burn: 0, paralysis: 0 }; p.bloody = false;
+    var lbt = '<Last Breath> vỡ ra trong túi. Một hơi thở cuối kéo bạn đứng dậy: 30 HP, sạch mọi hiệu ứng xấu.';
+    say(G, lbt, 'good'); G.lbFired = lbt; G.interrupt = true; return;
+  }
   if (!p.human && has(p, 'Last Stand') && !p.lastStandUsed) {
     p.lastStandUsed = true;
     if (G.R() < 0.5) { p.hp = 20; if (G.players[0].loc === p.loc) say(G, p.name + ' gục xuống rồi bất ngờ gượng dậy, thở hồng hộc.', 'warn'); return; }
@@ -2759,6 +2772,7 @@ function ghostHit(G, q, reduced, mult, boss) {
 function ghostFight(G, grp, boss) {
   var H = G.players[0], seen = grp.indexOf(H) >= 0, nm = boss ? 'con quỷ đầu đàn' : 'con quỷ';
   if (grp.some(function (q) { return q.ghostUntil > G.t; })) return false;
+  if (seen && !boss) seeInf(G, H);
   if (grp.some(function (q) { return q.shieldUntil > G.t; })) { if (seen) say(G, 'Lá chắn <Protect> chặn lại cú vồ của ' + nm + '.', 'good'); return false; }
   var pb = grp.filter(function (q) { return !q.human && q.cards.protect > 0; })[0];
   if (pb && G.R() < pb.aware + 0.25) { pb.cards.protect--; pb.shieldUntil = G.t + 60; if (seen) say(G, pb.name + ' bóp nát thẻ <Protect>, lá chắn bao lấy cả nhóm.', 'good'); return false; }
@@ -3281,7 +3295,7 @@ function tradeRob(G, t, w) {
   t.trust = 0; t.turned = true; t.party = null; relSync(t);
   G.offer = { type: 'betray', id: t.id, loc: H.loc, k: k, v: k === 'money' ? Math.min(H.money, (w.kind === 'money' ? w.v : 0) + 20 + Math.floor(H.money * 0.2)) : 0, until: G.t + 30 };
   say(G, t.name + ' đưa tay ra như để nhận, rồi bất ngờ siết lấy cổ tay bạn, giật ' + (k === 'money' ? 'túi tiền' : kindName(k)) + ': -' + d + ' HP.', 'bad');
-  if (H.hp <= 0) { G.offer = null; kill(G, H, 'Bạn bị ' + t.name + ' đánh gục trong một cuộc đổi chác.'); return true; }
+  if (H.hp <= 0) { var ob0 = G.offer; G.offer = null; kill(G, H, 'Bạn bị ' + t.name + ' đánh gục trong một cuộc đổi chác.'); if (H.alive) G.offer = ob0; return true; }
   G.interrupt = true; return true;
 }
 function wantName(w) { return w.kind === 'money' ? w.v + ' tiền' : w.kind === 'item' ? ({ food: 'một phần thực phẩm', herb: 'một nắm thảo dược', ore: 'một cục quặng' }[w.k]) : 'thẻ <' + CARDN[w.k] + '>'; }
@@ -3550,8 +3564,13 @@ function botExplore(G, b) {
   /* chợ đóng hoặc trưởng làng chết: bot vẫn khám phá được bằng cách nói chuyện, như người chơi */
   b.dwell[b.loc] = (b.dwell[b.loc] || 0) + STEP;
   /* 2026.11.08-28: đi cùng bạn quay lại nơi bạn đã khám phá thì chỉ cần đứng đó 10 phút (bạn chỉ lại cách làm) */
-  var need = (withMe(G, b) && G.players[0].explored[b.loc]) ? Math.min(10, BOT_NEED[l.type]) : BOT_NEED[l.type];
-  if (b.dwell[b.loc] >= need) { b.explored[b.loc] = true; if (l.type === 'pier' && G.R() < 0.1) b.knowsBell = true; }   /* 10% bot hiểu ra bí mật ở chòi câu */
+  if (G.infected === b.zone && !isHouse(l) && !G.solved) return;   /* khu đang nhiễm: dân làng ngoài trời không nhờ ai */
+  var need = (withMe(G, b) && G.players[0].explored[b.loc]) ? 10 : BOT_NEED[l.type];
+  if (b.dwell[b.loc] >= need) {
+    b.explored[b.loc] = true; if (l.type === 'pier' && G.R() < 0.1) b.knowsBell = true;
+    var H = G.players[0];
+    if (H.alive && H.loc === b.loc && !b.follow && !(b.special === 'leon' && !(G.leon && G.leon.met)) && G.R() < 0.5) say(G, b.name + ' vừa giúp ' + qGiver(b.loc, G) + ' xong một việc.', 'info');
+  }   /* 10% bot hiểu ra bí mật ở chòi câu */
 }
 
 /* ---------- một tick (5 phút) ---------- */
@@ -3772,7 +3791,7 @@ function leonStrike(G, lp) {   /* Leon phản bội: dùng xích cướp món qu
   if (G.offer) G.offer = null;
   G.offer = { type: 'betray', id: lp.id, loc: H.loc, k: k, v: k === 'money' ? Math.min(H.money, 40 + Math.floor(H.money * 0.3)) : 0, until: G.t + 30 };
   say(G, 'Leon không nói gì. Sợi xích bất ngờ quấn lấy cổ tay bạn, giật mạnh về phía anh ta (-' + d + ' HP). Leon: "Cậu phá luật trước. Giờ tới lượt tôi lấy phần." Anh ta nhắm vào ' + (k === 'money' ? 'túi tiền' : kindName(k)) + ' của bạn.', 'bad');
-  if (H.hp <= 0) { G.offer = null; kill(G, H, 'Bạn bị Leon dùng xích đánh gục sau khi giao kèo đổ vỡ.'); return; }
+  if (H.hp <= 0) { var ob0 = G.offer; G.offer = null; kill(G, H, 'Bạn bị Leon dùng xích đánh gục sau khi giao kèo đổ vỡ.'); return; }
   G.interrupt = true;
 }
 function leonTurn(G, why) {
@@ -3941,7 +3960,7 @@ function leonTick(G) {
     }
     if (G.t >= 360 && G.t < 1200 && G.infected === H.zone && !isHouse(LOCS[H.loc]) && !G.offer && !G.busy && G.R() < 0.25) {
       leonArrive(G);
-      G.offer = { type: 'leonWave', id: lp.id, loc: H.loc, until: G.t + 30 };
+      G.offer = { type: 'leonWave', id: lp.id, loc: H.loc, until: G.t + 30 }; seeInf(G, H);
       say(G, 'Một con quỷ mắt đỏ đang giãy giụa giữa đường, cổ và tay bị một sợi xích quấn chặt. Đầu kia của sợi xích nằm trong tay một thanh niên gầy, tóc cắt ngắn.', 'event');
       scene(G, 'leonWave', leonVar(G));
       G.interrupt = true;
@@ -4041,7 +4060,7 @@ function betrayStrike(G, b) {
   b.follow = false; b.trust = 0; b.plotAt = 0; b.turned = true; b.party = null; relSync(b); ach(G, 'betrayed');
   G.offer = { type: 'betray', id: b.id, loc: H.loc, k: k, v: k === 'money' ? Math.min(H.money, 40 + Math.floor(H.money * 0.3)) : 0, until: G.t + 30 };
   say(G, b.name + ' bất ngờ trở mặt, lao vào giật ' + (k === 'money' ? 'túi tiền' : kindName(k)) + ' của bạn: -' + d + ' HP.', 'bad');
-  if (H.hp <= 0) { G.offer = null; kill(G, H, 'Bạn bị ' + b.name + ', người đang đi cùng, đánh gục để cướp đồ.'); return; }
+  if (H.hp <= 0) { var ob0 = G.offer; G.offer = null; kill(G, H, 'Bạn bị ' + b.name + ', người đang đi cùng, đánh gục để cướp đồ.'); if (H.alive) G.offer = ob0; return; }
   if (allyHere(G)) scene(G, 'betrayal', H.name);
   G.interrupt = true;
 }
@@ -4166,7 +4185,7 @@ function infoFacts(G, b) {
     else if (r.hurt) add('hu' + qid, 30 + adj(r.loc), '"' + q.name + ' đang bị thương, lúc ' + fmtT(r.t) + ' còn ở ' + LOCS[r.loc].name + '."', '"Hình như có người bị thương ở ' + LOCS[r.loc].name + '."');
   });
   m.deaths.forEach(function (d) { if (G.t - d.t <= 180 && known(playerById(G, d.id))) add('de' + d.id, 40 + adj(d.loc), '"' + d.name + ' chết ở ' + LOCS[d.loc].name + ' lúc ' + fmtT(d.t) + '. Tôi thấy tận mắt."', '"Ở ' + LOCS[d.loc].name + ' có người chết rồi."'); });
-  zoneLocs(z).forEach(function (id) { if (id !== H.loc && !H.explored[id] && b.explored[id] && QUEST_HINT[LOCS[id].type]) add('qh' + id, 20, '"Muốn xong việc ở ' + LOCS[id].name + ' thì ' + QUEST_HINT[LOCS[id].type].replace(/\.$/, '').toLowerCase() + '."'); });
+  zoneLocs(z).forEach(function (id) { if (id !== H.loc && !H.explored[id] && b.explored[id] && QUEST_HINT[LOCS[id].type]) add('qh' + id, 20, '"Ở ' + LOCS[id].name + ', ' + qGiver(id, G) + ' đang cần người giúp đấy."'); });
   return F.sort(function (a, c) { return c.pr - a.pr; });
 }
 function infoLie(G, b) {
@@ -4286,6 +4305,89 @@ function partyTick(G) {
   });
 }
 /* ===== HÀNH ĐỘNG CỦA NGƯỜI CHƠI ===== */
+/* ===== Dân làng nhờ việc (2026.11.09-4): thay cho "Nói chuyện với dân làng" =====
+   Hỏi chuyện NPC → họ nói một câu (giữ manh mối cũ trong TALK) rồi nhờ một việc. Nhận lời thì thành nhiệm vụ:
+   tối đa 3 việc cùng lúc, mỗi NPC nhờ tối đa 2 việc một ván, hạn 3 tiếng (quá hạn tự huỷ, không phạt).
+   Xong thì thưởng tiền hoặc một thẻ thường/tốt; nơi có mảnh bùa của dân làng thì kèm mảnh bùa; nhà dân, Chợ, Trạm xá đôi khi dạy thêm món nấu. */
+var QMAX = 3, QPER_NPC = 5, QDUE = 180, QDUE_FAR = 300;
+var QCARDS = ['bandage', 'swift', 'harvest', 'compass', 'smoke', 'pouch'];
+var QNPC_N = { hall: 'Dân làng', chief: 'Trưởng làng', market: 'Thương nhân', clinic: 'Bác sĩ', farm: 'Bác nông dân', pier: 'Ông câu cá', mine: 'Người gác cổng', forge: 'Thợ rèn', house: 'Chủ nhà' };
+var NPCQ = {
+  farm: [{ k: 'fish', n: 2 }], pier: [{ k: 'crop', n: 2 }], forge: [{ k: 'ore', n: 2 }, { k: 'ore', n: 1 }], mine: [{ k: 'cooked', n: 1 }],
+  clinic: [{ k: 'herb', n: 2 }, { k: 'deliver', to: 'house' }], market: [{ k: 'fish', n: 3 }, { k: 'crop', n: 3 }, { k: 'deliver', to: 'forge' }],
+  chief: [{ k: 'deliver', to: 'clinic' }, { k: 'deliver', to: 'hall' }], hall: [{ k: 'herb', n: 1 }, { k: 'food', n: 2 }], house: [{ k: 'food', n: 1 }, { k: 'herb', n: 1 }]
+};
+var QLINES = {
+  farm: { bring: ['Bác nông dân lau mồ hôi: "Lúa khoai thì không thiếu, chỉ thèm miếng cá. Cháu kiếm giùm bác {need} nhé?"', 'Bác nông dân nhìn về phía sông: "Bác không dám ra bờ sông nữa. Cháu mang giùm bác {need} về đây được không?"'],
+    thx: ['Bác nông dân cười lộ hàm răng thiếu mấy chiếc: "Tốt quá. Cầm lấy, coi như bác đổi công."', 'Bác nông dân gói cá vào lá chuối: "Cháu tử tế thật. Ở làng này giờ hiếm người như cháu lắm."'] },
+  pier: { bring: ['Ông câu cá không rời mắt khỏi phao: "Ăn cá mãi cũng ngán. Cháu có {need} thì mang qua cho lão."', 'Ông câu cá gõ gõ cần câu: "Lão ngồi đây từ sáng, chưa có gì bỏ bụng ngoài cá. Kiếm giùm lão {need} được không?"'],
+    thx: ['Ông câu cá gật gù: "Được, được. Lão không quên đâu."', 'Ông câu cá cất phần rau củ dưới ghế: "Nhớ đừng đứng gần mép nước lâu quá, cháu ạ."'] },
+  forge: { bring: ['Thợ rèn đập búa xuống đe: "Hết quặng rồi. Ai mang tới {need} thì ta không để thiệt."', 'Thợ rèn chùi tay vào tạp dề: "Lò còn nóng mà hết thứ để rèn. Mang giùm ta {need} từ hầm mỏ."'],
+    thx: ['Thợ rèn cân quặng trong tay: "Quặng tốt. Đây, phần của ngươi."', 'Thợ rèn gật đầu, đã quay lại với lò lửa: "Được. Cần rèn gì thì cứ ghé."'] },
+  mine: { bring: ['Người gác cổng chống giáo, bụng sôi ùng ục: "Canh cổng từ đêm qua, chưa có gì nóng bỏ bụng. Mang giùm ta {need} đi."', 'Người gác cổng hạ giọng: "Ở đây lạnh lắm. Ai cho ta {need} thì ta nhớ mặt người đó."'],
+    thx: ['Người gác cổng ăn ngấu nghiến: "Ấm cả người. Cầm lấy cái này."', 'Người gác cổng lau miệng, lần đầu gật đầu với bạn: "Được. Cảm ơn."'] },
+  clinic: { bring: ['Bác sĩ lật cái giỏ trống không: "Hết thảo dược rồi. Em kiếm giùm tôi {need} được không? Người ở đây cần lắm."', 'Bác sĩ nói mà không ngẩng lên: "Thêm {need} nữa là tôi cầm cự được qua đêm."'],
+    deliver: ['Bác sĩ đưa bạn một gói thuốc buộc dây: "Mang giùm tôi {need}. Có người ở đó đang sốt, tôi không rời đây được."'],
+    thx: ['Bác sĩ thở ra: "Cảm ơn em. Đây, em cầm lấy, ngoài kia em cần nó hơn tôi."', 'Bác sĩ cất đồ vào ngăn tủ: "Em tốt bụng quá. Nhớ giữ mình."'] },
+  market: { bring: ['Thương nhân gõ ngón tay lên quầy: "Hàng về chậm quá. Khách mang tới {need}, ta trả sòng phẳng."'],
+    deliver: ['Thương nhân liếc quanh rồi cúi xuống: "Có chuyến hàng cần đưa đi. Khách giao giùm {need} nhé, tiền công không thiếu."'],
+    thx: ['Thương nhân đếm lại một lượt: "Đủ. Làm ăn với khách thật dễ chịu."', 'Thương nhân cười mỏng: "Lần sau có hàng, nhớ ghé ta trước."'] },
+  chief: { deliver: ['Trưởng làng đưa bạn một lá thư gấp tư: "Mang giùm ta {need}. Đừng mở ra."', 'Trưởng làng chống gậy: "Chân ta yếu rồi. Cháu đưa giùm ta {need}, nhanh lên một chút."'],
+    thx: ['Trưởng làng gật đầu chậm rãi: "Ta biết có thể tin cháu."', 'Trưởng làng: "Tốt. Làng này còn cần những người như cháu."'] },
+  hall: { bring: ['Một người dân kéo tay áo bạn: "Nhà tôi còn đứa nhỏ đang ốm. Bạn có {need} không, cho tôi xin."', 'Một người dân nói nhỏ: "Mấy hôm nay không ai dám ra đồng. Bạn có {need} thì giúp tôi với."'],
+    thx: ['Người dân cúi đầu cảm ơn rối rít: "Tôi chỉ có chừng này, bạn nhận cho."', 'Người dân nắm tay bạn thật chặt: "Cảm ơn. Bạn cẩn thận nhé."'] },
+  house: { bring: ['Chủ nhà nhìn cái bếp lạnh: "Nhà hết cái ăn rồi. Cháu có {need} thì để lại giùm."', 'Chủ nhà ho khan: "Tôi đau người, không đi đâu được. Cháu kiếm giùm tôi {need} nhé."'],
+    thx: ['Chủ nhà nhận lấy bằng hai tay: "Quý hóa quá. Cái này nhà tôi giữ lâu rồi, cháu cầm đi."', 'Chủ nhà mỉm cười lần đầu từ lúc bạn bước vào: "Cảm ơn cháu."'] }
+};
+var QDELIVER = ['{nm} dúi vào tay bạn một gói nhỏ buộc dây: "Đưa giùm {need} nhé. Tôi không đi được."', '{nm} nhìn quanh rồi nói khẽ: "Có cái này cần mang tới chỗ khác. Bạn đưa giùm {need} được không?"'];
+var QBRING = ['{nm} ngập ngừng: "Bạn kiếm giùm tôi {need} được không?"', '{nm} thở dài: "Giá mà có {need}. Bạn giúp tôi được không?"'];
+var QNO = ['{nm} thở dài: "Thôi, không sao."', '{nm} gật đầu, không nói gì thêm.', '{nm}: "Ừ. Lúc nào rảnh thì quay lại."'];
+function qType(id) { var t = LOCS[id].type; return QNPC_N[t] && t !== 'house' ? t : 'house'; }
+function qGiver(id, G) { var t = qType(id); if (t === 'chief' && G && !G.chiefAlive) return 'Người nhà trưởng làng'; if (t === 'clinic' && G && G.heals <= 0) return 'Y tá'; return t === 'house' ? 'Chủ nhà ' + LOCS[id].name.replace(/^Nhà dân /, '') : QNPC_N[t] || 'Dân làng'; }
+/* đồ làm ra được trong từng khu (việc đầu tiên ở mỗi nơi chỉ nhờ trong khu) */
+var QZONE_ITEMS = { farm: ['crop', 'fish', 'herb'], mine: ['ore'], center: [] };
+function qNeed(q) {
+  if (q.k === 'deliver') return (q.what || 'gói đồ') + ' tới ' + LOCS[q.to].name;
+  return q.n + ' ' + ({ fish: 'con cá', crop: 'nông sản', food: 'thực phẩm', ore: 'quặng', herb: 'thảo dược', cooked: 'bát cháo hoặc món nấu' })[q.k];
+}
+function qRew(q) { return q.rew.money ? q.rew.money + ' tiền' : '<' + CARDN[q.rew.card] + '>'; }
+function qHave(p, k) {
+  if (k === 'fish' || k === 'crop') { foodsOf(p); var c = 0; Object.keys(p.foods).forEach(function (x) { if (/^ca_/.test(x) === (k === 'fish')) c += p.foods[x]; }); return c; }
+  if (k === 'food') return p.items.food || 0;
+  if (k === 'cooked') { var d = p.items.porridge || 0; DISH_KEYS.forEach(function (x) { d += p.items[x] || 0; }); return d; }
+  return p.items[k] || 0;
+}
+function qTake(p, k, n) {
+  for (var i = 0; i < n; i++) {
+    if (k === 'fish' || k === 'crop') { foodsOf(p); var fk = Object.keys(p.foods).filter(function (x) { return p.foods[x] > 0 && /^ca_/.test(x) === (k === 'fish'); })[0]; if (fk) takeFood(p, fk); }
+    else if (k === 'food') takeFood(p);
+    else if (k === 'cooked') { if (p.items.porridge > 0) p.items.porridge--; else { var dk = DISH_KEYS.filter(function (x) { return p.items[x] > 0; })[0]; if (dk) p.items[dk]--; } }
+    else p.items[k]--;
+  }
+}
+function qTick(G) {
+  var p = G.players[0]; if (!p.quests || !p.quests.length || !p.alive || G.over) return;
+  p.quests = p.quests.filter(function (q) { if (G.t <= q.due) return true; say(G, 'Việc ' + q.giver + ' nhờ (' + qNeed(q) + ') đã quá hạn. Có lẽ họ đã tự xoay xở.', 'info'); return false; });
+}
+function qPay(G, p, q, thx) {
+  if (thx) say(G, thx, 'npc');
+  if (q.rew.card && !noRoom(p, q.rew.card)) { giveItem(p, { k: q.rew.card }); say(G, 'Bạn nhận được ' + itemLine({ k: q.rew.card }) + '.', 'good'); }
+  else { var m = q.rew.money || 40; p.money += m; say(G, 'Bạn nhận được ' + m + ' tiền.', 'good'); }
+  var sh = G.locs[q.loc];
+  if (sh && sh.npcShard > 0 && !noRoom(p, 'shard')) {
+    sh.npcShard--; p.items.shard++; ach(G, 'shards');
+    story(G, 'shard', '"Mảnh gì đây... Giữ lấy. Thứ gì người trong làng cất kỹ thì thường có lý do."', '"Cái này ấm lạ lắm. Anh giữ đi, đừng làm mất."');
+    say(G, q.giver + ' dúi thêm vào tay bạn một vật nhỏ: "Thứ này nhà tôi giữ từ đời ông bà. Có lẽ bạn cần hơn." Bạn nhận một <Mảnh bùa>.', 'good');
+  }
+  var src = q.type === 'house' ? 'house' : (q.type === 'market' || q.type === 'clinic' ? q.type : null);
+  if (src) {
+    var unkR = DISHES.filter(function (d) { return d.src === src && !recipeKnown(d.k); });
+    var rr1 = G.R(), rr2 = G.R();   /* luôn tung đủ 2 lần để cùng mã ván chơi lại y hệt */
+    if (unkR.length && rr1 < 0.5) { var dl = unkR[Math.floor(rr2 * unkR.length)]; learnRecipe(dl.k); say(G, DISH_TALK[dl.k], 'npc'); say(G, 'Bạn nhớ được cách nấu <' + dl.n + '>. Từ giờ bếp nhà dân có thêm món này.', 'good'); }
+  }
+  p.questsDone = (p.questsDone || 0) + 1; ach(G, 'quest');
+  completeQuest(G, p, q.loc, true);
+}
 var TALK = {
   house: ['Bà cụ thì thầm: "Nhà tôi chỉ yên ổn được ba canh giờ kể từ khi có người đầu tiên bước vào. Lửa bếp tắt là phải đi."',
     'Một ông lão nhìn ra cửa: "Có lúc cả xóm bỗng đổi tính. Người ta bảo quỷ chỉ ngửi thấy mùi máu."',
@@ -4374,8 +4476,17 @@ var HALL_HINTS = [
 
 function me(G) { return G.players[0]; }
 function allOthers(G) { return occupants(G, me(G).loc).filter(function (p) { return !p.human; }); }
-/* chỉ thấy đồng đội đi cùng; người khác phải Quan sát mới biết */
-function presentOthers(G) { var p = me(G); if (p.noticedLoc !== p.loc) { p.noticed = {}; p.noticedLoc = p.loc; } var nt = p.noticed; return allOthers(G).filter(function (o) { return (o.special !== 'leon' || (G.leon && G.leon.met)) && (o.follow || nt[o.id] || p.censusUntil > G.t); }); }
+/* biết khu đang nhiễm (2026.11.09-2): đợt này đã bị quỷ vồ/thấy quỷ ở khu này, đã dùng hoặc nhờ Anomaly Sense, Quan sát thấy dân làng lạ, hoặc đang có Radar */
+function seeInf(G, p) { if (p && p.human && G.infected && p.zone === G.infected) p.infSeen = G.waves + ':' + p.zone; }
+function infKnown(G, p) { return !!G.infected && G.infected === p.zone && (p.radarUntil > G.t || p.infSeen === G.waves + ':' + p.zone); }
+/* Heartbeat Map: mỗi người chơi còn sống là một chấm sáng có tên; Leon chưa chạm mặt thì chỉ là "một người mang xích"; ai đang dùng Null Presence thì không hiện */
+function heartbeatLine(G) {
+  var H = G.players[0], by = {};
+  G.players.forEach(function (q) { if (q === H || !q.alive || q.ghostUntil > G.t) return; (by[q.loc] = by[q.loc] || []).push(q.special === 'leon' && !(G.leon && G.leon.met) ? 'một người mang xích' : q.name); });
+  var parts = Object.keys(ZONES).map(function (z) { var ls = LOC_IDS.filter(function (id) { return LOCS[id].zone === z && by[id]; }); return ls.length ? ZONES[z].name + ': ' + ls.map(function (id) { return LOCS[id].name + ' (' + by[id].join(', ') + ')'; }).join('; ') : ''; }).filter(Boolean);
+  return parts.length ? 'Trên bản đồ: ' + parts.join(' · ') + '.' : 'Trên bản đồ không còn chấm nào ngoài bạn.';
+}
+function presentOthers(G) { var p = me(G); if (p.noticedLoc !== p.loc) { p.noticed = {}; p.noticedLoc = p.loc; } var nt = p.noticed; return allOthers(G).filter(function (o) { return (o.special !== 'leon' || (G.leon && G.leon.met)); }); }   /* từ 2026.11.09-2 tới nơi là thấy mọi người ở đó, không cần Quan sát */
 function isDangerHere(G) {
   var p = me(G), l = LOCS[p.loc], s = G.locs[p.loc];
   if (isHouse(l)) return s.expired;
@@ -4511,7 +4622,8 @@ function senseMsg(G, zz, who, loc) {
   return pick(G.R, SENSE_LINES[who || 'self'][k]).replace('{X}', fmt(x));
 }
 
-function completeQuest(G, p, id) {
+function completeQuest(G, p, id, byQuest) {
+  if (p.human && !byQuest) return;   /* từ 2026.11.09-5: khám phá = giúp dân làng ở nơi đó một việc; việc cũ thành việc tự chọn */
   if (p.explored[id]) return;
   p.explored[id] = true;
   say(G, 'Khám phá hoàn tất: ' + LOCS[id].name + ' (' + exploredCount(p) + '/13 địa điểm).', 'good');
@@ -4524,10 +4636,9 @@ function completeQuest(G, p, id) {
 function questText(G, p, id) {
   if (p.explored[id]) return 'Đã khám phá';
   var t = LOCS[id].type;
-  if (t === 'market' && G.starved) return 'Chưa khám phá: chợ đã đóng, hãy nói chuyện với thương nhân.';
-  if (t === 'chief' && !G.chiefAlive) return 'Chưa khám phá: trưởng làng đã chết, hãy đăng kí với người nhà (60 tiền) hoặc nói chuyện với họ.';
-  if (t === 'clinic' && G.heals <= 0) return 'Chưa khám phá: trạm xá đã đóng, hãy nói chuyện với bác sĩ.';
-  return 'Chưa khám phá: ' + QUEST_HINT[t];
+  var gq = (p.quests || []).filter(function (q) { return q.loc === id; })[0];
+  if (gq) return 'Chưa khám phá: đang làm việc ' + gq.giver + ' nhờ (' + qNeed(gq) + ').';
+  return 'Chưa khám phá: hỏi chuyện ' + qGiver(id, G) + ' và giúp họ một việc.';
 }
 
 
@@ -4743,7 +4854,7 @@ function peopleDoCore(G, k, parts, wasArm) {
     if (o.senseReadyAt > G.t || !has(o, 'Anomaly Sense')) return;
     var os = after(5); if (!os) return;
     os.senseReadyAt = G.t + 60;
-    say(G, os.name + ' nhắm mắt một lúc (Anomaly Sense). ' + os.name + ': ' + senseMsg(G, p.zone, 'ally', p.loc), 'story'); return;
+    seeInf(G, p); say(G, os.name + ' nhắm mắt một lúc (Anomaly Sense). ' + os.name + ': ' + senseMsg(G, p.zone, 'ally', p.loc), 'story'); return;
   }
   if (k === 'pmedic') {
     if ((o.medicUsed || 0) >= 3) return;
@@ -4925,8 +5036,8 @@ function listActions(G) {
         if (sk === 'food' || sk === 'material' || !holds2(p, sk) || !sellBack(sk)) return;
         add('here', 'sellx:' + sk, 'Bán ' + kindName(sk) + ' · ' + sellBack(sk) + 'đ', 5, 'Còn ' + kindCount(p, sk), mClosed);
       });
-      [['map', 'Bản đồ - Map'], ['teleport', 'Thẻ Teleport'], ['harvest', 'Thẻ Harvest'], ['bandage', 'Thẻ Bandage'], ['census', 'Thẻ Census Sheet'], ['pouch', 'Thẻ Spare Pouch'], ['smoke', 'Thẻ Smoke Veil'], ['protect', 'Thẻ Protect'], ['ghost', 'Thẻ Null Presence'], ['hunter', "Thẻ Hunter's Device"]].forEach(function (a) {
-        var st = G.market[a[0]];
+      [['map', 'Bản đồ - Map'], ['teleport', 'Thẻ Teleport'], ['harvest', 'Thẻ Harvest'], ['bandage', 'Thẻ Bandage'], ['census', 'Thẻ Heartbeat Map'], ['lastbreath', 'Thẻ Last Breath'], ['pouch', 'Thẻ Spare Pouch'], ['smoke', 'Thẻ Smoke Veil'], ['protect', 'Thẻ Protect'], ['ghost', 'Thẻ Null Presence'], ['hunter', "Thẻ Hunter's Device"]].forEach(function (a) {
+        var st = G.market[a[0]]; if (st == null) st = G.market[a[0]] = a[0] === 'lastbreath' ? 1 : 0;   /* ván lưu trước 2026.11.09-3 chưa có Last Breath ở Chợ */
         add('here', 'buy:' + a[0], 'Mua ' + a[1] + ' · ' + mprice(G, a[0]) + 'đ', 5, (mate(G, "Trader's Eye") ? '🏷️ giảm 25% · ' : '') + 'Còn ' + st + (a[0] === 'map' ? ' · không cần thư giới thiệu' : ''), (a[0] === 'map' ? mClosed : mOff) || (st <= 0 ? 'Hết hàng.' : (p.money < mprice(G, a[0]) ? 'Không đủ tiền.' : (noRoom(p, a[0]) ? FULL_MSG : null))));
       });
       add('here', 'buy:weapon', 'Mua thẻ vũ khí · ' + mprice(G, 'weapon') + 'đ', 5, 'Dùng để tăng sức mạnh vĩnh viễn', mOff || (p.money < mprice(G, 'weapon') ? 'Không đủ tiền.' : (noRoom(p, 'weapon') ? FULL_MSG : null)));
@@ -4959,9 +5070,20 @@ function listActions(G) {
       break;
   }
   // chung
-  add('here', 'observe', 'Quan sát xung quanh', 5, 'Nhìn kỹ người chơi và dân làng');
-  if (G.infected === p.zone && !G.solved && !isHouse(l)) add('here', 'hunt', 'Săn quỷ', 10, 'Chủ động tìm một con quỷ mà đánh. Hạ được thì nhận chúc phúc, hụt thì có thể bị phản đòn. Đã săn ' + ((p.huntAt || {})[p.loc] || 0) + '/3 lần ở đây', p.hp < 25 ? 'Bạn yếu quá, săn lúc này là tự sát.' : (((p.huntAt || {})[p.loc] || 0) >= 3 ? 'Bạn đã săn ở đây 3 lần. Lũ quỷ quanh chỗ này đã cảnh giác, hãy sang nơi khác.' : null));
-  add('here', 'talk', 'Nói chuyện với dân làng', 5, 'Lấy thông tin');
+  add('here', 'observe', 'Quan sát xung quanh', 5, 'Nhìn kỹ hơn: tính cách người ở đây, dân làng, dấu vết trong nhà');
+  if (G.infected === p.zone && !G.solved && !isHouse(l) && infKnown(G, p)) add('here', 'hunt', 'Săn quỷ', 10, 'Chủ động tìm một con quỷ mà đánh. Hạ được thì nhận chúc phúc, hụt thì có thể bị phản đòn. Đã săn ' + ((p.huntAt || {})[p.loc] || 0) + '/3 lần ở đây', p.hp < 25 ? 'Bạn yếu quá, săn lúc này là tự sát.' : (((p.huntAt || {})[p.loc] || 0) >= 3 ? 'Bạn đã săn ở đây 3 lần. Lũ quỷ quanh chỗ này đã cảnh giác, hãy sang nơi khác.' : null));
+  (function () {   /* dân làng nhờ việc */
+    var qs = p.quests || [], gv = qGiver(p.loc, G), ls = G.locs[p.loc], qof = ls.qOffer, hostile = isDangerHere(G) && !isHouse(l);
+    if (qof && !hostile) {
+      add('here', 'qtake', 'Nhận lời: ' + qNeed(qof), 0, 'Thưởng ' + qRew(qof) + ' · hạn ' + (qof.far ? '5' : '3') + ' tiếng' + (p.explored[p.loc] ? '' : ' · xong là khám phá ' + l.name), qs.length >= QMAX ? 'Bạn đang nhận đủ ' + QMAX + ' việc.' : null);
+      add('here', 'qno', 'Từ chối', 0, '');
+    } else add('here', 'talk', 'Hỏi chuyện ' + gv, 5, (ls.qN || 0) >= QPER_NPC ? 'Họ không còn việc gì nhờ bạn nữa' : 'Xem họ có cần giúp gì không');
+    if (hostile) return;
+    qs.forEach(function (q, i) {
+      if (q.k === 'deliver') { if (q.to === p.loc) add('here', 'qdrop:' + i, 'Giao ' + (q.what || 'gói đồ') + ' của ' + q.giver, 5, 'Thưởng ' + qRew(q)); }
+      else if (q.loc === p.loc) { var hv = qHave(p, q.k); add('here', 'qgive:' + i, 'Trao ' + qNeed(q) + ' cho ' + q.giver, 5, 'Thưởng ' + qRew(q), hv >= q.n ? null : 'Còn thiếu (đang có ' + hv + '/' + q.n + ').'); }
+    });
+  })();
   var sd = p.searches[p.loc] || 0, chestSeen = !!seenChest(G, p.loc);
   var fOff = chestSeen ? 'Bạn đã thấy rương ở đây, hãy giải mã.' : (sd >= SEARCH_MAX ? 'Bạn đã lục kỹ mọi ngóc ngách.' : null);
   add('here', 'findchest', l.type === 'house' ? 'Lục soát nhà (tìm rương)' : 'Tìm rương', '1–5', 'Có thể thấy rương, cũng có thể không. Đã lục ' + sd + '/' + SEARCH_MAX + ' lần', fOff);
@@ -5006,7 +5128,7 @@ function listActions(G) {
     ['harvest', 'Ngăn thực phẩm +1 ô', 0, null], ['mystery', 'Hồi đầy HP, miễn hiệu ứng xấu 1 giờ', 0, null],
     ['irondoor', 'Nhà dân đang ở thêm 60 phút an toàn', 0, inHouseOk ? null : 'Chỉ dùng được trong nhà dân còn an toàn.'],
     ['bandage', 'Chữa mọi hiệu ứng xấu, miễn nhiễm 30 phút', 5, null], ['compass', 'Cho biết nơi nào trong khu còn rương, còn bao nhiêu', 5, null],
-    ['census', '2 tiếng: tới đâu cũng thấy ngay ai ở đó', 0, null], ['swift', '3 lần di chuyển cả nhóm trong khu không tốn phút', 0, null],
+    ['census', 'Cho biết mọi người chơi còn sống đang ở đâu', 0, null], ['lastbreath', 'Tự bật khi bạn gục: đứng dậy với 30 HP', 0, 'Tự bật, không cần bấm.'], ['swift', '3 lần di chuyển cả nhóm trong khu không tốn phút', 0, null],
     ['knuckle', '+2 sức mạnh trong 1 tiếng, cả khi đánh quỷ', 0, p.knuckle ? 'Đang có hiệu lực.' : null], ['pouch', 'Ngăn thẻ +1, thực phẩm +2', 0, null]].forEach(function (c) {
     if (p.cards[c[0]] > 0) add('card', 'card:' + c[0], 'Dùng <' + CARDN[c[0]] + '> ×' + p.cards[c[0]], c[2], c[1], c[3]);
   });
@@ -5105,6 +5227,7 @@ function doAction(G, id) {
   G.fxDrain = null;
   G.noise = NOISE[String(id).split(':')[0]] || 0;
   try { doActionCore(G, id); } finally { G.noise = 0; }
+  qTick(G);
   var fd = G.fxDrain; G.fxDrain = null;
   if (fd && fd.d > 0 && G.players[0].alive) {
     var nm = Object.keys(fd.k).map(function (k) { return '<' + FXN[k] + '>'; }).join(', ') || 'hiệu ứng xấu';
@@ -5381,7 +5504,7 @@ function doActionCore(G, id) {
       else say(G, '<Echo Compass> quay tròn rồi đứng im: khu này không còn rương nào chưa mở.', 'info');
       run(5);
     }
-    if (arg === 'census') { p.censusUntil = G.t + 120; say(G, '<Census Sheet> mở ra: trong 2 tiếng, tới đâu bạn cũng biết ngay ai đang ở đó.', 'good'); }
+    if (arg === 'census') { say(G, '<Heartbeat Map> mở ra. Mỗi chấm sáng trên bản đồ là một người còn sống, cạnh chấm có tên.', 'good'); say(G, heartbeatLine(G), 'info'); }
     if (arg === 'swift') { p.swiftLeft = (p.swiftLeft || 0) + 3; say(G, '<Swift Step>: 3 lần di chuyển kế tiếp trong khu không tốn thời gian.', 'good'); }
     if (arg === 'knuckle') { p.knuckle = true; p.knuckleUntil = G.t + 61; say(G, '<Iron Knuckle> bọc lấy nắm tay: trong 1 tiếng, sức mạnh +2 ở mọi trận đánh, kể cả khi đánh quỷ.', 'good'); }
     if (arg === 'pouch') { p.pouch = (p.pouch || 0) + 1; say(G, '<Spare Pouch>: túi rộng thêm 1 ô thẻ và 2 ô thực phẩm.', 'good'); }
@@ -5405,7 +5528,7 @@ function doActionCore(G, id) {
       if (s.expired) t.push('Lửa bếp đã tắt. Những cái bóng cựa mình ở góc nhà.');
       else if (s.since == null) t.push('Bếp lạnh, không dấu chân.');
       else { var e = G.t - s.since; t.push(e < 60 ? 'Tro bếp còn ấm. Có người vào cách đây chưa lâu.' : e < 120 ? 'Tro bếp ấm vừa, dấu bùn đã khô một nửa.' : 'Tro bếp gần nguội, dấu chân cũ. Nhà này đã có người ở khá lâu rồi.'); }
-    } else if (G.infected && p.zone === G.infected) t.push('Đám dân làng đứng im, đồng tử đỏ ngầu, không đáp lời ai. Họ đang đánh hơi.');
+    } else if (G.infected && p.zone === G.infected) seeInf(G, p), t.push('Đám dân làng đứng im, đồng tử đỏ ngầu, không đáp lời ai. Họ đang đánh hơi.');
     else t.push('Dân làng đi lại bình thường.');
     var pr2 = mate(G, 'Read Intent');
     if (pr2) { var foes = oth.filter(function (o) { return !o.follow && o.trust < 0.22; }); t.push(pr2.name + ' thì thầm: ' + (foes.length ? '"Cẩn thận ' + foes.map(function (o) { return o.name; }).join(', ') + ', họ có ý định tấn công."' : '"Không ai ở đây định ra tay với mình."')); }
@@ -5419,36 +5542,59 @@ function doActionCore(G, id) {
       strike(G, p);
       if (!G.over) run(5); return;
     }
-    var pool = TALK[l.type] || TALK.house;
-    say(G, 'Bạn bắt chuyện với người dân ở đây.', 'me');
+    var pool = TALK[l.type] || TALK.house, gvn = qGiver(p.loc, G), lsq = G.locs[p.loc];
+    say(G, 'Bạn hỏi chuyện ' + gvn + '.', 'me');
     var r2 = run(5);
     if (!G.over) {
       say(G, pick(G.R, pool), 'npc');
-      (function () {
-        var src = l.type === 'house' ? 'house' : (l.type === 'market' ? 'market' : (l.type === 'clinic' ? 'clinic' : null));
-        if (!src) return;
-        var unkR = DISHES.filter(function (d) { return d.src === src && !recipeKnown(d.k); });
-        var rr1 = G.R(), rr2 = G.R();   /* luôn tung đủ 2 lần để cùng mã ván chơi lại y hệt dù Hồ sơ biết khác công thức */
-        if (!unkR.length || rr1 >= 0.3) return;
-        var dl = unkR[Math.floor(rr2 * unkR.length)];
-        learnRecipe(dl.k);
-        say(G, DISH_TALK[dl.k], 'npc');
-        say(G, 'Bạn nhớ được cách nấu <' + dl.n + '>. Từ giờ bếp nhà dân có thêm món này.', 'good');
-      })();
-      p.giftAt = p.giftAt || {};
-      var sh = G.locs[p.loc];
-      if (sh.npcShard > 0 && G.R() < 0.35) {
-        if (noRoom(p, 'shard')) say(G, 'Một dân làng chìa ra một mảnh gì đó lấp lánh, nhưng túi bạn đã đủ loại đồ.', 'info');
-        else { sh.npcShard--; p.items.shard++; ach(G, 'shards'); story(G, 'shard', '"Mảnh gì đây... Giữ lấy. Thứ gì người trong làng cất kỹ thì thường có lý do."', '"Cái này ấm lạ lắm. Anh giữ đi, đừng làm mất."'); say(G, 'Dân làng dúi vào tay bạn một vật nhỏ: "Thứ này nhà tôi giữ từ đời ông bà. Có lẽ cậu cần hơn." Bạn nhận một <Mảnh bùa>.', 'good'); }
-      } else if (!p.giftAt[p.loc] && G.R() < 0.12) {
-        var gk2 = wpick(G.R, NPC_GIFT.map(function (x) { return x[0]; }), NPC_GIFT.map(function (x) { return x[1]; }));
-        if (gk2 === 'map' && p.items.map) gk2 = 'herb';
-        if (!noRoom(p, gk2)) { p.giftAt[p.loc] = true; giveItem(p, { k: gk2 }); say(G, 'Một người dân thấy bạn tử tế nên tặng bạn ' + itemLine({ k: gk2 }) + '.', 'good'); }
-      }
       if (l.type === 'chief' && !G.chiefAlive) completeQuest(G, p, 'chief');
       if (l.type === 'market' && G.starved) completeQuest(G, p, 'market');
       if (l.type === 'clinic' && G.heals <= 0) completeQuest(G, p, 'clinic');
+      var qt0 = qType(p.loc), first = !(lsq.qN || 0) && !(p.quests || []).some(function (q) { return q.loc === p.loc; });
+      var opts;
+      if (first) {   /* việc đầu tiên ở nơi này: làm được ngay trong khu (giao đồ trong khu, hoặc 1 món khu này làm ra) */
+        opts = [{ k: 'deliver', near: 1 }];
+        (QZONE_ITEMS[l.zone] || []).forEach(function (k) { if ((NPCQ[qt0] || []).some(function (o) { return o.k === k; }) || qt0 === 'house' || qt0 === 'hall') opts.push({ k: k, n: 1 }); });
+      } else {
+        opts = (NPCQ[qt0] || []).filter(function (o) { return !(p.quests || []).some(function (q) { return q.loc === p.loc && q.k === o.k; }); }).concat([{ k: 'deliver', far: 1 }]);
+      }
+      if ((lsq.qN || 0) < QPER_NPC && opts.length) {
+        var o = pick(G.R, opts), q = { k: o.k, n: o.n || 0, loc: p.loc, type: qt0, giver: gvn };
+        if (o.k === 'deliver') {
+          var dests = o.near ? LOC_IDS.filter(function (id) { return id !== p.loc && LOCS[id].zone === l.zone; })
+            : o.far ? LOC_IDS.filter(function (id) { return LOCS[id].zone !== l.zone; })
+            : o.to === 'house' ? LOC_IDS.filter(function (id) { return isHouse(LOCS[id]) && id !== p.loc; }) : [o.to];
+          q.to = pick(G.R, dests); q.what = qt0 === 'chief' ? 'lá thư' : (qt0 === 'clinic' ? 'gói thuốc' : (qt0 === 'house' || qt0 === 'hall' ? 'gói đồ' : 'gói hàng'));
+        }
+        q.far = o.k === 'deliver' ? LOCS[q.to].zone !== l.zone : (QZONE_ITEMS[l.zone] || []).indexOf(o.k) < 0;
+        var hard = o.k === 'deliver' ? (q.far ? 4 : 1) : Math.max(1, q.n) + (o.k === 'cooked' ? 1 : 0) + (q.far ? 1 : 0);
+        q.rew = G.R() < 0.5 ? { money: 15 + hard * 15 + Math.floor(G.R() * 3) * 5 } : { card: pick(G.R, QCARDS) };
+        lsq.qOffer = q;
+        var LL = QLINES[qt0] || QLINES.hall, lines = o.k === 'deliver' ? (LL.deliver || QDELIVER) : ((NPCQ[qt0] || []).some(function (x) { return x.k === o.k; }) && LL.bring) || QBRING;
+        say(G, pick(G.R, lines).replace('{nm}', gvn).replace('{need}', qNeed(q)) + ' (Thưởng: ' + qRew(q) + ' · hạn ' + (q.far ? '5' : '3') + ' tiếng)', 'npc');
+      }
     }
+    return;
+  }
+  if (k === 'qtake') {
+    var qo = G.locs[p.loc].qOffer; if (!qo || (p.quests || []).length >= QMAX) return;
+    G.locs[p.loc].qOffer = null; G.locs[p.loc].qN = (G.locs[p.loc].qN || 0) + 1;
+    qo.due = G.t + (qo.far ? QDUE_FAR : QDUE); p.quests = (p.quests || []).concat([qo]);
+    say(G, 'Bạn nhận lời ' + qo.giver + ': ' + qNeed(qo) + ' trước ' + fmtT(qo.due) + '.', 'me');
+    return;
+  }
+  if (k === 'qno') {
+    var qx = G.locs[p.loc].qOffer; if (!qx) return;
+    G.locs[p.loc].qOffer = null; say(G, pick(G.R, QNO).replace('{nm}', qx.giver), 'npc'); return;
+  }
+  if (k === 'qgive' || k === 'qdrop') {
+    var qi = parseInt(arg, 10), qq = (p.quests || [])[qi]; if (!qq) return;
+    if (k === 'qgive' && (qq.loc !== p.loc || qHave(p, qq.k) < qq.n)) return;
+    if (k === 'qdrop' && qq.to !== p.loc) return;
+    var r3 = run(5); if (G.over || !p.alive) return;
+    p.quests.splice(qi, 1);
+    if (k === 'qgive') { qTake(p, qq.k, qq.n); say(G, 'Bạn trao ' + qNeed(qq) + ' cho ' + qq.giver + '.', 'me'); qPay(G, p, qq, pick(G.R, (QLINES[qq.type] || QLINES.hall).thx)); }
+    else { say(G, 'Bạn giao ' + (qq.what || 'gói đồ') + ' ở ' + LOCS[qq.to].name + '. Người nhận rối rít cảm ơn, nhờ bạn gửi lời tới ' + qq.giver + '. Trong gói có phần công ' + qq.giver + ' gửi sẵn cho bạn.', 'me'); qPay(G, p, qq, null); }
     return;
   }
   if (k === 'findchest') {
@@ -5510,7 +5656,7 @@ function doActionCore(G, id) {
     if (p.senseReadyAt > G.t) return;
     var r15 = run(5); if (G.over) return;
     p.senseReadyAt = G.t + 60;
-    say(G, senseMsg(G, p.zone, 'self', p.loc) + ' (Anomaly Sense)', 'npc'); return;
+    seeInf(G, p); say(G, senseMsg(G, p.zone, 'self', p.loc) + ' (Anomaly Sense)', 'npc'); return;
   }
   if (k === 'unlockgate') {
     var r16 = run(5); if (G.over) return;
@@ -6331,7 +6477,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.09-1';
+var GAME_VERSION = '2026.11.09-6';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6571,11 +6717,11 @@ var SF = (function () {
   var T = {
     hall: { home: [60, 63], hot: [{ k: 'board', x: 15, y: 46, fy: 59, ic: 'board', name: 'Bảng thông báo', ids: /^board$/ }, { k: 'bell', x: 64, y: 22, fy: 58, ic: 'bell', name: 'Chuông làng', ids: /^purify$/ }, ppl(112, 50, 64), look(32, 12), chest(90, 62, 66)] },
     chief: { home: [66, 64], hot: [{ k: 'door', x: 60, y: 43, fy: 53, ic: 'scroll', name: 'Cửa nhà trưởng làng', ids: /^register$/ }, { k: 'hearth', x: 40, y: 41, fy: 53, ic: 'bowl', name: 'Bếp lửa', ids: /^(cook(:.*)?|cookhint)$/ }, ppl(36, 62, 66), look(96, 14), chest(112, 64, 66)] },
-    market: { home: [46, 68], hot: [{ k: 's1', x: 19, y: 48, fy: 64, ic: 'coin', name: 'Thương nhân', ids: /^(info|sellfood|sellx:.+|trade_mat|talk)$/ }, { k: 's2', x: 51, y: 48, fy: 64, ic: 'card', name: 'Sạp thẻ', ids: /^buy:(?!weapon$|herb$)/ }, { k: 's3', x: 83, y: 48, fy: 64, ic: 'sword', name: 'Sạp vũ khí', ids: /^buy:weapon$/ }, { k: 's4', x: 113, y: 48, fy: 64, ic: 'leaf', name: 'Sạp thuốc', ids: /^buy:herb$/ }, ppl(66, 62, 68), look(24, 12), chest(120, 34, 64)] },
+    market: { home: [46, 68], hot: [{ k: 's1', x: 19, y: 48, fy: 64, ic: 'coin', name: 'Thương nhân', ids: /^(info|sellfood|sellx:.+|trade_mat|talk|qtake|qno|qgive:\d+|qdrop:\d+)$/ }, { k: 's2', x: 51, y: 48, fy: 64, ic: 'card', name: 'Sạp thẻ', ids: /^buy:(?!weapon$|herb$)/ }, { k: 's3', x: 83, y: 48, fy: 64, ic: 'sword', name: 'Sạp vũ khí', ids: /^buy:weapon$/ }, { k: 's4', x: 113, y: 48, fy: 64, ic: 'leaf', name: 'Sạp thuốc', ids: /^buy:herb$/ }, ppl(66, 62, 68), look(24, 12), chest(120, 34, 64)] },
     clinic: { home: [64, 61], hot: [{ k: 'door', x: 63, y: 42, fy: 53, ic: 'cross', name: 'Cửa trạm xá', ids: /^(nurse|patient)$/ }, { k: 'stove', x: 14, y: 48, fy: 60, ic: 'pot', name: 'Bếp thuốc', ids: /^brew$/ }, ppl(86, 50, 60), look(96, 14), chest(116, 40, 60)] },
     farm: { home: [46, 66], hot: [{ k: 'field', x: 58, y: 56, fy: 64, ic: 'wheat', name: 'Ruộng', ids: /^harvest$/ }, ppl(110, 58, 66), look(56, 12), chest(95, 38, 46, 'Kho thóc')] },
     pier: { home: [62, 47], hot: [{ k: 'river', x: 28, y: 58, fx: 46, fy: 47, ic: 'fish', name: 'Mặt sông', ids: /^(startpier|fish)$/ }, ppl(57, 36, 47), look(96, 14), chest(89, 39, 47, 'Chòi câu')] },
-    mine: { home: [64, 66], hot: [{ k: 'gate', x: 100, y: 50, fx: 92, fy: 62, ic: 'gate', name: 'Người gác cổng', ids: /^(gate|unlockgate|talk)$/ }, { k: 'dig', x: 72, y: 33, fx: 70, fy: 54, ic: 'pick', name: 'Lòng hầm', ids: /^dig$/ }, { k: 'cart', x: 52, y: 48, fx: 54, fy: 56, ic: 'cart', name: 'Xe goòng', ids: /^sellore$/ }, ppl(116, 34, 62), look(22, 12), chest(32, 44, 58)] },
+    mine: { home: [64, 66], hot: [{ k: 'gate', x: 100, y: 50, fx: 92, fy: 62, ic: 'gate', name: 'Người gác cổng', ids: /^(gate|unlockgate|talk|qtake|qno|qgive:\d+|qdrop:\d+)$/ }, { k: 'dig', x: 72, y: 33, fx: 70, fy: 54, ic: 'pick', name: 'Lòng hầm', ids: /^dig$/ }, { k: 'cart', x: 52, y: 48, fx: 54, fy: 56, ic: 'cart', name: 'Xe goòng', ids: /^sellore$/ }, ppl(116, 34, 62), look(22, 12), chest(32, 44, 58)] },
     forge: { home: [56, 59], hot: [{ k: 'anvil', x: 82, y: 38, fx: 80, fy: 54, ic: 'anvil', name: 'Đe rèn', ids: /^forge$/ }, ppl(64, 46, 54), look(24, 12), chest(112, 52, 58)] }
   };
   function cfg(loc) {
@@ -6611,7 +6757,7 @@ var SF = (function () {
       '<button class="hud-b hud-menu' + (UI.hudMenu ? ' on' : '') + '" data-hudmenu="1" aria-label="Menu: Tất cả việc, Nhật ký, Âm thanh, Cài đặt" aria-haspopup="true" aria-expanded="' + !!UI.hudMenu + '" title="Menu">' + ico('menu') + '</button>' +
       '<div class="hud-mn" role="menu"><button class="hud-mi hud-all" role="menuitem" data-ui="tab:all">' + ico('board') + 'Tất cả việc</button><button class="hud-mi hud-log" role="menuitem" data-ui="fulllog">' + ico('scroll') + 'Nhật ký</button><button class="hud-mi" role="menuitem" data-hudsnd="1"><span class="hud-mi-n">♪</span><span class="hud-sndl">' + (SND.prefs.muted ? 'Âm thanh: đang tắt' : 'Âm thanh: đang bật') + '</span></button><button class="hud-mi hud-gear" role="menuitem" data-ui="tab:more">' + ico('menu') + 'Cài đặt</button></div></div>' +
       '<div class="hud-s hud-stats"><span class="hud-hp' + (hp <= 35 ? ' low' : '') + '" title="Sinh lực">' + ico('heart') + hp + '<em class="hbar"><i style="width:' + hp + '%"></i></em></span><span title="Tiền">' + ico('coin') + p.money + 'đ</span><span title="Sức mạnh">' + ico('sword') + (+(effStr(p)).toFixed(1)) + '</span>' +
-      (ex >= 13 && !G.over && p.alive ? '<button class="hud-out" data-ui="cuara" aria-label="Cửa ra: rời ải hoặc ở lại">' + ico('door') + 'Cửa ra</button>' : '<span class="hud-ex" title="Vượt ải: khám phá đủ 13 nơi và sống tới hết 24 tiếng">' + ico('flag') + ex + '/13</span>') + '<span title="Thời gian đã trôi">' + ico('hourglass') + tp + '%</span>' + (st ? '<span class="hud-fx">' + st + '</span>' : '') + '</div>';
+      (ex >= 13 && !G.over && p.alive ? '<button class="hud-out" data-ui="cuara" aria-label="Cửa ra: rời ải hoặc ở lại">' + ico('door') + 'Cửa ra</button>' : '<span class="hud-ex" title="Vượt ải: khám phá đủ 13 nơi và sống tới hết 24 tiếng">' + ico('flag') + ex + '/13</span>') + '<span title="Thời gian đã trôi">' + ico('hourglass') + tp + '%</span>' + ((p.quests || []).length ? '<span class="hud-q" title="Nhiệm vụ dân làng nhờ: ' + esc(p.quests.map(function (q) { return q.giver + ': ' + qNeed(q); }).join(' · ')) + '">' + ico('scroll') + p.quests.length + '/' + QMAX + '</span>' : '') + (st ? '<span class="hud-fx">' + st + '</span>' : '') + '</div>';
     el.hidden = false;
   }
   /* việc của riêng bạn: Dùng nhanh, năng lực, chờ, xin đồng đội thảo dược */
@@ -6734,7 +6880,7 @@ var SF = (function () {
       }
       var c = cfg(p.loc);
       cur.acts = acts;
-      var npc = npcOf(p.loc), npcHot = npc.at ? [] : [{ k: 'npc', x: npc.x, y: npc.fy - 15, fx: npc.x + 6, fy: npc.fy, ic: 'talk', name: npc.name, named: 1, ids: /^talk$/ }];
+      var npc = npcOf(p.loc), npcHot = npc.at ? [] : [{ k: 'npc', x: npc.x, y: npc.fy - 15, fx: npc.x + 6, fy: npc.fy, ic: 'talk', name: npc.name, named: 1, ids: /^(talk|qtake|qno|qgive:\d+|qdrop:\d+)$/ }];
       cur.hots = c.hot.concat(npcHot, [EXIT, BAG]).map(function (h) { return Object.assign({}, h); }).filter(function (h) { return h.ui || hotActs(h, acts).length; });
       /* việc ở nơi này mà không chỗ nào trong tranh nhận: gom vào "Việc khác" để không mất việc nào */
       var claimed = {}; cur.hots.forEach(function (h) { hotActs(h, acts).forEach(function (a) { claimed[a.id] = 1; }); });
@@ -6866,7 +7012,9 @@ function nextGoal(G, p, idx) {
     return { t: 'Bạn đã đủ 13 nơi, nhưng ' + PE.name + ' mới xong ' + (13 - pl.length) + '/13 (còn thiếu: ' + pl.map(function (id) { return LOCS[id].name; }).join(', ') + '). Đưa ' + PE.name + ' quay lại những nơi đó cùng bạn một lúc, hoặc rời ải trước.', ic: 'people', act: act('leave:go') };
   }
   if (allExplored(p)) return { t: 'Bạn đã khám phá đủ 13 nơi. Có thể rời ải bất cứ lúc nào.', ic: 'door', act: act('leave:go') };
-  if (!p.explored[p.loc]) return { t: 'Làm việc ở chỗ sáng màu trong tranh để khám phá ' + l.name + '.', ic: 'flag' };
+  var qready = (p.quests || []).filter(function (q) { return q.k !== 'deliver' && qHave(p, q.k) >= q.n; })[0];
+  if (qready && qready.loc !== p.loc) return { t: 'Bạn đã đủ ' + qNeed(qready) + '. Quay lại ' + LOCS[qready.loc].name + ' trao cho ' + qready.giver + '.', ic: 'flag' };
+  if (!p.explored[p.loc]) return { t: 'Hỏi chuyện ' + qGiver(p.loc, G) + ' (người sáng màu trong tranh) và giúp họ một việc để khám phá ' + l.name + '.', ic: 'flag' };
   var P0 = partner(G);
   if (G.lookFor && !G.metPartner && P0 && P0.alive) return { t: 'Tìm ' + P0.name + '. Tên ' + P0.name + ' có trong danh sách người chơi, hẳn đang ở đâu đó quanh đây. Thử đi qua các nơi khác.', ic: 'people', tab: 'go', btn: 'Mở bản đồ' };
   var left = zoneLocs(z).filter(function (id) { return !p.explored[id]; });
@@ -6947,7 +7095,7 @@ var GUIDE = [{ id: 'hub', sec: 'Tra cứu', hub: 1 }];
 var GPOP = {
   how: ['flag', 'Luật cơ bản', '<ul class="gl"><li>Luke và Clevia cùng bị kéo vào làng nhưng tỉnh lại ở hai nơi khác nhau trong cùng khu. Tìm nhau trước đã.</li><li>Mỗi việc đều tốn thời gian. Đồng hồ chỉ chạy khi bạn làm gì đó.</li><li>Khám phá một nơi là làm xong việc ghi trong khung dưới tên nơi đó.</li><li>Bạn bị khoá trong khu nơi mình tỉnh lại. Sang khu khác cần <b>Bản đồ</b> và <b>thẻ Teleport</b>.</li><li>Hết 24 tiếng mà chưa khám phá đủ các khu vực thì bị xoá sổ.</li></ul>'],
   danger: ['ghost', 'Nguy hiểm', '<ul class="gl"><li>Ngôi làng không an toàn, và nó không báo trước.</li><li>Đi một mình, hoặc đang chảy máu, thì dễ bị nhắm tới.</li><li>Sức mạnh càng cao, chạm trán càng ít đau.</li><li>Người chơi khác có thể giúp, trao đổi, hoặc tấn công bạn.</li></ul>'],
-  feat: ['compass', 'Tính năng quan trọng', '<dl class="gd"><dt>Quan sát</dt><dd>Thấy ai đang ở cùng chỗ và những dấu hiệu lạ.</dd><dt>Bảng thông báo</dt><dd>Số người còn sống và tiến độ khám phá của bạn.</dd><dt>Tìm rương</dt><dd>Mỗi nơi có thể có vài rương. Lục nhiều lần.</dd><dt>Nhà dân</dt><dd>Chỗ trú an toàn tạm thời. Mỗi căn chỉ vào được một lần.</dd><dt>Bản đồ + Teleport</dt><dd>Sang khu khác. Bàn Teleport ở Nhà họp làng cho mỗi người một lượt.</dd><dt>Trạm xá</dt><dd>Chữa lành hoàn toàn, cần ít nhất ba người.</dd><dt>Săn quỷ</dt><dd>Khi khu bạn đang có quỷ, bạn có thể chủ động ra tay. Hạ được thì mạnh hơn.</dd><dt>Thẻ vũ khí</dt><dd>Tăng sức mạnh vĩnh viễn.</dd><dt>Năng lực</dt><dd>Kỹ năng riêng của Luke và Clevia, nút có viền xanh băng.</dd><dt>Tương tác</dt><dd>Chạm Người ở đây trong tranh: nói chuyện, trao đổi, rủ đi cùng hoặc giao đấu.</dd></dl>'],
+  feat: ['compass', 'Tính năng quan trọng', '<dl class="gd"><dt>Quan sát</dt><dd>Tới nơi là thấy ai đang ở đó. Quan sát để nhìn kỹ hơn: tính cách từng người, dân làng có gì lạ, dấu vết trong nhà.</dd><dt>Bảng thông báo</dt><dd>Số người còn sống và tiến độ khám phá của bạn.</dd><dt>Tìm rương</dt><dd>Mỗi nơi có thể có vài rương. Lục nhiều lần.</dd><dt>Nhà dân</dt><dd>Chỗ trú an toàn tạm thời. Mỗi căn chỉ vào được một lần.</dd><dt>Bản đồ + Teleport</dt><dd>Sang khu khác. Bàn Teleport ở Nhà họp làng cho mỗi người một lượt.</dd><dt>Trạm xá</dt><dd>Chữa lành hoàn toàn, cần ít nhất ba người.</dd><dt>Săn quỷ</dt><dd>Khi khu bạn đang có quỷ, bạn có thể chủ động ra tay. Hạ được thì mạnh hơn.</dd><dt>Thẻ vũ khí</dt><dd>Tăng sức mạnh vĩnh viễn.</dd><dt>Năng lực</dt><dd>Kỹ năng riêng của Luke và Clevia, nút có viền xanh băng.</dd><dt>Tương tác</dt><dd>Chạm Người ở đây trong tranh: nói chuyện, trao đổi, rủ đi cùng hoặc giao đấu.</dd></dl>'],
   ui: ['menu', 'Giao diện & cài đặt', '<dl class="gd"><dt>Tranh</dt><dd>Mọi thứ chơi trên tranh nơi bạn đang đứng. Túi đồ, Bản đồ và Người ở đây là các điểm chạm trong tranh, mở ra thành bảng. Nút Tất cả việc dưới tranh liệt kê mọi việc bằng chữ. Chạm vào đồ vật hay người trong tranh để làm việc; nhân vật sẽ bước tới rồi mới làm. Chỗ sáng màu là việc cần làm để khám phá nơi đó.</dd><dt>Bạn</dt><dd>Chạm vào nhân vật của mình để ăn, băng bó, dùng năng lực hoặc chờ. Khi yếu, trái tim trên đầu nhấp nháy.</dd><dt>Sự kiện</dt><dd>Lời đề nghị, giao kèo, ẩu đả, quỷ đầu đàn… tự bật lên kèm tranh. Chọn ngay trong khung đó.</dd><dt>Nhật ký</dt><dd>Nút cạnh tên nơi. Xem lại mọi chuyện đã xảy ra theo từng giờ, và xuất nhật ký ra chữ để lưu lại. Trong khung Diễn biến, bấm &quot;Nhật ký đầy đủ&quot; cũng tới đây.</dd><dt>Việc bị khoá</dt><dd>Icon xám trong tranh là việc chưa làm được; chạm vào để xem vì sao.</dd><dt>Cài đặt</dt><dd>Tab cuối cùng. Chỉnh nhạc nền, hiệu ứng, âm nút bấm. Bật "Hiện danh sách nút" nếu bạn muốn bấm nút thay cho tranh. Mở lại Hướng dẫn, Chỉ dẫn từng bước, Thành tựu, hoặc chơi lại từ đầu.</dd></dl>'],
   end: ['tree', 'Ending & thành tựu', '<p>Game có 22 ending, tuỳ vào việc bạn sống hay chết, bằng cách nào, và số phận của người đồng đội và Leon.</p><p>Mỗi ván mở thêm một nhánh trên cây ending. Thành tựu cộng dồn qua các ván, lưu trên trình duyệt này.</p>']
 };
@@ -7945,6 +8093,7 @@ function act(id) {
     var fxLine = G.log.slice(n0).filter(function (e) { return e.tone === 'good'; })[0];
     if (fxLine) UI.useFx = { k: fxK, text: fxLine.text };
   }
+  if (G.lbFired) { if (!G.over && G.players[0].alive) UI.useFx = { k: 'lastbreath', text: G.lbFired }; G.lbFired = null; }
   (function () {
     var P = G.players[0], txt = G.log.slice(n0).map(function (e) { return e.text; }).join(' '), s = null;
     var fled = P.loc !== loc0 && /cắt đuôi được|quay đầu bỏ chạy|quay đầu chạy|kịp chạy thoát|bạn thoát ra chỗ khác|bạn đã ở chỗ khác/.test(txt);
@@ -8019,7 +8168,7 @@ var USE_FX = {
   teleport: ['Teleport', 'legend', 'Thẻ dịch chuyển'], bandage: ['Bandage', 'rare', 'Thẻ chữa trị'], mystery: ['Riverheart', 'legend', 'Thẻ huyền thoại'], amulet: ['Lá bùa', 'legend', 'Bùa ghép hoàn chỉnh'],
   protect: ['Protect', 'rare', 'Thẻ phòng thủ'], ghost: ['Null Presence', 'rare', 'Thẻ ẩn thân'], hunter: ["Hunter's Device", 'rare', 'Thẻ trinh sát'],
   knuckle: ['Iron Knuckle', 'rare', 'Thẻ chiến đấu'], harvest: ['Harvest', 'rare', 'Thẻ mùa màng'], pouch: ['Spare Pouch', 'rare', 'Thẻ không gian'],
-  irondoor: ['Iron Door', 'rare', 'Thẻ phòng thủ'], compass: ['Echo Compass', 'rare', 'Thẻ trinh sát'], census: ['Census Sheet', 'rare', 'Thẻ trinh sát'], swift: ['Swift Step', 'rare', 'Thẻ di chuyển'],
+  irondoor: ['Iron Door', 'rare', 'Thẻ phòng thủ'], compass: ['Echo Compass', 'rare', 'Thẻ trinh sát'], census: ['Heartbeat Map', 'legend', 'Thẻ trinh sát'], lastbreath: ['Last Breath', 'legend', 'Thẻ hồi sinh'], swift: ['Swift Step', 'rare', 'Thẻ di chuyển'],
   weapon: ['Thẻ vũ khí', 'rare', 'Sức mạnh vĩnh viễn']
 };
 function useFxKey(id) {
@@ -8102,7 +8251,7 @@ var CARD_DESC = {
   teleport: 'Dịch chuyển tới bất kỳ đâu (cần Bản đồ).', protect: 'Khiên chắn đòn quỷ trong 1 tiếng.', ghost: '20 phút không ai thấy bạn, trừ người đi cùng.',
   hunter: 'Radar 4 tiếng: báo khu sẽ bị nhiễm kế tiếp và cảnh báo khi quỷ sắp tới.', harvest: 'Ngăn thực phẩm +1 ô, kèm 1–3 thực phẩm và 1–2 thảo dược.', mystery: 'Hồi đầy máu, miễn hiệu ứng xấu 1 giờ.',
   enigma: 'Một tấm thẻ trống, chỉ ghi chữ Mystery. Đồ đặc biệt: không bán, cho hay đổi được.', irondoor: 'Nhà dân đang ở được yên thêm 60 phút.', smoke: 'Thoát khỏi một trận ẩu đả, hoặc thoát khi bị đồng đội cướp đồ mà vẫn giữ được đồ.',
-  bandage: 'Chữa mọi hiệu ứng xấu, tẩy mùi máu, miễn nhiễm hiệu ứng xấu 30 phút.', compass: 'Báo nơi nào trong khu còn rương, còn bao nhiêu.', census: '2 tiếng: tới đâu cũng thấy ngay ai ở đó.',
+  bandage: 'Chữa mọi hiệu ứng xấu, tẩy mùi máu, miễn nhiễm hiệu ứng xấu 30 phút.', compass: 'Báo nơi nào trong khu còn rương, còn bao nhiêu.', census: 'Cho biết mọi người chơi còn sống đang ở đâu (một lần).', lastbreath: 'Để trong túi. Khi bạn gục ngã vì bất cứ lý do gì, thẻ tự bật: bạn đứng dậy với 30 HP, sạch hiệu ứng xấu. Mất thẻ sau khi dùng.',
   swift: '3 lần đi lại trong khu không tốn phút, cả nhóm đi cùng bạn.', knuckle: '+2 sức mạnh trong 1 tiếng, cả khi đánh quỷ.', pouch: 'Ngăn thẻ +1 ô, ngăn thực phẩm +2 ô.', material: 'Đổi lấy 80 tiền ở Chợ.'
 };
 function reEsc(n) { return n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -8141,8 +8290,7 @@ function updateBadges(G, acts, d, p) {
 function questActs(G, p) {
   if (p.explored[p.loc]) return {};
   var t = LOCS[p.loc].type, m = {};
-  var L = { hall: ['board'], chief: G.chiefAlive ? ['register'] : ['register', 'talk'], market: G.starved ? ['talk'] : ['info', 'buy', 'trade_mat'],
-    clinic: G.heals > 0 ? ['nurse', 'patient'] : ['talk'], farm: ['harvest'], pier: ['startpier', 'fish'], mine: ['gate', 'unlockgate', 'dig'], forge: ['forge'], house: ['findchest'] }[t] || [];
+  var L = ['talk', 'qtake', 'qgive'];   /* từ 2026.11.09-5: việc khám phá là giúp dân làng ở nơi đó */
   L.forEach(function (k) { m[k] = 1; });
   return m;
 }
@@ -8214,7 +8362,7 @@ function personPop(o, acts) {
 function mapPop(m, p, idx) {
   var id = m.id, L = LOCS[id], ex = !!p.explored[id], same = L.zone === p.zone;
   var h = '<div class="eyebrow" style="color:var(--z-' + L.zone + ')">' + esc(ZONES[L.zone].name) + '</div><h2 class="mpt">' + esc(L.name) + '</h2>' +
-    '<p class="note">' + (ex ? '✓ Đã khám phá' : 'Chưa khám phá · cần: ' + QUEST_HINT[L.type].replace(/\.$/, '').toLowerCase()) + '</p>';
+    '<p class="note">' + (ex ? '✓ Đã khám phá' : 'Chưa khám phá · cần: giúp ' + qGiver(id, G) + ' một việc') + '</p>';
   var btns = [], close = '<button class="btn" data-ui="mpclose"><b>Tạm chưa đi</b></button>';
   if (same) {
     var a = idx['move:' + id];
@@ -8265,10 +8413,9 @@ function renderHere(acts, d, p, l) {
   var h ='<div class="eyebrow"><span style="color:var(--z-' + l.zone + ')">' + esc(ZONES[l.zone].name) + '</span> · <span class="nm-you">' + esc(p.name) + '</span></div><div class="wherebar"><h2 class="where">' + esc(l.name) + '</h2><button class="logbtn" data-ui="tab:log" aria-label="Xem nhật ký">' + ico('scroll') + '<span>Nhật ký</span></button></div>';
   h += '<p class="desc">' + (DESC[l.type] || '') + '</p>';
   var qd = !!p.explored[p.loc], qt = questText(G, p, p.loc).replace(/^Chưa khám phá: /, '');
-  if (!qd && l.type === 'farm') qt += ' Đã có ' + p.farmBoard.length + '/6 loại.';
-  if (!qd && l.type === 'pier') qt += ' Đã có ' + p.fishBoard.length + '/6 loài.';
   UI.qa = questActs(G, p);
   var questH = '<div class="quest' + (qd ? ' done' : '') + '"><span class="qk">' + (qd ? 'Đã khám phá nơi này' : 'Việc cần làm để khám phá nơi này') + '</span>' + (qd ? '' : '<span class="qt">' + esc(qt) + '</span>') + '</div>';
+  if ((p.quests || []).length && !G.over) questH += '<div class="quest npcq"><span class="qk">Nhiệm vụ ' + p.quests.length + '/' + QMAX + '</span><span class="qt">' + p.quests.map(function (q) { return esc(q.giver + ': ' + qNeed(q)) + ' <small>(' + fmtT(Math.max(0, q.due - G.t)) + ')</small>'; }).join(' · ') + '</span></div>';
   var goalH = (!G.isBackdrop && !G.over) ? goalHtml(G, p, actIdx(acts)) : '';
   if (!(actView() === 'scene' && !G.isBackdrop && !G.over && p.alive)) h += questH + goalH;
   var qbShown = false, QB0 = h.length;
@@ -8362,7 +8509,7 @@ function renderHere(acts, d, p, l) {
   function bodyFor(TAB) {
   var b = '';
   if (TAB === 'person') {
-    b = d.present.length ? d.present.map(function (o) { return pcard(o, acts); }).join('') : '<p class="empty">Bạn chưa thấy ai khác ngoài đồng đội. Bấm <b>Quan sát xung quanh</b> ở tab Hành động để biết có ai ở đây không.</p>';
+    b = d.present.length ? d.present.map(function (o) { return pcard(o, acts); }).join('') : '<p class="empty">Ở đây không có ai khác ngoài nhóm của bạn.</p>';
   } else if (TAB === 'bag') {
     var ix = {}; acts.forEach(function (a) { ix[a.id] = a; });
     var tiles = [];
@@ -9904,10 +10051,18 @@ I.compass = icon(c => { // Echo Compass
   c.poly([[12, 5], [14, 12], [10, 12]], BLOOD[1]); c.poly([[12, 19], [14, 12], [10, 12]], STEEL[1]); c.px(12, 12, GOLD[0]);
   c.rect(11, 1, 3, 2, GOLD[1]);
 });
-I.census = icon(c => { // giấy điểm danh
-  c.rect(5, 2, 14, 20, '#e8e2d4'); c.rect(5, 2, 14, 2, '#cfc8b8'); c.rect(17, 4, 2, 18, '#cfc8b8');
-  for (let y = 6; y < 20; y += 3) { c.rect(7, y, 2, 2, y < 12 ? BLOOD[1] : '#5a564e'); c.rect(10, y + 1, 6, 1, '#8a8478'); }
-  c.line(7, 7, 8, 6, '#ffffff');
+I.census = icon(c => { // Heartbeat Map: tấm bản đồ gấp ba, chấm đỏ là người còn sống, vạch nhịp tim chạy ngang
+  c.poly([[3, 5], [9, 3], [15, 5], [21, 3], [21, 19], [15, 21], [9, 19], [3, 21]], '#d9cfb8'); c.line(9, 3, 9, 19, '#a89c84'); c.line(15, 5, 15, 21, '#a89c84');
+  c.rect(4, 8, 4, 1, '#b8ac94'); c.rect(11, 14, 3, 1, '#b8ac94'); c.rect(17, 7, 3, 1, '#b8ac94');
+  [[6, 6], [12, 9], [18, 16], [6, 17], [17, 10]].forEach(([x, y], k) => { c.rect(x, y, 2, 2, BLOOD[k % 2 ? 2 : 1]); c.px(x, y, '#ffb0a0'); });
+  c.line(3, 13, 7, 13, BLOOD[1]); c.line(7, 13, 9, 10, BLOOD[1]); c.line(9, 10, 11, 16, BLOOD[1]); c.line(11, 16, 13, 12, BLOOD[1]); c.line(13, 12, 21, 12, BLOOD[1]);
+});
+I.lastbreath = icon(c => { // Last Breath: trái tim nứt, một luồng hơi trắng bốc lên từ vết nứt
+  c.poly([[12, 21], [3, 12], [3, 7], [6, 4], [9, 4], [12, 7], [15, 4], [18, 4], [21, 7], [21, 12]], BLOOD[2]);
+  c.poly([[12, 19], [5, 12], [5, 8], [7, 6], [9, 6], [12, 9], [15, 6], [17, 6], [19, 8], [19, 12]], BLOOD[1]);
+  c.rect(7, 8, 2, 2, BLOOD[0]);
+  c.line(12, 9, 11, 12, '#1a0c0a'); c.line(11, 12, 13, 14, '#1a0c0a'); c.line(13, 14, 12, 18, '#1a0c0a');
+  c.line(12, 8, 13, 5, ICE[0]); c.line(13, 5, 12, 3, ICE[1]); c.line(12, 3, 14, 1, ICE[0]);
 });
 I.swift = icon(c => { // giày cánh
   c.poly([[5, 8], [11, 8], [12, 15], [19, 16], [21, 20], [5, 20]], WOOD[1]); c.rect(5, 19, 17, 2, WOOD[3]); c.line(6, 9, 6, 18, WOOD[0]);
@@ -10356,7 +10511,7 @@ function duo(c, X, poseMe, poseOther, xMe, xOther) { put(c, X.me, poseMe, xMe, 7
 function withAlly(c, X, x) { if (X.ally && X.ally !== X.me) put(c, X.ally, 'stand', x, 70); }
 
 /* ---- đồ vẽ cho tranh mới ---- */
-const GOLDC = ['#f2d27a', '#c9a24a', '#97753d'], LEAF = ['#c4e0a0', '#7fae6a', '#4e7a44'];
+const GOLDC = ['#f2d27a', '#c9a24a', '#97753d'], LEAF = ['#c4e0a0', '#7fae6a', '#4e7a44']; const BLOOD = ['#f0a090', '#d06a5c', '#a84a40', '#6e2420'];   /* cho tranh Heartbeat Map */
 function steam(c, x, y, n) { for (let k = 0; k < (n || 3); k++) for (let j = 0; j < 8; j++) c.px(x + k * 3 + Math.round(Math.sin((j + k * 2) * 0.9)), y - j, j % 2 ? '#cfd6de' : '#e8eef6'); }
 function bowl(c, x, y) { c.ell(x, y, 5, 2, '#e8e2d4'); c.rect(x - 5, y, 11, 3, '#8a5a3a'); c.rect(x - 4, y + 3, 9, 1, '#6a4028'); c.px(x - 2, y - 1, '#ffffff'); }
 function pot(c, x, y) { c.rect(x - 6, y - 5, 13, 7, '#2a2a2e'); c.rect(x - 7, y - 6, 15, 2, '#3a3a40'); c.px(x - 8, y - 4, '#3a3a40'); c.px(x + 8, y - 4, '#3a3a40'); }
@@ -10397,7 +10552,8 @@ const NEWK = {
   card_knuckle: X => { const c = vign(dim(bg(X.loc, X.sky), .7), 1.2); const x = 52; put(c, X.me, 'punch', x, 70); glow(c, x + 22, 46, 10, 9, ICE[2], 1); stamp(c, half(A.I.knuckle()), x + 16, 40); impact(c, x + 26, 46); particles(c, x + 6, 30, 34, 30, ICE[0], 14, 41); withAlly(c, X, 100); return c; },
   card_mystery: X => { const c = bg(X.loc, X.sky); const x = 62; put(c, X.me, 'stand', x, 70); for (let r = 0; r < 3; r++) for (let i = 0; i < 70; i++) { const t = i / 70 * Math.PI * 2, yy = 64 - i * 0.5 - r * 4; c.px(x + 2 + Math.cos(t * 2 + r) * (16 - i * 0.12), yy, i % 3 ? ICE[1] : '#cfe0f3'); } glow(c, x + 2, 50, 14, 18, ICE[3]); stamp(c, half(A.I.mystery()), x - 4, 16); particles(c, x - 20, 20, 44, 48, ICE[0], 20, 51); withAlly(c, X, 98); return c; },
   card_compass: X => { const c = bg(X.loc, X.sky); const x = 50; put(c, X.me, 'reach', x, 70); stamp(c, half(A.I.compass()), x + 10, 38); if (X.imp) { c.line(x + 16, 44, x + 60, 30, GOLDC[0]); c.poly([[x + 60, 27], [x + 66, 29], [x + 61, 33]], GOLDC[0]); for (let i = 0; i < 6; i++) c.px(x + 22 + i * 7, 42 - i * 2, '#ffffff'); } else { for (let a = 0; a < 16; a++) { const t = a / 16 * Math.PI * 2; c.px(x + 16 + Math.cos(t) * 9, 44 + Math.sin(t) * 7, a % 2 ? GOLDC[1] : '#e8eaee'); } } withAlly(c, X, 96); return c; },
-  card_census: X => { const c = bg(X.loc, X.sky); const x = 40; put(c, X.me, 'reach', x, 70); c.rect(x + 10, 30, 16, 20, '#e8e2d4'); for (let k = 0; k < 5; k++) c.line(x + 12, 33 + k * 3, x + 23, 33 + k * 3, '#8a8478'); [72, 90, 108].forEach((nx, k) => { c.blit(dim(spr('Dân làng', k === 1 ? 'talk' : 'stand', true), .3, [30, 40, 60]), nx - 13, 70 - 32); spark(c, nx, 34, ICE[1]); }); withAlly(c, X, 20); return c; },
+  card_census: X => { const c = bg(X.loc, X.sky); const x = 34; put(c, X.me, 'reach', x, 70); const mx = x + 14, my = 22; c.rect(mx, my, 64, 34, '#d9cfb8'); c.rect(mx, my, 64, 1, '#efe6d0'); c.line(mx + 21, my, mx + 21, my + 33, '#a89c84'); c.line(mx + 43, my, mx + 43, my + 33, '#a89c84'); for (let k = 0; k < 4; k++) c.rect(mx + 4 + k * 15, my + 8 + (k % 2) * 12, 9, 1, '#b8ac94'); [[8, 6], [17, 22], [29, 12], [38, 26], [50, 9], [57, 20], [46, 17]].forEach(([dx, dy], k) => { glow(c, mx + dx, my + dy, 4, 4, BLOOD[1]); c.rect(mx + dx - 1, my + dy - 1, 2, 2, k === 2 ? '#ffffff' : BLOOD[1]); }); c.line(mx + 2, my + 40, mx + 9, my + 40, BLOOD[1]); c.line(mx + 9, my + 40, mx + 12, my + 34, BLOOD[1]); c.line(mx + 12, my + 34, mx + 15, my + 46, BLOOD[1]); c.line(mx + 15, my + 46, mx + 18, my + 38, BLOOD[1]); c.line(mx + 18, my + 38, mx + 64, my + 38, BLOOD[1]); withAlly(c, X, 104); return c; },
+  card_lastbreath: X => { const c = bg(X.loc, X.sky); const x = 62; glow(c, x + 2, 52, 22, 16, ICE[3]); put(c, X.me, 'kneel', x, 70); for (let i = 0; i < 18; i++) { const yy = 46 - i * 1.6; c.px(x + 2 + Math.round(Math.sin(i * 0.7) * 3), yy, i % 3 ? ICE[1] : '#ffffff'); } stamp(c, half(A.I.lastbreath()), x - 4, 10); particles(c, x - 22, 24, 48, 44, ICE[0], 14, 37); withAlly(c, X, 100); return c; },
   card_swift: X => { const c = bg(X.loc, X.sky); const x = 76; for (let k = 3; k >= 1; k--) { const s = spr(X.me, 'walk'); c.blit(dim(s, .25 + k * 0.08, [30, 50, 80]), x - 10 - k * 12, 70 - s.h); } put(c, X.me, 'walk', x, 70); for (let k = 0; k < 5; k++) c.line(x - 52, 44 + k * 5, x - 30 + (k % 2) * 6, 44 + k * 5, k % 2 ? ICE[1] : '#cfe0f3'); return c; },
   card_harvest: X => { const c = bg(X.loc, X.sky); const x = 58; put(c, X.me, 'kneel', x, 70); ['lua', 'carrot', 'khoai', 'herb'].forEach((k, i) => { if (A.I[k]) stamp(c, half(A.I[k]()), x - 14 + i * 10, 30 - (i % 2) * 6); }); glow(c, x, 44, 18, 10, LEAF[1]); particles(c, x - 20, 22, 44, 30, LEAF[0], 22, 61); withAlly(c, X, 96); return c; },
   card_pouch: X => { const c = bg(X.loc, X.sky); const x = 54; put(c, X.me, 'stand', x, 70); stamp(c, A.I.pouch(), x + 10, 30); glow(c, x + 22, 42, 16, 14, ICE[2]); [[x + 8, 28], [x + 38, 30], [x + 22, 22], [x + 36, 52]].forEach(([a, b]) => spark(c, a, b, ICE[0])); withAlly(c, X, 100); return c; },
