@@ -285,7 +285,6 @@ body.lowhp::after{content:"";position:fixed;inset:0;z-index:5;pointer-events:non
 .leaf.on code{color:var(--glass)}
 .leaf small{grid-column:2/-1;font-size:12px;color:var(--dim)}
 .leaf .n{font:calc(11px * var(--mk)) var(--mono);color:var(--glass)}
-.tebadge{display:inline-block;margin-left:6px;padding:0 5px;border:1px solid var(--acc,var(--glass));border-radius:3px;font:500 calc(10px * var(--mk))/1.5 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--acc,var(--glass));vertical-align:middle;white-space:nowrap}
 .newbox{display:grid;gap:4px}
 .newbox b{color:var(--glass);font-weight:600}
 .nwgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
@@ -1078,11 +1077,17 @@ body.lgshake .app{animation:lgShake .5s ease-out}
 .hud-l{display:grid;min-width:0}
 .hud-z{font:500 calc(10px * var(--mk,1))/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hud-n{font:600 18px/1.15 var(--serif);color:#fff;text-shadow:0 1px 0 #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hud-r{display:flex;gap:6px;align-items:center}
+.hud-r{display:flex;gap:8px;align-items:center;position:relative}
 .hud-clk{display:grid;justify-items:end;font:500 17px/1 var(--mono-plex,var(--mono));color:#fff;text-shadow:0 1px 0 #000}
 .hud-clk small{font:500 calc(9px * var(--mk,1))/1.2 var(--mono);color:#cfd8e3}
-.hud-b{width:30px;height:30px;display:grid;place-items:center;padding:0;color:#e8eef6;background:rgba(7,8,10,.7);border:0;box-shadow:0 0 0 2px #07080a;font-size:14px}
-.hud-b .i{width:15px;height:15px}
+.hud-b{width:34px;height:34px;display:grid;place-items:center;padding:0;color:#e8eef6;background:rgba(7,8,10,.7);border:0;box-shadow:0 0 0 2px #07080a;font-size:14px}
+.hud-b .i{width:17px;height:17px}
+.hud-mn{display:none;position:absolute;top:100%;right:0;z-index:6;margin-top:8px;min-width:190px;flex-direction:column;padding:4px;background:rgba(7,8,10,.95);box-shadow:0 0 0 2px #07080a,0 6px 18px rgba(0,0,0,.6)}
+.hud.mopen .hud-mn{display:flex}
+.hud .hud-mi{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;color:#e8eef6;background:none;border:0;font:500 15px/1.2 var(--sans);text-align:left;white-space:nowrap;cursor:pointer}
+.hud .hud-mi:hover,.hud .hud-mi:focus-visible{background:rgba(159,193,230,.16)}
+.hud-mi .i{width:17px;height:17px;flex:none;color:var(--acc)}
+.hud-mi-n{width:17px;text-align:center;flex:none;color:var(--acc)}
 .hud-s{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font:500 calc(12px * var(--mk,1))/1.2 var(--mono);color:#e8eef6;text-shadow:0 1px 0 #000}
 .hud-s>span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .hud-s .i{width:12px;height:12px;color:var(--acc)}
@@ -1093,7 +1098,7 @@ body.lgshake .app{animation:lgShake .5s ease-out}
 .hud-ex{color:#f0b0a6}
 .hud-fx{display:inline-flex;gap:4px;flex-wrap:wrap}
 .hud-fx .chip{font-size:calc(10px * var(--mk,1));padding:0 5px;margin:0}
-@media (max-width:640px){.hud{padding:4px 6px 7px;gap:1px 6px}.hud-z{display:none}.hud-n{font-size:15px}.hud-clk{font-size:14px}.hud-clk small{display:none}.hud-b{width:24px;height:24px}.hud-b .i{width:13px;height:13px}.hud-s{gap:1px 8px}.hbar{width:28px;height:4px}}
+@media (max-width:640px){.hud{padding:4px 6px 7px;gap:1px 6px}.hud-z{display:none}.hud-n{font-size:15px}.hud-clk{font-size:14px}.hud-clk small{display:none}.hud-b{width:34px;height:34px}.hud-b .i{width:16px;height:16px}.hud-s{gap:1px 8px}.hbar{width:28px;height:4px}}
 body:not(.playhud) .hud{display:none}
 /* khi đang chơi: bỏ tiêu đề lớn, thanh chỉ số, tên nơi to, tab và dòng hướng dẫn để tranh có chỗ */
 body.playhud header.top{display:none}
@@ -1298,8 +1303,8 @@ body.playhud .ovl-go .note{margin:0;flex:none}
   body.playhud .hud{padding:4px 8px 12px}
   body.playhud .hud-n{font-size:15px}
   body.playhud .hud-clk{font-size:14px}
-  body.playhud .hud-b{width:26px;height:26px}
-  body.playhud .hud-b .i{width:13px;height:13px}
+  body.playhud .hud-b{width:36px;height:36px}
+  body.playhud .hud-b .i{width:17px;height:17px}
   body.playhud .underscene{padding:12px 8px 5px}
   body.playhud .underscene .quest .qt{font-size:12.5px}
   body.playhud .ovl-go{width:calc(100vw - 16px);height:calc(100dvh - 16px)}
@@ -2320,18 +2325,11 @@ var REFUSE_TALK = {
   gut: [['Luke', '"Không có lý do gì rõ ràng cả. Anh chỉ làm theo trực giác thôi."'], ['Clevia', '"Em hiểu. Có khi trực giác đúng hơn mọi lý lẽ."']]
 };
 var SCENES = {
-  /* sensed: Luke vừa đọc khu là yên; blind: chưa đọc, hoặc đã báo khu đang/sắp nhiễm (sửa 2026.11.09) */
-  houseAmbush1: { title: 'Lần đầu sai lệch', variants: {
-    sensed: [
-      ['Clevia', '"Anh! Sao trong này lại có quỷ? Lúc nãy anh bảo khu an toàn mà."'],
-      ['Luke', '"Kì lạ thật... Anomaly Sense của anh chưa bao giờ sai."'],
-      ['Clevia', '"Giờ không phải lúc nghĩ chuyện đó. Chạy thôi anh ơi, đừng ở lại nữa!"'],
-      ['Luke', '"Đi. Bám sát anh."']],
-    blind: [
-      ['Clevia', '"Anh! Sao trong này lại có quỷ? Mình vừa mới bước vào thôi mà."'],
-      ['Luke', '"Kì lạ thật... Căn nhà này có gì đó không giống bên ngoài."'],
-      ['Clevia', '"Giờ không phải lúc nghĩ chuyện đó. Chạy thôi anh ơi, đừng ở lại nữa!"'],
-      ['Luke', '"Đi. Bám sát anh."']] } },
+  houseAmbush1: { title: 'Lần đầu sai lệch', lines: [
+    ['Clevia', '"Anh! Sao trong này lại có quỷ? Lúc nãy anh bảo khu an toàn mà."'],
+    ['Luke', '"Kì lạ thật... Anomaly Sense của anh chưa bao giờ sai."'],
+    ['Clevia', '"Giờ không phải lúc nghĩ chuyện đó. Chạy thôi anh ơi, đừng ở lại nữa!"'],
+    ['Luke', '"Đi. Bám sát anh."']] },
   houseAmbush2: { title: 'Chiếc đồng hồ', lines: [
     ['Luke', '"Lại nữa. Lần trước cũng vậy, cả khu đâu có bất thường."'],
     ['Clevia', '"Anh còn nhớ cái đồng hồ hiện lên lúc mình bước vào không? Ba tiếng."'],
@@ -2779,7 +2777,7 @@ function ghostFight(G, grp, boss) {
   if (seen) say(G, (boss ? 'Một bóng người cao lớn hơn hẳn mọi con quỷ khác lao ra' : 'Một dân làng mắt đỏ lao vào ' + (solo ? 'bạn' : 'cả nhóm')) + ' tại ' + where + '.', 'bad');
   if (seen && !boss && isHouse(LOCS[tgt.loc]) && G.locs[tgt.loc].expired) {
     H.ambushHouses = H.ambushHouses || [];
-    if (H.ambushHouses.indexOf(tgt.loc) < 0 && allyHere(G)) { H.ambushHouses.push(tgt.loc); if (H.ambushHouses.length === 1) { var sl = G.senseLast; scene(G, 'houseAmbush1', sl && sl.zone === LOCS[tgt.loc].zone && sl.k === 'calm' && G.t - sl.t <= SENSE_RANGE ? 'sensed' : 'blind'); } else scene(G, 'houseAmbush2'); }
+    if (H.ambushHouses.indexOf(tgt.loc) < 0 && allyHere(G)) { H.ambushHouses.push(tgt.loc); scene(G, H.ambushHouses.length === 1 ? 'houseAmbush1' : 'houseAmbush2'); }
   }
   var r = G.R();
   if (r < hunt) {
@@ -3051,7 +3049,7 @@ function duelCore(G, A, B) {
   ach(G, hs === A ? 'duelStart' : 'ambushed');
   var inv = A.concat(B);
   ops.forEach(function (q) { q.trust = 0; q.follow = false; relSync(q); });
-  if (G.leon && hs === A) { var lp0 = leonP(G); if (ops.indexOf(lp0) >= 0) leonTurn(G, 'attacked'); else if (lp0 && lp0.alive && lp0.loc === H.loc && G.leon.met && presentOthers(G).indexOf(lp0) >= 0) leonPts(G, -2, 'Leon nhìn bạn ra tay mà không nói gì. Ánh mắt anh ta lạnh đi.'); }
+  if (G.leon && hs === A) { var lp0 = leonP(G); if (ops.indexOf(lp0) >= 0) leonTurn(G, 'attacked'); else if (lp0 && lp0.alive && lp0.loc === H.loc && G.leon.met) leonPts(G, -2, 'Leon nhìn bạn ra tay mà không nói gì. Ánh mắt anh ta lạnh đi.'); }
   var third = G.players.filter(function (q) { return q.alive && !q.human && inv.indexOf(q) < 0 && !q.follow && q.loc === H.loc; });
   inv.forEach(function (q) { H.noticed[q.id] = true; });
   if (B.length === 1 && has(B[0], 'Smoke Bomb') && B[0].smokeWave !== G.waves && B[0].items.food > 0) {
@@ -3657,8 +3655,6 @@ function finish(G) {
 }
 /* true ending cần cả Leon còn sống (chốt 08/11/2026): hai nhân vật chính cùng sống mà Leon đã chết thì đổ về ending 6.1 */
 var TRUE_ENDS = ['1.2', '1.1.2', '2.1.1', '2.2.2', '4.1.1', '4.1.3', '4.2.2', '5.1', '5.2'];
-function isTrueEnd(k) { return TRUE_ENDS.indexOf(k) >= 0; }
-var TE_BADGE = '<span class="tebadge">True ending</span>';   /* chỉ gắn vào ending người chơi đã mở */
 function leonGate(G) {
   var lp = leonP(G);
   if (lp && !lp.alive && TRUE_ENDS.indexOf(G.endKey) >= 0) { G.endBase = G.endKey; G.endKey = '6.1'; }
@@ -3974,7 +3970,7 @@ function leonTick(G) {
 function leonCodaSet(G, early) {
   var L = G.leon, lp = leonP(G), H = G.players[0];
   if (!L || !L.met || !lp || G.leonCoda) return;
-  if (!lp.alive) G.leonCoda = L.everPact ? 'dead' : 'deadSolo';   /* chưa từng giao kèo thì không nói "chỗ Leon từng đứng" (sửa 2026.11.09) */
+  if (!lp.alive) G.leonCoda = 'dead';
   else if (L.left || L.hostile) G.leonCoda = 'left';
   else if (L.pact && lp.follow && lp.loc === H.loc) G.leonCoda = 'out';
   else G.leonCoda = 'apart';
@@ -4512,7 +4508,6 @@ function senseMsg(G, zz, who, loc) {
   else if (G.upcoming === zz && G.nextWave - G.t <= SENSE_RANGE) { k = 'soon'; x = r5(G.nextWave - G.t); }
   /* xa hơn 2 tiếng thì khu sắp nhiễm và khu yên nghe như nhau: không lộ khu kế tiếp quá sớm */
   else { k = 'calm'; x = SENSE_RANGE; }
-  G.senseLast = { zone: zz, k: k, t: G.t };   /* cảnh houseAmbush1 chỉ nhắc "anh bảo khu an toàn" khi lần đọc gần nhất thật sự báo yên */
   return pick(G.R, SENSE_LINES[who || 'self'][k]).replace('{X}', fmt(x));
 }
 
@@ -6275,7 +6270,7 @@ function logText(G) {
   L.push('PROJECT ARTOS 07 · BÊN KIA BỨC TƯỜNG · Cấp C/R');
   L.push('Nhân vật: ' + p.name + ' · Khu xuất phát: ' + ZONES[G.zoneChoice].name + ' · Mã ván: ' + gameCode(G));
   var EE = G.over ? endingText(G) : null;
-  L.push('Kết cục: ' + (EE ? 'Ending ' + EE.code + ' · ' + EE.title + (isTrueEnd(EE.code) ? ' (True ending)' : '') : (G.over ? '' : 'Đang chơi dở (' + fmtT(G.t) + ')')));
+  L.push('Kết cục: ' + (EE ? 'Ending ' + EE.code + ' · ' + EE.title : (G.over ? '' : 'Đang chơi dở (' + fmtT(G.t) + ')')));
   if (EE) L.push(EE.text.replace(/&amp;/g, '&'));
   L.push('');
   L.push('— DÒNG THỜI GIAN —');
@@ -6305,7 +6300,7 @@ function logPdf() {
   var html = '<!doctype html><html><head><meta charset="utf-8"><title>Nhật ký Bên Kia Bức Tường · ' + esc(gameCode(G)) + '</title><style>' +
     'body{font:13px/1.55 Georgia,serif;color:#111;margin:24px}h1{font-size:22px;margin:0 0 4px}.m{color:#555;margin:0 0 16px}.e{break-inside:avoid;border-top:1px solid #ddd;padding:6px 0}' +
     'time{display:block;font:11px monospace;color:#666}p{margin:2px 0}img{display:block;width:256px;height:144px;image-rendering:pixelated;margin:4px 0}.story p,.npc p{font-style:italic}.bad p{color:#8a1c1e}' +
-    '</style></head><body><h1>Bên Kia Bức Tường</h1><p class="m">Nhân vật: ' + esc(p.name) + ' · Mã ván: ' + esc(gameCode(G)) + (EE ? ' · Ending ' + esc(EE.code) + ': ' + esc(EE.title) + (isTrueEnd(EE.code) ? ' (True ending)' : '') : '') + '</p>' + rows + '</body></html>';
+    '</style></head><body><h1>Bên Kia Bức Tường</h1><p class="m">Nhân vật: ' + esc(p.name) + ' · Mã ván: ' + esc(gameCode(G)) + (EE ? ' · Ending ' + esc(EE.code) + ': ' + esc(EE.title) : '') + '</p>' + rows + '</body></html>';
   var fr = document.createElement('iframe'); fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
   document.body.appendChild(fr);
   var d = fr.contentWindow.document; d.open(); d.write(html); d.close();
@@ -6336,7 +6331,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.09-3';
+var GAME_VERSION = '2026.11.09-1';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -6601,10 +6596,11 @@ var SF = (function () {
   };
   function npcOf(loc) { if (NPC[loc]) return NPC[loc]; var g = houseGeo(loc); return { name: 'Chủ nhà', x: g.hx + 6, fy: 60, cloth: '#5b4636', hair: '#d4cec4', long: 1 }; }
   var cur = { hots: [], loc: null, acts: [] }, seen = {}, STAGE = null;
-  /* lớp chữ đè lên mép trên tranh: tên nơi, đồng hồ, chỉ số, hiệu ứng, nút Nhật ký / Âm thanh / Cài đặt */
+  /* lớp chữ đè lên mép trên tranh: tên nơi, đồng hồ, chỉ số, hiệu ứng; 4 nút to (Gợi ý, Bản đồ, Năng lực, Menu), Menu mở Tất cả việc / Nhật ký / Âm thanh / Cài đặt */
   function hud(p, l) {
     var el = $('sfHud');
     if (!el) { el = document.createElement('div'); el.id = 'sfHud'; el.className = 'hud'; STAGE.appendChild(el); }
+    el.classList.toggle('mopen', !!UI.hudMenu);
     var tNow = Math.min(G.t, DAY), hp = Math.max(0, Math.round(p.hp)), ex = exploredCount(p), tp = Math.round(tNow / DAY * 100);
     var st = $('status') ? $('status').innerHTML : '';
     el.innerHTML = '<div class="hud-l"><span class="hud-z" style="color:var(--z-' + l.zone + ')">' + esc(String(ZONES[l.zone].name).replace(/^Khu /, '')) + ' · <span class="nm-you">' + esc(p.name) + '</span></span><b class="hud-n">' + esc(l.name) + '</b></div>' +
@@ -6612,8 +6608,8 @@ var SF = (function () {
       '<button class="hud-b hud-goal' + (UI.goalOpen ? ' on' : '') + '" data-ui="goal" aria-label="Gợi ý" aria-pressed="' + !!UI.goalOpen + '" title="Gợi ý">' + ico('compass') + '</button>' +
       '<button class="hud-b hud-map" data-ui="tab:go" aria-label="Bản đồ làng" title="Bản đồ">' + ico('map') + '</button>' +
       '<button class="hud-b hud-abil" data-ui="tab:abil" aria-label="Năng lực của bạn" title="Năng lực">' + ico('star') + '</button>' +
-      '<button class="hud-b hud-all" data-ui="tab:all" aria-label="Tất cả việc ở đây" title="Tất cả việc">' + ico('board') + '</button>' +
-      '<button class="hud-b hud-log" data-ui="fulllog" aria-label="Nhật ký" title="Nhật ký">' + ico('scroll') + '</button><button class="hud-b" data-hudsnd="1" aria-label="Bật hoặc tắt âm thanh" title="Âm thanh">♪</button><button class="hud-b hud-gear" data-ui="tab:more" aria-label="Cài đặt" title="Cài đặt">' + ico('menu') + '</button></div>' +
+      '<button class="hud-b hud-menu' + (UI.hudMenu ? ' on' : '') + '" data-hudmenu="1" aria-label="Menu: Tất cả việc, Nhật ký, Âm thanh, Cài đặt" aria-haspopup="true" aria-expanded="' + !!UI.hudMenu + '" title="Menu">' + ico('menu') + '</button>' +
+      '<div class="hud-mn" role="menu"><button class="hud-mi hud-all" role="menuitem" data-ui="tab:all">' + ico('board') + 'Tất cả việc</button><button class="hud-mi hud-log" role="menuitem" data-ui="fulllog">' + ico('scroll') + 'Nhật ký</button><button class="hud-mi" role="menuitem" data-hudsnd="1"><span class="hud-mi-n">♪</span><span class="hud-sndl">' + (SND.prefs.muted ? 'Âm thanh: đang tắt' : 'Âm thanh: đang bật') + '</span></button><button class="hud-mi hud-gear" role="menuitem" data-ui="tab:more">' + ico('menu') + 'Cài đặt</button></div></div>' +
       '<div class="hud-s hud-stats"><span class="hud-hp' + (hp <= 35 ? ' low' : '') + '" title="Sinh lực">' + ico('heart') + hp + '<em class="hbar"><i style="width:' + hp + '%"></i></em></span><span title="Tiền">' + ico('coin') + p.money + 'đ</span><span title="Sức mạnh">' + ico('sword') + (+(effStr(p)).toFixed(1)) + '</span>' +
       (ex >= 13 && !G.over && p.alive ? '<button class="hud-out" data-ui="cuara" aria-label="Cửa ra: rời ải hoặc ở lại">' + ico('door') + 'Cửa ra</button>' : '<span class="hud-ex" title="Vượt ải: khám phá đủ 13 nơi và sống tới hết 24 tiếng">' + ico('flag') + ex + '/13</span>') + '<span title="Thời gian đã trôi">' + ico('hourglass') + tp + '%</span>' + (st ? '<span class="hud-fx">' + st + '</span>' : '') + '</div>';
     el.hidden = false;
@@ -6903,10 +6899,10 @@ var COACH = [
   { sel: '.meters, .hud-stats', t: 'Máu, tiền, sức mạnh và số nơi đã khám phá. Việc gì cũng tốn thời gian, nhớ để ý đồng hồ.', ok: 1 },
   { sel: '#goalBar, .hud-goal', t: 'Bí thì bấm Gợi ý: nó cho biết việc nên làm tiếp.', ok: 1 },
   { sel: '.hot[data-hot="bag"]', t: 'Chạm vào túi để xem và dùng đồ trong túi.', ok: 1 },
-  { sel: '.allacts, .hud-all', t: 'Tranh đông hay khó chạm thì bấm Tất cả việc để xem mọi việc dưới dạng danh sách.', ok: 1 },
+  { sel: '.allacts, .hud-menu', t: 'Tranh đông hay khó chạm thì bấm Tất cả việc để xem mọi việc dưới dạng danh sách.', tm: 'Tranh đông hay khó chạm thì mở Menu ở góc trên, chọn Tất cả việc để xem mọi việc dưới dạng danh sách.', ok: 1 },
   { sel: '.hot.me', t: 'Chạm vào nhân vật của bạn để ăn, băng bó, dùng năng lực hoặc chờ. Khi yếu, trái tim trên đầu sẽ nhấp nháy.', ok: 1 },
-  { sel: '.logbtn[data-ui="tab:log"], #secLog, .hud-log', t: 'Mọi chuyện đã xảy ra đều ghi ở Nhật ký. Lỡ bỏ qua điều gì thì xem lại ở đây.', ok: 1 },
-  { sel: '.tabs [data-ui="tab:more"], .hud-gear', t: 'Âm thanh, cách hiện việc và lúc tranh tự mở đều chỉnh được ở Cài đặt.', ok: 1 },
+  { sel: '.logbtn[data-ui="tab:log"], #secLog, .hud-menu', t: 'Mọi chuyện đã xảy ra đều ghi ở Nhật ký. Lỡ bỏ qua điều gì thì xem lại ở đây.', tm: 'Nhật ký, Âm thanh và Cài đặt cũng nằm trong Menu. Lỡ bỏ qua chuyện gì thì mở Nhật ký xem lại.', ok: 1 },
+  { sel: '.tabs [data-ui="tab:more"]', t: 'Âm thanh, cách hiện việc và lúc tranh tự mở đều chỉnh được ở Cài đặt.', ok: 1, done: function () { return document.body.classList.contains('playhud'); } },
   { sel: '.hot[data-hot="exit"]', t: 'Chạm Bản đồ để mở bản đồ làng.', ok: 1, done: function () { return UI.tab === 'go'; } },
   { sel: '.gomap [data-mapgo]', t: 'Bấm vào một nơi trên bản đồ để đi tới đó.', ok: 1, done: function () { return !$('mpop').hidden || UI.coachMoved; } },
   { sel: '.hot[data-hot="ppl"]', t: 'Chạm Người ở đây để xem ai đang ở cùng chỗ với bạn: nói chuyện, trao đổi hoặc rủ đi cùng.', ok: 1 }
@@ -6926,7 +6922,7 @@ function coachUpdate() {
   var r = tg.getBoundingClientRect(), pad = 6;
   var ring = $('coachRing'), tip = $('coachTip');
   ring.style.left = (r.left - pad) + 'px'; ring.style.top = (r.top - pad) + 'px'; ring.style.width = (r.width + pad * 2) + 'px'; ring.style.height = (r.height + pad * 2) + 'px';
-  tip.innerHTML = '<div class="ctx">' + (UI.coach + 1) + '/' + COACH.length + '</div><p>' + st.t + '</p><div class="crow"><button class="link" id="coachSkip">Bỏ qua</button>' + (st.ok ? '<button class="btn sm primary" id="coachOk">Hiểu rồi</button>' : '') + '</div>';
+  tip.innerHTML = '<div class="ctx">' + (UI.coach + 1) + '/' + COACH.length + '</div><p>' + (st.tm && tg.classList.contains('hud-menu') ? st.tm : st.t) + '</p><div class="crow"><button class="link" id="coachSkip">Bỏ qua</button>' + (st.ok ? '<button class="btn sm primary" id="coachOk">Hiểu rồi</button>' : '') + '</div>';
   el.hidden = false;
   var below = r.bottom + 12 + tip.offsetHeight < window.innerHeight;
   var x = Math.max(12, Math.min(window.innerWidth - tip.offsetWidth - 12, r.left + r.width / 2 - tip.offsetWidth / 2));
@@ -7657,6 +7653,13 @@ function ambience(G, p) {
   r.setProperty('--amb3', mix(base.map(function (v) { return v * 0.55; })));
   r.setProperty('--ambc', 'rgba(' + c.join(',') + ',' + (0.18 + 0.16 * L).toFixed(2) + ')');
   document.body.dataset.zone = z;
+}
+function hudMenu(on) {
+  UI.hudMenu = !!on;
+  var h = $('sfHud'); if (!h) return;
+  h.classList.toggle('mopen', UI.hudMenu);
+  var b = h.querySelector('.hud-menu'); if (b) { b.classList.toggle('on', UI.hudMenu); b.setAttribute('aria-expanded', UI.hudMenu); }
+  var l = h.querySelector('.hud-sndl'); if (l) l.textContent = SND.prefs.muted ? 'Âm thanh: đang tắt' : 'Âm thanh: đang bật';
 }
 function sndLabel() { $('sndBtn').textContent = SND.prefs.muted ? '♪ Tắt' : '♪ Bật'; $('sndBtn').className = 'sndbtn' + (SND.prefs.muted ? '' : ' on'); }
 
@@ -8509,7 +8512,7 @@ var ACH = [
 ];
 var TREE = [
   { code: '1', name: 'Rời ải sớm', hint: 'Khám phá đủ 13 nơi rồi bước qua cửa ra', leaves: [['1.2', 'Người đồng đội cũng đi hết làng và đứng cạnh bạn'], ['1.1.1', 'Người đồng đội không trở ra'], ['1.1.2', 'Người đồng đội trở ra sau']] },
-  { code: '2', name: 'Tiếng chuông', secret: true, hint: 'Một cách thắng mà làng không nói ra', leaves: [['2.1.1', 'Đồng đội đứng cạnh lúc chuông ngân và sống tới cuối'], ['2.1.2', 'Đồng đội đứng cạnh lúc chuông ngân nhưng không sống được tới cuối'], ['2.2.1', 'Đồng đội không đứng cạnh, và không qua khỏi'], ['2.2.2', 'Đồng đội không đứng cạnh nhưng vẫn sống sót']] },
+  { code: '2', name: 'Tiếng chuông', secret: true, hint: 'Một cách thắng mà làng không nói ra', leaves: [['2.1.1', 'Đồng đội đứng cạnh lúc chuông ngân và sống tới cuối'], ['2.1.2', 'Đồng đội đứng cạnh lúc chuông ngân nhưng không qua được bốn giờ cuối'], ['2.2.1', 'Đồng đội không đứng cạnh, và không qua khỏi'], ['2.2.2', 'Đồng đội không đứng cạnh nhưng vẫn sống sót']] },
   { code: '3', name: 'Kết cục xấu', hint: 'Chết trong làng, hoặc bị hệ thống xoá sổ', leaves: [['3.1.1', 'Chết sau người đồng đội'], ['3.1.2', 'Chết khi người đồng đội còn sống'], ['3.2.1', 'Bị xoá sổ, người đồng đội đã mất từ trước'], ['3.2.2', 'Bị xoá sổ, người đồng đội sống sót'], ['3.2.3', 'Bị xoá sổ cùng người đồng đội']] },
   { code: '4', name: 'Mảnh bùa', secret: true, hint: 'Sống sót mà không cần đi hết ngôi làng', leaves: [['4.1.1', 'Đồng đội đi cùng tới cuối và cũng có mảnh bùa'], ['4.1.3', 'Đồng đội đi cùng tới cuối, sống nhờ con đường khác'], ['4.1.2', 'Đồng đội đi cùng tới cuối nhưng không qua khỏi'], ['4.2.1', 'Đồng đội không đi cùng, bị xoá sổ lúc hết giờ'], ['4.2.3', 'Đồng đội không đi cùng, đã mất từ trước'], ['4.2.2', 'Cả hai cùng sống sót dù không đi cùng']] },
   { code: '5', name: 'Phá giải', secret: true, hint: 'Một cách thắng dành cho người dám đánh trả', leaves: [['5.1', 'Đồng đội đứng cạnh lúc con đầu đàn cuối cùng gục'], ['5.2', 'Đồng đội còn sống nhưng ở chỗ khác'], ['5.3', 'Đồng đội đã mất từ trước']] },
@@ -8563,7 +8566,7 @@ function renderProf() {
       return '<div class="branch"><div class="bh"><span>ENDING ' + br.code + '</span>' + (hide ? '???' : br.name) + '</div><small class="note">' + br.hint + '</small><div class="leaves">' +
         br.leaves.map(function (l) {
           var e = P.endings[l[0]];
-          return '<div class="leaf' + (e ? ' on' : '') + '"><code>' + l[0] + '</code><b>' + (e ? ENDINGS[l[0]][0] + (isTrueEnd(l[0]) ? TE_BADGE : '') : '???') + '</b>' + (e ? '<span class="n">×' + e.n + (e.leon ? ' · có Leon' : '') + '</span>' : '<span></span>') +
+          return '<div class="leaf' + (e ? ' on' : '') + '"><code>' + l[0] + '</code><b>' + (e ? ENDINGS[l[0]][0] : '???') + '</b>' + (e ? '<span class="n">×' + e.n + (e.leon ? ' · có Leon' : '') + '</span>' : '<span></span>') +
             '<small>' + (hide ? 'Chưa rõ' : l[1]) + (e ? ' · lần đầu với ' + esc(e.as) : '') + '</small></div>';
         }).join('') + '</div></div>';
     }).join('') + '</div>';
@@ -8738,7 +8741,7 @@ var ENDINGS = {
   '1.1.1': ['Chỗ trống bên cạnh', 'Bạn bước qua cửa ra trước. Trò chơi không dừng lại vì một người rời đi; nó chỉ bớt đi một cái tên. Bạn đợi ở phía bên kia rất lâu. {P} không trở ra. Không có tin báo, không có thi thể, chỉ có một chỗ trống bên cạnh mà bạn không biết lấp bằng gì.'],
   '1.1.2': ['Người trở ra sau', 'Bạn bước qua cửa ra trước, để lại {P} giữa ngôi làng đang ăn dần những người còn sót. Bạn đợi ở phía bên kia rất lâu. Rồi {P} bước ra, áo rách, mắt đỏ vì thiếu ngủ, nhưng còn thở. {P} không hỏi vì sao bạn đi trước. Bạn cũng không giải thích.'],
   '2.1.1': ['Hai cái tên', '{P} vẫn đứng cạnh bạn, như lúc tiếng chuông còn ngân. Khi hệ thống đọc tên những người được rời đi, hai cái tên vang lên liền nhau. Cả hai bước ra khỏi ảo cảnh mà không ngoảnh lại.'],
-  '2.1.2': ['Một cái tên', 'Lúc rung chuông, {P} đứng ngay cạnh bạn. Những giờ sau đó dài hơn mọi thứ đã qua. Khi hệ thống đọc tên những người được rời đi, chỉ còn một cái tên vang lên. Bạn bước ra, mang theo một chỗ đứng đã trống.'],
+  '2.1.2': ['Một cái tên', 'Lúc rung chuông, {P} đứng ngay cạnh bạn. Bốn giờ cuối dài hơn mọi thứ đã qua. Khi hệ thống đọc tên những người được rời đi, chỉ còn một cái tên vang lên. Bạn bước ra, mang theo một chỗ đứng đã trống.'],
   '2.2.1': ['Ngôi làng không trả lời', 'Bạn sống tới phút cuối và được rời đi. Bạn quay lại tìm, hỏi những người còn sót. {P} không còn ở đó nữa, và ngôi làng không trả lời ai.'],
   '2.2.2': ['Gặp lại', 'Bạn rời ảo cảnh một mình, tưởng sẽ phải quen dần với điều đó. Rồi ở phía bên kia, {P} đã đứng chờ sẵn, gầy rộc đi nhưng còn sống. Hai người gặp lại nhau mà không ai nói được câu nào trọn vẹn.'],
   '3.1.1': ['Đi theo', '{P} đã ngã xuống trước. Bạn cố đi tiếp thêm một đoạn, rồi cũng gục trên cùng mảnh đất ấy. Bạn đã chết theo người đồng đội quý giá của mình.'],
@@ -8762,7 +8765,6 @@ var LEON_CODA = {
   out: ['Cùng ra cửa', 'Leon bước ra sau cùng, cuộn xích lại quanh tay như chưa có gì xảy ra. "Giao kèo xong." Một lúc sau anh ta nói thêm: "Lần sau gặp thì tính tiếp."'],
   apart: ['Sống, tách đường', 'Bạn không thấy Leon ở cửa ra. Trên bảng thông báo, cái tên ấy vẫn còn sáng. Anh ta đã tự tìm đường của mình, như lúc chưa quen ai.'],
   dead: ['Đã ngã xuống', 'Ở chỗ Leon từng đứng chỉ còn đoạn xích nằm trên đất, các mắt xích vẫn còn ấm. Không ai nhắc lại giao kèo nữa.'],
-  deadSolo: ['Đã ngã xuống', 'Trên bảng thông báo, cái tên Leon đã tắt từ lúc nào bạn không hay. Hai người chưa từng đi chung một đoạn đường, cũng chưa kịp có giao kèo nào. Bạn chỉ nhớ sợi xích quấn trên cổ tay anh ta.'],
   left: ['Rời liên minh', 'Leon không quay đầu khi đi. Bạn biết vì sao, và anh ta biết bạn biết.']
 };
 function endingText(G) {
@@ -8780,7 +8782,7 @@ function unlockBox(G) {
   var u = G.newUnlocks; if (!u) return '';
   var rows = [];
   function img(src) { return src ? '<img src="' + src + '" alt="">' : ''; }   /* huy hiệu nhỏ, cùng hình với bảng Thành tựu */
-  if (u.ending) rows.push('<div class="nwc">' + img(window.ART2 ? ART2.emblemURL(String(u.ending).charAt(0)) : '') + '<div><small>Ending mới · ' + u.ending + '</small><b>' + ENDINGS[u.ending][0] + (isTrueEnd(u.ending) ? TE_BADGE : '') + '</b></div></div>');
+  if (u.ending) rows.push('<div class="nwc">' + img(window.ART2 ? ART2.emblemURL(String(u.ending).charAt(0)) : '') + '<div><small>Ending mới · ' + u.ending + '</small><b>' + ENDINGS[u.ending][0] + '</b></div></div>');
   u.ach.forEach(function (a) { rows.push('<div class="nwc">' + img(window.ART2 ? ART2.achBadgeURL(a.id) : '') + '<div><small>Thành tựu</small><b>' + a.name + '</b><small>' + a.desc + '</small></div></div>'); });
   return '<div class="pbox newbox">' + (rows.length ? '<div class="nwgrid">' + rows.join('') + '</div>' : '<p>Không mở khoá gì mới ván này.</p>') + '<p>Đã mở ' + endCount(PROF) + '/' + Object.keys(ENDINGS).length + ' ending. <button class="link" data-open="prof">Xem cây ending</button></p></div>';
 }
@@ -8806,7 +8808,7 @@ function showEnd() {
   if (p.kills) pf += '<p>Số người bạn đã hạ: <b>' + p.kills + '</b>.</p>';
   if (p.hunts) pf += '<p>Số quỷ bạn đã săn: <b>' + p.hunts + '</b>.</p>';
   if (p.alive && G.outcome !== 'dead') pf += '<p>Phần thưởng mang ra khỏi ải: nội tại <b>&lt;Security&gt;</b>' + (p.rewards.length ? '; ' + p.rewards.map(function (r) { return esc(r.name); }).join('; ') : '') + '.</p>';
-  $('endCard').innerHTML = '<div class="eyebrow">Ending ' + (E ? E.code : '') + (E && isTrueEnd(E.code) ? TE_BADGE : '') + '</div><h2>' + (E ? E.title : 'Kết thúc') + '</h2>' + body +
+  $('endCard').innerHTML = '<div class="eyebrow">Ending ' + (E ? E.code : '') + '</div><h2>' + (E ? E.title : 'Kết thúc') + '</h2>' + body +
     '<div class="result-k"><div><b>' + aliveCount(G) + '/' + G.players.length + '</b><span>người còn sống</span></div><div><b>' + exploredCount(p) + '/13</b><span>địa điểm bạn đã khám phá</span></div><div><b>' + (G.passed == null ? '—' : G.passed) + '</b><span>người vượt ải</span></div><div><b>' + fmtT(Math.min(G.t, DAY)) + '</b><span>thời gian đã trôi</span></div></div>' +
     (pf ? '<div class="pbox">' + pf + '</div>' : '') + unlockBox(G) +
     '<p class="msg">Mã ván: <b>' + gameCode(G) + '</b> (nhập lại mã này để chơi đúng ván này).</p>' +
@@ -8869,8 +8871,11 @@ document.addEventListener('click', function (e) {
   var mg = e.target.closest('[data-mapgo]');
   if (mg && MAPV.busy()) return;
   if (mg) { SND.ui('swish'); UI.mpop = { kind: 'map', id: mg.getAttribute('data-mapgo') }; if (G) render(); return; }
-  var t = e.target.closest('button'); if (!t) return;
+  var t = e.target.closest('button');
+  if (UI.hudMenu && !(t && t.dataset.hudmenu)) hudMenu(false);   /* chạm bất cứ đâu (kể cả một mục trong menu) là menu góc trên đóng lại */
+  if (!t) return;
   if (t.id !== 'sndBtn') SND.ui(btnSound(t));
+  if (t.dataset.hudmenu) { hudMenu(!UI.hudMenu); return; }
   if (t.id === 'sndBtn') { SND.setMuted(!SND.prefs.muted); sndLabel(); if (!SND.prefs.muted) SND.play('chime'); return; }
   if (t.id === 'coachSkip') { coachEnd(); return; }
   if (t.id === 'coachOk') { UI.coach++; coachUpdate(); return; }
