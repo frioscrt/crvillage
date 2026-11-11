@@ -6556,7 +6556,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.11-1';
+var GAME_VERSION = '2026.11.11-2';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7430,9 +7430,9 @@ var EVP = (function () {
   return {
     render: function () {
       var e = ensure(), on = !!(UI.evHtml && G && !G.over && !G.isBackdrop && G.players[0].alive && !UI.popOpen);
-      if (!on) { e.hidden = true; e.innerHTML = ''; e.dataset.k = ''; return; }
+      if (!on) { e.hidden = true; e.innerHTML = ''; e.dataset.evk = ''; return; }
       var key = UI.evKind + '|' + (UI.evWho || '') + '|' + UI.evHtml;
-      if (e.dataset.k !== key) {
+      if (e.dataset.evk !== key) {
         var who = UI.evWho;
         if (who) {
           var right = who === 'Clevia', tense = G.offer && /^(ambush|betray)$/.test(G.offer.type);
@@ -7444,7 +7444,7 @@ var EVP = (function () {
           var img = UI.evKind ? '<img class="pix evimg" alt="" src="' + eventURL(UI.evKind) + '">' : '';
           e.innerHTML = '<div class="evcard' + (img ? ' hasimg' : '') + '">' + img + '<div class="evbody">' + UI.evHtml + '</div></div>';
         }
-        e.dataset.k = key;
+        e.dataset.evk = key;
       }
       e.hidden = false;
     }
@@ -9217,7 +9217,7 @@ var KBD = (function () {
   function vis(el) { return !!(el && !el.hidden && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden'); }
   /* khung đang ở trên cùng */
   function top() {
-    var ids = ['prologue', 'coach', 'a2hs', 'end', 'pop', 'scene', 'mpop', 'gpop', 'prof', 'guide', 'logView', 'setpop'];
+    var ids = ['prologue', 'coach', 'a2hs', 'end', 'pop', 'scene', 'evpop', 'mpop', 'gpop', 'prof', 'guide', 'logView', 'setpop'];
     for (var i = 0; i < ids.length; i++) { var el = document.getElementById(ids[i]); if (vis(el)) return el; }
     var ov = document.querySelector('section.ovl'); if (vis(ov)) return ov;
     var bb = document.querySelector('#sfHot .hbub'); if (vis(bb)) return bb;
