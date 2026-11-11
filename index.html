@@ -6556,7 +6556,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.09-13';
+var GAME_VERSION = '2026.11.11-1';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -9202,11 +9202,11 @@ document.addEventListener('click', function (e) { if (e.target.closest && e.targ
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && UI.sceneOpen) SF.close(); });
 $('mpop').addEventListener('click', function (e) { if (e.target === this) { UI.mpop = null; this.hidden = true; setTimeout(coachUpdate, 30); } });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('pop').hidden) closePop(); });
-/* ---------- phím tắt máy tính: Esc đóng khung trên cùng, 1–9 chọn, mũi tên lên/xuống đi qua lựa chọn, Enter chọn; T túi, B bản đồ, N người ở đây, Q quan sát ---------- */
+/* ---------- phím tắt máy tính: Esc đóng khung trên cùng, 1–9 chọn, mũi tên lên/xuống đi qua lựa chọn, Enter chọn; phím chữ theo thói quen game máy tính (2026.11.11-1): I túi (Inventory), M bản đồ (Map), P người ở đây (People), E quan sát (Examine), C rương (Chest) ---------- */
 var KBD = (function () {
   var on = false; try { on = window.matchMedia('(hover: hover) and (pointer: fine)').matches; } catch (e) { }
   var CLOSE = '[data-close],[data-ui="setclose"],[data-ui="tab:here"],[data-bubx],.hbx,#introBack,[data-pl="skip"],#popSkip,#coachSkip';
-  var LBL = { bag: 'T', exit: 'B', ppl: 'N', look: 'Q', chest: 'R' }, ROW = 'ASDFGHJKL';
+  var LBL = { bag: 'I', exit: 'M', ppl: 'P', look: 'E', chest: 'C' }, ROW = 'ASDFGHJKL';
   /* chữ cho từng điểm trên tranh: điểm chung chữ cố định, điểm riêng theo thứ tự trái → phải */
   function hotMap() {
     var m = {}, rest = [];
