@@ -2765,12 +2765,15 @@ function bigBless(G, q) {
   if (q.human) { q.blessPick = true; return; }
   if (q.hp < 60) q.hp = 100; else { q.fx = { bleeding: 0, poison: 0, burn: 0, paralysis: 0 }; q.bloody = false; }
 }
-function ghostHit(G, q, reduced, mult, boss) {
+/* Quỷ con (trẻ con trong làng hoá quỷ): ở ngoài trời trong khu đang nhiễm và trong nhà dân đã tắt lửa bếp, 65% số lần quỷ xuất hiện. Sức, tỉ lệ săn, thưởng, hiệu ứng xấu, xé xác một cú đều như quỷ thường; chỉ cắn mất nửa máu. */
+var KID_RATE = 0.65, KID_BITE = 0.5, KID_DIE = true, KID_HOUSE = true;
+function rollKid(G, loc) { var ok = isHouse(LOCS[loc]) ? (KID_HOUSE && G.locs[loc].expired) : (G.infected && LOCS[loc].zone === G.infected); return !!(ok && G.R() < KID_RATE); }
+function ghostHit(G, q, reduced, mult, boss, kid) {
   if (!q.human && has(q, 'Escape Artist') && G.R() < 0.25) return 0;
   /* 8–14 HP khi nhóm ngang hoặc mạnh hơn quỷ; mỗi điểm yếu hơn +2 HP, tối đa 26 (boss 12–18, tối đa 30) */
   var gap = Math.max(0, Math.ceil((boss ? boss.str : ghostStr(G)) - partyAtk(fightGroup(G, q)) - 0.25));
   var base = Math.min(boss ? 30 : 26, (boss ? 12 + Math.floor(G.R() * 7) : 8 + Math.floor(G.R() * 7)) + 2 * gap);
-  var dm = Math.round(base * (reduced ? 0.6 : 1) * mult * (has(q, 'Ironhide') ? 0.7 : 1));
+  var dm = Math.round(base * (reduced ? 0.6 : 1) * mult * (has(q, 'Ironhide') ? 0.7 : 1) * (kid && !boss ? KID_BITE : 1));
   q.hp -= dm; markBlood(G, q);
   var gs = boss ? boss.str : ghostStr(G);
   if (gs > 11 && G.R() < 0.7) {
@@ -2779,8 +2782,9 @@ function ghostHit(G, q, reduced, mult, boss) {
   return dm;
 }
 function ghostFight(G, grp, boss) {
-  var H = G.players[0], seen = grp.indexOf(H) >= 0, nm = boss ? 'con quỷ đầu đàn' : 'con quỷ';
+  var H = G.players[0], seen = grp.indexOf(H) >= 0;
   if (grp.some(function (q) { return q.ghostUntil > G.t; })) return false;
+  var kid = !boss && rollKid(G, grp[0].loc), nm = boss ? 'con quỷ đầu đàn' : (kid ? 'con quỷ con' : 'con quỷ');
   if (seen && !boss) seeInf(G, H, 'quỷ vồ bạn');
   if (grp.some(function (q) { return q.shieldUntil > G.t; })) { if (seen) say(G, 'Lá chắn <Protect> chặn lại cú vồ của ' + nm + '.', 'good'); return false; }
   var pb = grp.filter(function (q) { return !q.human && q.cards.protect > 0; })[0];
@@ -2797,20 +2801,21 @@ function ghostFight(G, grp, boss) {
   tgt = chainLink(G, grp, tgt, seen);
   memWitness(G, tgt.loc, 'ghosts', { loc: tgt.loc, t: G.t });
   var tn = tgt.human ? 'bạn' : tgt.name, where = LOCS[tgt.loc].name, solo = grp.length === 1;
-  if (seen) say(G, (boss ? 'Một bóng người cao lớn hơn hẳn mọi con quỷ khác lao ra' : 'Một dân làng mắt đỏ lao vào ' + (solo ? 'bạn' : 'cả nhóm')) + ' tại ' + where + '.', 'bad');
+  if (seen) say(G, (boss ? 'Một bóng người cao lớn hơn hẳn mọi con quỷ khác lao ra' : (kid ? 'Một đứa trẻ mắt đỏ lao vào ' : 'Một dân làng mắt đỏ lao vào ') + (solo ? 'bạn' : 'cả nhóm')) + ' tại ' + where + '.', 'bad');
+  if (seen && kid && !H.kidSeen) { H.kidSeen = true; say(G, 'Nó chỉ cao tới ngực bạn, tay áo còn dài quá bàn tay. Hàm răng thì chẳng khác gì những con lớn.', 'bad'); }
   if (seen && !boss && isHouse(LOCS[tgt.loc]) && G.locs[tgt.loc].expired) {
     H.ambushHouses = H.ambushHouses || [];
     if (H.ambushHouses.indexOf(tgt.loc) < 0 && allyHere(G)) { H.ambushHouses.push(tgt.loc); scene(G, H.ambushHouses.length === 1 ? 'houseAmbush1' : 'houseAmbush2'); }
   }
   var r = G.R();
   if (r < hunt) {
-    var d0 = ghostHit(G, tgt, true, mult, boss);
+    var d0 = ghostHit(G, tgt, true, mult, boss, kid);
     if (boss) {
       boss.alive = false; grp.forEach(function (q) { bigBless(G, q); }); if (seen) { ach(G, 'boss'); H.bossKills = (H.bossKills || 0) + 1; G.clearIds = G.clearIds || []; grp.forEach(function (x) { if (G.clearIds.indexOf(x.id) < 0) G.clearIds.push(x.id); }); }
       if (seen) say(G, (solo ? 'Bạn' : 'Cả nhóm') + ' hạ được con quỷ đầu đàn' + (d0 ? ' (' + tn + ' -' + d0 + ' HP)' : '') + '. Một chúc phúc lớn đổ xuống từng người.', 'good');
     } else {
       var amt = solo ? 1 : 0.5; grp.forEach(function (q) { bless(G, q, amt); });
-      if (seen) say(G, (solo ? 'Bạn' : 'Cả nhóm') + ' săn được con quỷ' + (d0 ? ' (' + tn + ' -' + d0 + ' HP)' : '') + '. Bạn nhận được chúc phúc: mọi hiệu ứng xấu tan biến, sức mạnh +' + amt + '.', 'good');
+      if (seen) say(G, (solo ? 'Bạn' : 'Cả nhóm') + ' săn được ' + nm + (d0 ? ' (' + tn + ' -' + d0 + ' HP)' : '') + '. Bạn nhận được chúc phúc: mọi hiệu ứng xấu tan biến, sức mạnh +' + amt + '.', 'good');
     }
     if (seen) leonFought(G, grp);
     if (seen && !boss) story(G, 'firstHunt', '"Được rồi, chúng ta hạ được chúng. Nhưng anh nghĩ cứ phản công mãi thế này chúng ta sẽ chết vì kiệt sức mất."', '"Nó ngã thật rồi... Mình thoát rồi ư..."');
@@ -2824,12 +2829,12 @@ function ghostFight(G, grp, boss) {
   }
   var lk = kendo(grp);
   if (lk && G.R() < (armed(lk) ? 0.3 : 0.15)) { if (seen) say(G, (lk.human ? 'Bạn' : 'Luke') + ' vung ' + (armed(lk) ? 'vũ khí' : 'tay') + ' gạt phăng cú vồ' + (tgt === lk ? '' : ' nhắm vào ' + tn) + ' (Kiếm đạo).', 'good'); if (seen) ach(G, 'parry'); return true; }
-  if (B.die && G.R() < B.die) { kill(G, tgt, 'Bạn bị ' + nm + ' xé xác chỉ trong một cú vồ tại ' + where + '.'); return true; }
-  var dm = ghostHit(G, tgt, G.R() < B.red, mult, boss);
+  if (B.die && (!kid || KID_DIE) && G.R() < B.die) { kill(G, tgt, 'Bạn bị ' + nm + ' xé xác chỉ trong một cú vồ tại ' + where + '.'); return true; }
+  var dm = ghostHit(G, tgt, G.R() < B.red, mult, boss, kid);
   if (tgt.human) { ach(G, 'bitten'); story(G, 'firstBite', '"Nó chọn em chứ không chọn anh. Có thể vì em đứng gần hơn, cũng có thể vì lý do khác. Đi sát vào anh."', '"Anh chảy máu rồi. Đừng nói là không sao, em thấy hết."'); }
   else if (tgt.follow && tgt === partner(G)) story(G, 'allyBite', '"Chỉ xước thôi. Đừng nhìn anh, nhìn xung quanh."', '"Em không sao... chỉ hơi run tay thôi."');
   if (seen) say(G, ucf(nm) + ' vồ trúng ' + tn + ': -' + dm + ' HP.', 'bad');
-  if (tgt.hp <= 0) kill(G, tgt, 'Bạn bị quỷ ăn thịt tại ' + where + '.');
+  if (tgt.hp <= 0) kill(G, tgt, 'Bạn bị ' + (kid ? 'quỷ con' : 'quỷ') + ' ăn thịt tại ' + where + '.');
   return true;
 }
 /* người chơi chủ động đi săn quỷ (chỉ khi khu mình đang nhiễm quỷ) */
@@ -2841,25 +2846,25 @@ function huntBand(d) {
 }
 function huntGhost(G, p) {
   var grp = fightGroup(G, p), gs = ghostStr(G), B = huntBand(partyAtk(grp) - gs), solo = grp.length === 1, where = LOCS[p.loc].name;
-  var lk = kendo(grp), kill0 = B.kill + (lk && armed(lk) ? 0.05 : 0), ch0 = chained(G, p.loc);
+  var lk = kendo(grp), kill0 = B.kill + (lk && armed(lk) ? 0.05 : 0), ch0 = chained(G, p.loc), kid = rollKid(G, p.loc), nm = kid ? 'con quỷ con' : 'con quỷ', qn = kid ? 'quỷ con' : 'quỷ';
   if (ch0) kill0 += 0.25;
   ach(G, 'hunted');
-  say(G, (solo ? 'Bạn' : 'Cả nhóm') + ' lần theo dấu một dân làng mắt đỏ tại ' + where + ' và ra tay trước.', 'event');
+  say(G, (solo ? 'Bạn' : 'Cả nhóm') + ' lần theo dấu ' + (kid ? 'một đứa trẻ' : 'một dân làng') + ' mắt đỏ tại ' + where + ' và ra tay trước.', 'event');
   var r = G.R();
   if (r < kill0) {
     var amt = solo ? 1 : 0.5; grp.forEach(function (q) { bless(G, q, amt); });
-    say(G, (ch0 ? 'Con quỷ còn đang vùng vẫy trong xích của Leon. ' : '') + (solo ? 'Bạn' : 'Cả nhóm') + ' hạ được con quỷ. Chúc phúc đổ xuống: mọi hiệu ứng xấu tan biến, sức mạnh +' + amt + '.', 'good');
+    say(G, (ch0 ? ucf(nm) + ' còn đang vùng vẫy trong xích của Leon. ' : '') + (solo ? 'Bạn' : 'Cả nhóm') + ' hạ được ' + nm + '. Chúc phúc đổ xuống: mọi hiệu ứng xấu tan biến, sức mạnh +' + amt + '.', 'good');
     leonFought(G, grp);
     if (G.storyDone.firstHunt2) banter(G, 'huntWin');
     story(G, 'firstHunt2', '"Được rồi, chúng ta săn được quỷ. Nhưng cũng đừng mất cảnh giác."', '"Nó ngã thật rồi... Mình thoát rồi ư..."');
     return;
   }
-  if (r < kill0 + B.esc) { say(G, 'Con quỷ giằng ra được và biến mất giữa đám dân làng. Không ai bị thương.', 'warn'); return; }
+  if (r < kill0 + B.esc) { say(G, ucf(nm) + ' giằng ra được và biến mất giữa đám dân làng. Không ai bị thương.', 'warn'); return; }
   var hurtOnes = grp.filter(injured), tgt = chainLink(G, grp, pick(G.R, hurtOnes.length ? hurtOnes : grp), true), tn = tgt.human ? 'bạn' : tgt.name;
-  if (B.die && G.R() < B.die) { kill(G, tgt, 'Bạn bị quỷ xé xác khi cố săn nó tại ' + where + '.'); return; }
-  var dm = ghostHit(G, tgt, G.R() < 0.4, 1, null);
-  say(G, 'Con quỷ quay lại phản đòn, vồ trúng ' + tn + ': -' + dm + ' HP.', 'bad');
-  if (tgt.hp <= 0) kill(G, tgt, 'Bạn bị quỷ ăn thịt khi cố săn nó tại ' + where + '.');
+  if (B.die && (!kid || KID_DIE) && G.R() < B.die) { kill(G, tgt, 'Bạn bị ' + qn + ' xé xác khi cố săn nó tại ' + where + '.'); return; }
+  var dm = ghostHit(G, tgt, G.R() < 0.4, 1, null, kid);
+  say(G, ucf(nm) + ' quay lại phản đòn, vồ trúng ' + tn + ': -' + dm + ' HP.', 'bad');
+  if (tgt.hp <= 0) kill(G, tgt, 'Bạn bị ' + qn + ' ăn thịt khi cố săn nó tại ' + where + '.');
 }
 function bossTick(G) {
   if (G.solved && !G.bossOn && G.t >= 1200) {
@@ -3578,6 +3583,7 @@ function botExplore(G, b) {
   var need = (withMe(G, b) && G.players[0].explored[b.loc]) ? 10 : BOT_NEED[l.type];
   if (b.dwell[b.loc] >= need) {
     b.explored[b.loc] = true; if (l.type === 'pier' && G.R() < 0.1) b.knowsBell = true;
+    if (tpBonus(G, b, b.loc)) b.cards.teleport++;
     var H = G.players[0];
     if (H.alive && H.loc === b.loc && !b.follow && !(b.special === 'leon' && !(G.leon && G.leon.met)) && G.R() < 0.5) say(G, b.name + ' vừa giúp ' + qGiver(b.loc, G) + ' xong một việc.', 'info');
   }   /* 10% bot hiểu ra bí mật ở chòi câu */
@@ -4327,6 +4333,8 @@ function partyTick(G) {
    Xong thì thưởng tiền hoặc một thẻ thường/tốt; nơi có mảnh bùa của dân làng thì kèm mảnh bùa; nhà dân, Chợ, Trạm xá đôi khi dạy thêm món nấu. */
 var CHIEF_GIFT = 50;   /* 2026.11.11-9: Trưởng làng tặng tiền khi đăng kí (trước là Bản đồ cho người đầu tiên) */
 var QMAX = 3, QPER_NPC = 5, QDUE = 180, QDUE_FAR = 300;
+var TP_BONUS = 0.5;   /* việc dân làng đầu tiên xong ở mỗi khu (mỗi người, mỗi khu một lần): 50% được thêm 1 thẻ Teleport */
+function tpBonus(G, q, id) { var z = LOCS[id].zone; q.tpZones = q.tpZones || {}; if (q.tpZones[z]) return false; q.tpZones[z] = true; return G.R() < TP_BONUS; }
 var QCARDS = ['bandage', 'swift', 'harvest', 'compass', 'smoke', 'pouch', 'rumor', 'teleport'];
 var QNPC_N = { hall: 'Dân làng', chief: 'Trưởng làng', market: 'Thương nhân', clinic: 'Bác sĩ', farm: 'Bác nông dân', pier: 'Ông câu cá', mine: 'Người gác cổng', forge: 'Thợ rèn', house: 'Chủ nhà' };
 var NPCQ = {
@@ -4400,6 +4408,11 @@ function qPay(G, p, q, thx) {
   if (thx) say(G, thx, 'npc');
   if (q.rew.card && !noRoom(p, q.rew.card)) { giveItem(p, { k: q.rew.card }); say(G, 'Bạn nhận được ' + itemLine({ k: q.rew.card }) + '.', 'good'); }
   else { var m = q.rew.money || 40; p.money += m; say(G, 'Bạn nhận được ' + m + ' tiền.', 'good'); }
+  var P2 = partner(G), tpP = P2 && withMe(G, P2) && !P2.explored[q.loc];
+  if (!p.explored[q.loc] && tpBonus(G, p, q.loc)) {
+    p.cards.teleport++; say(G, q.giver + ' gọi với theo, dúi thêm vào tay bạn một tấm thẻ: "Cái này tôi nhặt được, giữ cũng chẳng để làm gì." Bạn nhận thêm một thẻ <Teleport>.', 'good');   /* thưởng thêm: nhét vào túi kể cả khi ngăn thẻ đầy (Clair chốt 11/11) */
+  }
+  if (tpP && tpBonus(G, P2, q.loc)) { P2.cards.teleport++; say(G, P2.name + ' cũng được dúi cho một thẻ <Teleport>.', 'good'); }
   var sh = G.locs[q.loc];
   if (sh && sh.npcShard > 0 && !noRoom(p, 'shard')) {
     sh.npcShard--; p.items.shard++; ach(G, 'shards');
@@ -6291,6 +6304,20 @@ var ART = (function () {
     for (var s = 0; s < 3; s++) c.line(14 + s * 6, 10, 24 + s * 6, 34, '#7a1e22');
     c.outline('#1a0b0e'); return c.flush();
   }
+  function kid() {   /* quỷ con: bóng một đứa trẻ đứng giữa khung cửa cao gấp đôi nó, mắt đỏ, tay áo dài quá bàn tay */
+    var c = PX.Canvas(128, 72); vignette(c, '#120c0e', '#24121a');
+    var R = rng(23); for (var k = 0; k < 30; k++) c.px(Math.floor(R() * 128), Math.floor(R() * 72), '#3a1a20');
+    c.rect(40, 6, 48, 66, '#1c1014'); c.rect(44, 10, 40, 62, '#2c161c'); c.rect(40, 6, 48, 2, '#3a2026'); c.rect(80, 40, 2, 3, '#4a3a2a');
+    c.ell(64, 70, 16, 3, '#12080a');
+    c.ell(64, 43, 8, 8.5, '#07070a'); c.poly([[61, 36], [63, 32], [65, 35], [67, 33], [68, 37]], '#07070a'); c.rect(61, 51, 7, 1, '#1c1014');
+    c.poly([[55, 70], [57, 54], [60, 50], [68, 50], [71, 54], [73, 70]], '#07070a');
+    c.poly([[57, 53], [50, 62], [48, 68], [52, 69], [58, 60]], '#07070a'); c.poly([[71, 53], [78, 60], [84, 58], [85, 54], [76, 52]], '#07070a');
+    [[84, 56, 89, 53], [85, 58, 90, 57]].forEach(function (l) { c.line(l[0], l[1], l[2], l[3], '#07070a'); c.px(l[2], l[3], '#5a5a60'); });
+    [[60, 43], [68, 43]].forEach(function (e) { c.ell(e[0], e[1], 3, 2.4, '#3a0f12'); c.ell(e[0], e[1], 2, 1.4, '#8a1c1e'); c.rect(e[0] - 1, e[1], 2, 1, '#ff4a3a'); c.px(e[0], e[1], '#ffd0b0'); });
+    c.rect(62, 48, 5, 1, '#3a0f12'); c.px(62, 49, '#c9c2b4'); c.px(64, 49, '#c9c2b4'); c.px(66, 49, '#c9c2b4');
+    for (var s = 0; s < 3; s++) c.line(100 + s * 5, 30, 106 + s * 5, 46, '#7a1e22');
+    c.outline('#1a0b0e'); return c.flush();
+  }
   function chest() {
     var c = PX.Canvas(128, 72); vignette(c, '#0e1016', '#1e2838');
     c.ell(64, 40, 30, 22, '#1c2636'); c.ell(64, 38, 20, 14, '#26364a');
@@ -6423,7 +6450,7 @@ var ART = (function () {
     return ({ hall: hall, chief: chief, market: market, clinic: clinic, farm: farm, pier: pier, mine: mine, forge: forge })[t](k);
   }
   var LOCS_T = { hall: 'hall', chief: 'chief', market: 'market', clinic: 'clinic', farm: 'farm', pier: 'pier', mine: 'mine', forge: 'forge' };
-  var EVENTS = { ambush: ambush, chest: chest, brawl: brawl, betray: betray, boss: boss, bell: bell, cleared: cleared, trade: trade, chain: chain };
+  var EVENTS = { kid: kid, ambush: ambush, chest: chest, brawl: brawl, betray: betray, boss: boss, bell: bell, cleared: cleared, trade: trade, chain: chain };
   return { portrait: portrait, setLuke: function (o) { LUKE = o; }, scene: scene, event: function (k) { var a = String(k).split(':'); return a[0] === 'trade' ? trade(a[1], a[2]) : EVENTS[a[0]](); }, skyOf: function (ph) { return ph === 'dawn' ? 'dawn' : (ph === 'dusk' ? 'dusk' : ((ph === 'evening' || ph === 'night') ? 'night' : 'day')); } };
 })();
 /* ===== GIAO DIỆN ===== */
@@ -6581,7 +6608,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.11-9';
+var GAME_VERSION = '2026.11.11-10';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -7725,6 +7752,10 @@ var SND = (function () {
     if (kind === 'ghost') {   /* bước chân quỷ tới gần, gầm, cào, trúng thịt */
       x += ghostSteps(x, 5); roar(x, 0.8, 0.22, 120); x += 0.55;
       for (i = 0; i < 3; i++) { claw(x, r()); whiff(x, 0.7); if (o.luke && i === 1) { whiff(x + 0.1, 0.8); chat(x + 0.22, 1); } else flesh(x + 0.12, r()); x += 0.36 + Math.random() * 0.06; }
+    } else if (kind === 'kid') {   /* quỷ con: chân nhỏ chạy lẹ, rít cao ngắn, hai cú cào nhẹ */
+      for (i = 0; i < 7; i++) { tone(150, 'sine', x + i * 0.09, 0.002, 0.05, 0.12 + 0.03 * i, null, 100); noise(x + i * 0.09, 0.035, 'lowpass', 900, 1, 0.08 + 0.02 * i); }
+      x += 0.66; roar(x, 0.35, 0.15, 290); x += 0.3;
+      for (i = 0; i < 2; i++) { claw(x, 0.75 * r()); whiff(x, 0.5); if (o.luke && i === 1) { whiff(x + 0.1, 0.8); chat(x + 0.22, 1); } else flesh(x + 0.1, 0.6 * r()); x += 0.3 + Math.random() * 0.06; }
     } else if (kind === 'hunt') {   /* mỗi đòn có 'xoẹt' rồi mới trúng; cuối cùng quỷ gầm hấp hối và đổ */
       roar(x, 0.6, 0.16, 125); x += 0.4;
       for (i = 0; i < 4; i++) { slash(x, r()); flesh(x + 0.1, r()); if (i === 1) claw(x + 0.24, 0.8); x += 0.38 + Math.random() * 0.06; }
@@ -7736,7 +7767,7 @@ var SND = (function () {
     } else {   /* ẩu đả: hự, quần áo, đấm */
       for (i = 0; i < 4; i++) { cloth(x, r()); swing(x + 0.05, 0.9); punch(x + 0.13, r()); grunt(x + 0.16, r(), i % 2 ? 1.25 : 1); x += 0.32 + Math.random() * 0.06; }
     }
-    if (o.kill) { if (kind !== 'brawl') roar(x, 0.9, kind === 'boss' ? 0.24 : 0.18, kind === 'boss' ? 65 : 100); fall(x + 0.55, 1.2); x += 1.0; }
+    if (o.kill) { if (kind !== 'brawl') roar(x, o.kid ? 0.5 : 0.9, kind === 'boss' ? 0.24 : 0.18, kind === 'boss' ? 65 : (o.kid ? 230 : 100)); fall(x + 0.55, 1.2); x += 1.0; }
     else if (o.down) { grunt(x, 1, 0.9); fall(x + 0.12, 1); x += 0.55; }
     return x - t;
   }
@@ -8225,9 +8256,10 @@ function act(id) {
       var lukeHere = G.players.some(function (q) { return q.name === 'Luke' && q.alive && q.loc === P.loc; }) || (P.name === 'Luke');
       var fk = /quỷ đầu đàn|Quỷ đầu đàn/.test(txt) && /phản đòn|vồ|gục|hạ|lao ra|chém|đánh/.test(txt) ? 'boss'
         : /săn được|hạ được/.test(txt) ? 'hunt'
+        : /đứa trẻ mắt đỏ lao vào|quỷ con vồ trúng|quỷ con quay lại phản đòn/i.test(txt) ? 'kid'
         : /mắt đỏ lao vào|cào móng|vồ trúng/.test(txt) ? 'ghost'
         : /lao vào nhau|lao vào cùng|bất ngờ lao vào|Bạn và .* lao vào|trở mặt, lao vào|đánh trả|quật bạn ngã/.test(txt) ? 'brawl' : null;
-      if (fk) t1 += SND.fight(fk, { luke: lukeHere, kill: fk === 'hunt' || (fk === 'boss' && /gục/.test(txt)) || (fk === 'brawl' && /gục xuống|ngã xuống và không|tắt thở/.test(txt)), down: P.hp < hp0 && fk === 'brawl' }, t1);
+      if (fk) t1 += SND.fight(fk, { kid: /quỷ con/.test(txt), luke: lukeHere, kill: fk === 'hunt' || (fk === 'boss' && /gục/.test(txt)) || (fk === 'brawl' && /gục xuống|ngã xuống và không|tắt thở/.test(txt)), down: P.hp < hp0 && fk === 'brawl' }, t1);
       mv = t1;
     }
     if (s) SND.play(s, s === 'hit' || s === 'death' ? Math.min(mv, 3) : (mv ? Math.min(mv, 3) : 0));
@@ -8253,7 +8285,7 @@ function act(id) {
   UI.last = newL.length ? { t0: t0, t1: G.t, items: newL } : null;
   if (UI.last) {
     var tx = UI.last.items.map(function (e) { return e.text; }).join(' ');
-    UI.last.art = G.cleared ? 'cleared' : /Xích Trói|sợi xích|vòng xích/.test(tx) ? 'chain' : /Tiếng chuông ngân/.test(tx) ? 'bell' : /quỷ đầu đàn|Quỷ đầu đàn/.test(tx) ? 'boss' : /mắt đỏ lao vào|cào móng|vồ trúng/.test(tx) ? 'ambush' : /lao vào nhau|lao vào cùng|bất ngờ lao vào|Bạn và .* lao vào|trở mặt, lao vào|đánh trả/.test(tx) ? 'brawl' : /mở chiếc rương và nhận|chiếc rương mở ra/i.test(tx) ? 'chest' : /Hai bên trao đổi xong|Bạn trả \d+ tiền cho|đưa ngay cho bạn|miễn cưỡng đưa cho bạn|^Bạn đưa |Bạn đưa .* cho /.test(tx) ? 'trade' : null;
+    UI.last.art = G.cleared ? 'cleared' : /Xích Trói|sợi xích|vòng xích/.test(tx) ? 'chain' : /Tiếng chuông ngân/.test(tx) ? 'bell' : /quỷ đầu đàn|Quỷ đầu đàn/.test(tx) ? 'boss' : /đứa trẻ mắt đỏ lao vào|quỷ con vồ trúng|quỷ con quay lại phản đòn/i.test(tx) ? 'kid' : /mắt đỏ lao vào|cào móng|vồ trúng/.test(tx) ? 'ambush' : /lao vào nhau|lao vào cùng|bất ngờ lao vào|Bạn và .* lao vào|trở mặt, lao vào|đánh trả/.test(tx) ? 'brawl' : /mở chiếc rương và nhận|chiếc rương mở ra/i.test(tx) ? 'chest' : /Hai bên trao đổi xong|Bạn trả \d+ tiền cho|đưa ngay cho bạn|miễn cưỡng đưa cho bạn|^Bạn đưa |Bạn đưa .* cho /.test(tx) ? 'trade' : null;
   }
   if (UI.last && window.ART2 && ART2.pickInto) ART2.pickInto(UI.last, id);
   UI.popOpen = !!UI.last && (!popQuiet() || notable(UI.last.items) || !!UI.last.big);
