@@ -1485,15 +1485,15 @@ var DEFAULT_ROSTER = [
 {
 "name": "Clevia",
 "gender": "Nữ",
-"age": 20,
+"age": 19,
 "job": "Sinh viên năm hai, làm thêm",
 "str": 4,
 "luck": 7,
-"ability": "Unlock: mở khoá, mở cửa, phá phong ấn cơ bản, có thể tác động lên hệ thống kiểm soát trong ảo cảnh. Trong game: mở rương khoá không cần giải mã, qua cổng Hầm mỏ không cần đưa đồ cho người canh cổng.",
+"ability": "Unlock: mở khoá, mở cửa, phá phong ấn cơ bản. Trong game: mở rương khoá không cần giải mã, qua cổng Hầm mỏ không cần đưa đồ cho người canh cổng.",
 "limit": "Chỉ phá được khoá cơ học và phong ấn cơ bản. Có thể ép mở bức tường kính giữa các khu, nhưng cái giá là mất Unlock tới hết ván. Mỗi lần dùng, ngôi làng như khựng lại một nhịp và dân làng để ý đến cô hơn.",
 "persona": "Trầm lặng, hay quan sát, tin vào trực giác và cảm xúc; quen chịu đựng trong im lặng.",
 "faction": "Rookie",
-"fear": "Bị cô lập, bị bỏ rơi; khoảng trống ký ức bốn năm và giấc mơ về Renie."
+"fear": "Bị cô lập, bị bỏ rơi; khoảng trống ký ức ba năm và giấc mơ về Renie."
 },
 {
 "name": "Leon",
@@ -1674,7 +1674,7 @@ var DEFAULT_ROSTER = [
 "persona": "Hiền, chăm chỉ, hay nói chuyện với nông dân trong làng.",
 "faction": "Rookie",
 "betray": 0,
-"fear": "Sợ cảnh đói kém (ải 'ăn thịt' đánh trúng nỗi sợ này)."
+"fear": "Sợ cảnh đói kém."
 },
 {
 "name": "Oscar",
@@ -4231,7 +4231,7 @@ function askInfo(G, o) {
     var m = memOf(o), out2 = [];
     if (!m.told['ded' + G.waves]) {
       m.told['ded' + G.waves] = 1;
-      out2.push(G.waves >= 2 && G.lastInfected ? '"Đợt vừa rồi rơi vào ' + ZONES[G.lastInfected].name + '. Tới giờ chưa khu nào bị hai đợt liền nhau, mỗi đợt cách nhau tầm ba tiếng. Nếu quy luật vẫn vậy, đợt tới sẽ là một trong hai khu còn lại."' : (G.waves === 1 ? '"Mới thấy một đợt. Chưa đủ để đoán quy luật, anh đang để ý."' : '"Chưa có đợt nhiễm nào. Cứ tranh thủ lúc yên mà làm việc."'));
+      out2.push(G.waves >= 2 && G.lastInfected ? '"Đợt vừa rồi rơi vào ' + ZONES[G.lastInfected].name + '. Tới giờ chưa khu nào bị hai đợt liền nhau, mỗi đợt cách nhau tầm hai tiếng rưỡi. Nếu quy luật vẫn vậy, đợt tới sẽ là một trong hai khu còn lại."' : (G.waves === 1 ? '"Mới thấy một đợt. Chưa đủ để đoán quy luật, anh đang để ý."' : '"Chưa có đợt nhiễm nào. Cứ tranh thủ lúc yên mà làm việc."'));
     }
     out2 = out2.concat(infoAnswer(G, o, { honest: true, precise: true, n: 1 }));
     say(G, 'Luke: ' + (out2.length ? out2.join(' ') : '"Anh chưa thấy gì mới hơn những gì em biết."'), 'npc'); return;
@@ -4410,7 +4410,7 @@ var TALK = {
     'Đứa trẻ trong nhà kể: "Mẹ dặn đừng ở một chỗ lâu. Chỗ nào cũng chỉ an toàn một lúc thôi."'],
   chief: ['Trưởng làng nói: "Muốn buôn bán ở chợ thì phải đăng kí với ta. Ta mà ngã xuống thì chợ cũng đóng."',
     'Trưởng làng chỉ lên bức tường: "Chuông ở nhà họp làng có một vết khuyết. Ngày xưa người ta gắn bùa vào đó để giữ làng yên."',
-    'Trưởng làng thở dài: "Mỗi bốn canh giờ, một khu trong làng lại phát điên. Hết đợt thì lại sang khu khác."'],
+    'Trưởng làng thở dài: "Cứ vài canh giờ, một khu trong làng lại phát điên. Hết đợt thì lại sang khu khác."'],
   hall: ['Dân làng bàn tán: "Hôm nay khu nào cũng nơm nớp. Đừng ngồi họp lâu quá."',
     'Một dân làng nói nhỏ: "Lá bùa của làng vỡ lâu rồi. Mảnh thì nằm trong rương, mảnh thì nhà nào đó còn giữ."',
     'Thương nhân lẩm bẩm: "Bản đồ mới đi lại được giữa các khu. Phải có cả thẻ dịch chuyển nữa."'],
@@ -4955,7 +4955,7 @@ function peopleDoCore(G, k, parts, wasArm) {
       } else if (arg === 'protect' && !G.storyDone.scene_giveProtect) scene(G, 'giveProtect', o3.name);
       else banter(G, arg === 'food' || arg === 'banhngo' ? 'giveFood' : arg === 'herb' ? 'giveHerb' : arg === 'money' ? 'giveMoney' : 'giveGear');
     }
-    else if (o3.special === 'leon' && arg === 'shard') { say(G, 'Leon nhìn mảnh bùa trong tay rất lâu. "Thứ này cứu được một mạng người. Cậu chắc chứ?" Anh ta không trả lại, chỉ cất nó vào túi áo trong.', 'good'); leonPts(G, 4); }
+    else if (o3.special === 'leon' && arg === 'shard') { say(G, 'Leon nhìn mảnh bùa trong tay rất lâu. "Tôi đoán thứ này có lẽ sẽ cứu được một mạng người, hoặc là không, ai biết... Cậu chắc chứ?" Anh ta không trả lại, chỉ cất nó vào túi áo trong.', 'good'); leonPts(G, 4); }
     else if (o3.special === 'leon') { say(G, 'Leon: ' + pick(G.R, ['"Tôi ghi nhớ."', '"Được. Tôi nợ cậu."', '"Không cần, nhưng tôi nhận."']), 'good'); leonPts(G, arg === 'money' ? 1 : (['food', 'herb', 'ore'].indexOf(arg) >= 0 ? 2 : 3)); }
     else say(G, pick(G.R, [o3.name + ' gật đầu, ánh mắt dịu đi.', o3.name + ' nhận lấy mà không nói gì.', o3.name + ': "Tôi sẽ nhớ chuyện này."']), 'good');   /* dòng "Bạn đưa…" đã có ở trên */
     if (arg === 'food' && (o3.hp < 100 || injured(o3))) { o3.items.food--; o3.hp = Math.min(100, o3.hp + 8); say(G, o3.name + ' đang bị thương nên ăn ngay: hồi sức thấy rõ.', 'good'); }
@@ -6556,7 +6556,7 @@ function bannerMini() { try { return localStorage.getItem('artos_banner') === 'm
 /* ---------- cảnh sống: lớp chuyển động nhỏ phủ lên tranh nơi đang đứng ----------
    Vẽ trên canvas 128x72 trùng khít tranh nền. Chỉ trang trí: không bao giờ báo khu nhiễm,
    bóng người đi ngang chỉ xuất hiện khi có người khác ở đây. Tắt hẳn khi bật giảm chuyển động. */
-var GAME_VERSION = '2026.11.11-2';
+var GAME_VERSION = '2026.11.11-5';
 var AMB = (function () {
   var cv = null, cx = null, st = null, last = 0, raf = 0, T = 0;
   var RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -10540,15 +10540,15 @@ function dissolve(c, x0, y0, w, h, frac, seed) { const R = rng(seed || 9); for (
 
 /* ================= TƯƠNG TÁC ================= */
 const INTERACT = [
-  ['talk', 'Trò chuyện', 'Clevia bắt chuyện với Mabel Finch ở Chợ', () => { const c = bg('market', 'dusk'); put(c, 'Clevia', 'talk', 46, 70); put(c, 'Mabel Finch', 'stand', 80, 70, true); bubble(c, 36, 24, 14, 7, 'r'); dots(c, 39, 27, '#5a3a3e'); bubble(c, 80, 20, 14, 7, 'l'); dots(c, 83, 23); return c; }],
-  ['ask', 'Hỏi tin', 'Luke hỏi Theo Marsh về đường trong làng', () => { const c = bg('hall', 'night'); put(c, 'Luke', 'talk', 46, 70); put(c, 'Theo Marsh', 'talk', 82, 70, true); bubble(c, 34, 22, 11, 11, 'r'); quest(c, 37, 24, '#2b3a55'); bubble(c, 82, 20, 16, 15, 'l'); stamp(c, half(A.I.map()), 84, 21); return c; }],
-  ['trade', 'Trao đổi', 'Clevia đổi thẻ Protect lấy tiền của Zara Quinn', () => { const c = bg('market', 'day'); put(c, 'Clevia', 'give', 46, 70); put(c, 'Zara Quinn', 'give', 82, 70, true); bubble(c, 46, 18, 36, 16, 'l'); stamp(c, half(A.I.protect()), 48, 20); stamp(c, half(A.I.coin()), 68, 20); arrow(c, 61, 23, 66, '#2b8a5a'); arrow(c, 66, 29, 61, '#a8302a'); return c; }],
-  ['give', 'Tặng đồ', 'Ivy Chen dúi nắm thảo dược cho Felix Ward', () => { const c = bg('farm', 'day'); put(c, 'Ivy Chen', 'give', 50, 70); put(c, 'Felix Ward', 'stand', 80, 70, true); stamp(c, half(A.I.herb()), 58, 43); spark(c, 57, 42, '#c4e0a0'); spark(c, 71, 46, '#c4e0a0'); return c; }],
-  ['duel', 'Giao đấu tay đôi', 'Luke đỡ cú lao vào của Rex Calloway', () => { const c = vign(dim(bg('house_a1', 'night'), .8), 1.4); put(c, 'Luke', 'punch', 50, 70); put(c, 'Rex Calloway', 'hurt', 76, 70, true); impact(c, 66, 46); [[40, 68], [86, 68], [60, 69]].forEach(([x, y]) => c.ell(x, y, 4, 1.2, '#3a3430')); c.line(30, 40, 36, 40, '#e8e6e2'); c.line(28, 44, 35, 44, '#e8e6e2'); return c; }],
-  ['thief', 'Bắt quả tang', 'Jasper Wolfe rút trộm thẻ khỏi túi Clevia, Luke kịp thấy', () => { const c = bg('market', 'night'); put(c, 'Clevia', 'stand', 36, 70, true); put(c, 'Jasper Wolfe', 'reach', 62, 70, true); stamp(c, half(A.I.enigma()), 44, 40); put(c, 'Luke', 'talk', 94, 70, true); bang(c, 94, 22); bang(c, 98, 22); return c; }],
-  ['join', 'Rủ đi cùng', 'Hana Sato đồng ý đi cùng nhóm', () => { const c = bg('hall', 'day'); put(c, 'Luke', 'reach', 50, 70); put(c, 'Hana Sato', 'reach', 76, 70, true); spark(c, 63, 43, ICE[1], 3); text(c, '+1', 57, 24, ICE[0], 2); return c; }],
-  ['leave', 'Chia tay', 'Felix Ward tách nhóm, đi về phía Hầm mỏ', () => { const c = bg('house_m1', 'dusk'); put(c, 'Luke', 'stand', 34, 70); put(c, 'Clevia', 'stand', 48, 70); put(c, 'Felix Ward', 'walk', 102, 66); for (let x = 60; x < 94; x += 4) c.px(x, 67 - (x % 8 ? 0 : 1), '#a3a19c'); bubble(c, 40, 24, 14, 7, 'l'); dots(c, 43, 27, '#5a3a3e'); return c; }],
-  ['bandage', 'Băng bó', 'Mira Kovacs băng vết thương cho Dante Cruz', () => { const c = bg('house_a2', 'night'); put(c, 'Dante Cruz', 'sit', 58, 70); put(c, 'Mira Kovacs', 'kneel', 80, 70, true); c.rect(64, 58, 4, 2, '#e8e2d4'); c.px(66, 60, '#d06a5c'); c.px(56, 69, '#a84a40'); c.px(58, 70, '#a84a40'); stamp(c, half(A.I.bandage()), 84, 30); return c; }],
+  ['talk', 'Trò chuyện', 'Clevia bắt chuyện với Mabel ở Chợ', () => { const c = bg('market', 'dusk'); put(c, 'Clevia', 'talk', 46, 70); put(c, 'Mabel Finch', 'stand', 80, 70, true); bubble(c, 36, 24, 14, 7, 'r'); dots(c, 39, 27, '#5a3a3e'); bubble(c, 80, 20, 14, 7, 'l'); dots(c, 83, 23); return c; }],
+  ['ask', 'Hỏi tin', 'Luke hỏi Theo về đường trong làng', () => { const c = bg('hall', 'night'); put(c, 'Luke', 'talk', 46, 70); put(c, 'Theo Marsh', 'talk', 82, 70, true); bubble(c, 34, 22, 11, 11, 'r'); quest(c, 37, 24, '#2b3a55'); bubble(c, 82, 20, 16, 15, 'l'); stamp(c, half(A.I.map()), 84, 21); return c; }],
+  ['trade', 'Trao đổi', 'Clevia đổi thẻ Protect lấy tiền của Zara', () => { const c = bg('market', 'day'); put(c, 'Clevia', 'give', 46, 70); put(c, 'Zara Quinn', 'give', 82, 70, true); bubble(c, 46, 18, 36, 16, 'l'); stamp(c, half(A.I.protect()), 48, 20); stamp(c, half(A.I.coin()), 68, 20); arrow(c, 61, 23, 66, '#2b8a5a'); arrow(c, 66, 29, 61, '#a8302a'); return c; }],
+  ['give', 'Tặng đồ', 'Ivy dúi nắm thảo dược cho Felix', () => { const c = bg('farm', 'day'); put(c, 'Ivy Chen', 'give', 50, 70); put(c, 'Felix Ward', 'stand', 80, 70, true); stamp(c, half(A.I.herb()), 58, 43); spark(c, 57, 42, '#c4e0a0'); spark(c, 71, 46, '#c4e0a0'); return c; }],
+  ['duel', 'Giao đấu tay đôi', 'Luke đỡ cú lao vào của Rex', () => { const c = vign(dim(bg('house_a1', 'night'), .8), 1.4); put(c, 'Luke', 'punch', 50, 70); put(c, 'Rex Calloway', 'hurt', 76, 70, true); impact(c, 66, 46); [[40, 68], [86, 68], [60, 69]].forEach(([x, y]) => c.ell(x, y, 4, 1.2, '#3a3430')); c.line(30, 40, 36, 40, '#e8e6e2'); c.line(28, 44, 35, 44, '#e8e6e2'); return c; }],
+  ['thief', 'Bắt quả tang', 'Jasper rút trộm thẻ khỏi túi Clevia, Luke kịp thấy', () => { const c = bg('market', 'night'); put(c, 'Clevia', 'stand', 36, 70, true); put(c, 'Jasper Wolfe', 'reach', 62, 70, true); stamp(c, half(A.I.enigma()), 44, 40); put(c, 'Luke', 'talk', 94, 70, true); bang(c, 94, 22); bang(c, 98, 22); return c; }],
+  ['join', 'Rủ đi cùng', 'Hana đồng ý đi cùng nhóm', () => { const c = bg('hall', 'day'); put(c, 'Luke', 'reach', 50, 70); put(c, 'Hana Sato', 'reach', 76, 70, true); spark(c, 63, 43, ICE[1], 3); text(c, '+1', 57, 24, ICE[0], 2); return c; }],
+  ['leave', 'Chia tay', 'Felix tách nhóm, đi về phía Hầm mỏ', () => { const c = bg('house_m1', 'dusk'); put(c, 'Luke', 'stand', 34, 70); put(c, 'Clevia', 'stand', 48, 70); put(c, 'Felix Ward', 'walk', 102, 66); for (let x = 60; x < 94; x += 4) c.px(x, 67 - (x % 8 ? 0 : 1), '#a3a19c'); bubble(c, 40, 24, 14, 7, 'l'); dots(c, 43, 27, '#5a3a3e'); return c; }],
+  ['bandage', 'Băng bó', 'Mira băng vết thương cho Dante', () => { const c = bg('house_a2', 'night'); put(c, 'Dante Cruz', 'sit', 58, 70); put(c, 'Mira Kovacs', 'kneel', 80, 70, true); c.rect(64, 58, 4, 2, '#e8e2d4'); c.px(66, 60, '#d06a5c'); c.px(56, 69, '#a84a40'); c.px(58, 70, '#a84a40'); stamp(c, half(A.I.bandage()), 84, 30); return c; }],
 ];
 
 /* ================= ĐỊA ĐIỂM ================= */
